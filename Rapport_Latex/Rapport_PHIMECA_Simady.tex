@@ -1,0 +1,329 @@
+%
+% LaTeX report template 
+%
+\documentclass[a4paper,10pt]{article}
+\usepackage{graphicx}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+%\usepackage{apacite}
+\usepackage{float}
+\usepackage[section]{placeins}
+\bibliographystyle{plain}
+
+\begin{document}
+%
+   \title{Rapport de stage PHIMECA}
+
+   \author{Kristof Attila Simady \\ e-mail: kristof.simady@sigma-clermont.fr}
+          
+   \date{05/03/2020}
+
+   \maketitle
+   
+   \tableofcontents
+ 
+  \newpage
+    
+\section*{Avant propos}
+% When adding * to \section, \subsection, etc... LaTeX will not assign
+% a number to the section
+Le cadre d'étude offert par SIGMA Clermont à donné la possibilité d’effectuer
+une année supplémentaire de stage pour étoffer nos connaissances scientifiques, 
+et découvrir le monde industriel comme des cultures étrangères.
+De par mon appétence pour la recherche et l'informatique, j'ai eu la chance de
+pouvoir venir effectuer mon stage au sein de l'entreprise \textbf{PHIMECA}, 
+située à Clermont-Ferrand, et depuis longtemps en partenariat avec SIGMA.
+
+Ce stage aura été l'occasion pour moi ... (à suivre) 
+
+Je souhaite remercier ... (à suivre)
+
+\paragraph{Note:}
+Ce document est autant un rapport de stage qu'une note à qui voudrait se 
+servir des différentes méthodes explorées et codes développés.
+
+\section{Introduction}
+Dans le cadre d'analyse probabiliste et fiabiliste, il est d'usage d’effectuer 
+des analyses de sensibilité sur une ou plusieurs grandeurs d’intérêt, grâce
+à divers moyens comme les indices de Sobol' ou les analyses de corrélation. \\
+Ces analyses sont néanmoins souvent cantonnées à des modèles n'ayant en sortie et entrée que des
+grandeurs scalaires, pour lesquelles de nombreuses méthodes existent dans la littérature.\\
+L'objectif du travail présenté ici, est d’effectuer ce type d'analyse sur des modèles ayant en entrée plusieurs champs aléatoires et des variables aléatoires scalaires et en sortie aussi des champs et grandeurs scalaires. \\ Pour compléter cela, il était bien sûr aussi demandé de d'abord créer un modèle simple gouverné par des champs stochastiques et de faire de l'analyse de sensibilité sur ce modèle. \\
+Il sera d'abord présenté différentes méthodes présentes dans la littérature, avec leurs potentiels avantages et défauts. \\ 
+Cette approche des l'analyse de sensibilité nous renvoie aussi sur des champs de recherche bien différents, car les méthodes peuvent autant venir du champ de la mécanique que de la géologie ou l'étude environnementale.
+
+ 
+\section{Recherche bibliographique}
+Ce travail de recherche a été l'occasion de parcourir un grand nombre de travaux, liés de plus ou moins loin à l'analyse de sensibilité sur des processus gaussiens.\\
+On notera notamment les travaux de \cite{Lilburne2009Feb} qui donnent dans leur travail un état de l'art complet sur les différentes méthodes utilisables pour l'analyse de sensibilité sur champs gaussiens. \\
+D'autres techniques plus récentes ont néanmoins vu le jour, et ce sont ces dernières que nous avons explorés en premier. Notamment les travaux de \cite{Wei2017May} sur l'analyse de sensibilité de structures ayant en entrée des variables aléatoires et processus stochastiques variant dans le temps, ou encore le travail de \cite{Pronzato2019Jul} qui développe un métamodel entre l'entrée et sortie d'un modèle gouverné par des champs stochastiques.
+
+\subsection{Travaux retenus}
+Etant donné que les missions d'analyse de sensibilité et d'incertitudes se font classiquement en se basant sur la bibliothèque \textit{openTURNS} développé par PHIMECA, le choix a été fait d'adapter techniques de recherche et méthodes déja existantes dans l'API au problème étudié. 
+
+
+\subsection{Methodes et outils de travail}
+L'ensemblde des codes ont été écrits dans le langage \textit{Python}, en se servant majoritairement des bibliothèques a caractère scientifique (\textit{SciPy, NumPy}) et la bibliothèque développée en partie par \textbf{PHIMECA :} \textit{openTURNS} (\emph{open treatment of Uncertainties and Risk \& Statistics })\cite{OpenTURNS}.\\
+\textbf{PHIMECA} a fourni un poste de travail Linux, tout comme un accès au serveur de calcul pour les modèles un peu plus conséquents. \\
+
+\subsection[Prémices]{Analyse de la problématique, premier tests et prise en main des outils}
+
+\subsubsection{Mission confiée et tâches associées}
+L'objectif du stage était de développer une méthodologie pour l'analyse de sensibilité sur des modèles gouvernés par des champs aléatoires (Champs Stochastiques) et des variables aléatoires, et qui en sortie sont aussi représentables par une collection de champs et variables aléatoires. \\
+Plus spécifiquement, cette méthodologie était à appliquer à un modèle d'échangeur de chaleur air-air commercialisé par \textbf{LIEBHERR} et utilisé pour la régulation thermique de l'air ambiant dans les avions de ligne.\\\\
+Comme la mission confiée au sein de \textbf{PHIMECA} se rapprochait d'un travail de recherche, celui -ci était bien sur accompagné de nombreuses étapes distinctes. En effet, en plus du développement des codes et de l'application analytique, une recherche bibliographique a du être menée en amont pour parvenir a lister les différentes méthodes d'analyse existantes et tester celles qui pourraient convenir au mieux. De plus, une phase d'apprentissage et de tests a du d'abord être nécessaire pour parvenir à prendre en main les différents outils, et comprendre la théorie et les mathématiques sous-jacentes.\\
+
+\subsubsection{Prise en main d'openTURNS et de la théorie sur les champs stochastiques}
+\paragraph{Champs Stochastiques\\} 
+Un champ stochastique est un champ de variables aléatoires toutes corrélées entre elles, et dont l'intensité de la corrélation est déterminée par leur proximité dans l'espace. Par exemple la position de tout objet est corrélée à sa position aux intervalles de temps proches (continuité du temps), ou bien les températures au dessus d'un pays sont corrélés à faible distance mais l'effet aléatoire est plus présent lorsque les distances sont importantes. \\
+Ce type de modélisation des champs est couramment utilisée pour modéliser des propriétés présentant des variabilités gaussiennes mais une continuité dans leur espace de définition. \\ Lorsque la corrélation est seulement dépendante de la distance entre deux points de l'espace et non d'une position absolue, on parle d'un champ stationnaire. Lors de cette étude l'on se place dans ce cas.\\ 
+
+\newpage
+
+\begin{figure}[H]
+   \centering   \includegraphics[scale=0.25]{stochastic_process2d.png}
+      \caption{Réalisation d'un champ stochastique en deux dimension. Le champ est continu dans l'espace et la primitive est une gaussienne en deux dimensions.}
+         \label{realChamp}
+\end{figure}
+
+Mathématiquement, cette corrélation peut être définie par différents modèles. Les deux modèles de corrélation les plus simples sont les fonctions de covariance exponentielles (1) et les exponentielles quadratiques (2).  
+
+   \begin{eqnarray}
+      				C(d) & = & \exp(-d/V)\\
+                    C(d) & = & \exp(-(d/V)^{2});
+   \end{eqnarray}
+   
+Avec \emph{V} étant le paramètre d'échelle et \emph{d} la norme euclidienne de la distance entre deux points de l'espace considéré.\textit{(plus le paramètre d'échelle est grand, plus le champ est lissé, tout comme le modèle quadratique est aussi plus lisse)}\\
+Une autre fonction de covariance, celle de \emph{Matérn}, est aussi très utilisée, puisqu'elle présente des comportements limites similaires aux deux fonctions exponentielles présentes plus haut. 
+
+   \begin{eqnarray}
+C_{v}(d) & = & \sigma^{2}\frac{2^{1-\nu}}{\Gamma(\nu)}\left(\sqrt{2\nu}\frac{d}{\rho}\right)^{\nu}K_{\nu}\left(\sqrt{2\nu}\frac{d}{\rho}\right);
+   \end{eqnarray}\\
+
+La continuité des processus gaussiens et leur comportement quasi ondulaire, permet de les traiter de manière un peu analogue à la décomposition de fourrier, et des les décomposer en une somme infinie de variables aléatoires gaussiennes décorrélées.. Cette méthode de décomposition vient du théorème de \emph{Karhunen-Loève}. \\
+La construction de cette série infinie se fait grâce aux vecteurs propres issus de la matrice de corrélation du modèle, et grâce à une base de vecteurs orthonormaux dans un espace Hilbertien. Les détails mathématiques de cette méthode peuvent être trouvées en  \cite{Sudret2000Jan}. \\
+Lors de l’approximation de \emph{Karhunen-Loève}, la série est tronquée à l'ordre \textbf{M}.
+%Approximation de Kahrunen Loeve 
+   \[
+      \begin{array}{lp{0.8\linewidth}}
+         H(\textbf{x}, \theta) & Approx. Procéssus Gaussien \\
+         \lambda_{i}          & Valeur Propre de la matrice de covariance \\
+         \xi_{i}             & Variable Normale Centrée Réduite \\
+         \varphi_{i}(\textbf{x}) & Vecteur propre de la matrice de covariance
+      \end{array}
+   \]
+   \begin{eqnarray}
+H(\textbf{x}, \theta) & = & \sum_{i=1}^{M}\sqrt{\lambda_{i}}\xi_{i}(\theta)\varphi_{i}(\textbf{x});
+   \end{eqnarray}\\
+
+Cette décomposition permet de représenter l'ensemble de variabilité du champ avec des variables gaussiennes décorrélées, et donc de faire des analyses de sensibilités sur cette nouvelle représentation du champ.
+
+\paragraph{openTURNS\\}
+\emph{openTURNS} est initialement un projet de bibliothèque open-source pour le traitement des incertitudes et des risques, commun a trois entreprises fondatrices, \textbf{Airbus}, \textbf{EDF} et \textbf{Phimeca Engineering}, projet ayant débuté en 2005. \\
+Depuis, deux autres organismes, \textbf{IMACS} et l'\textbf{ONERA} ont rejoint le développement d'\emph{openTURNS}, qui se révèle être un grand atout pour le traitement des incertitudes et l’ingénierie fiabiliste.
+En effet, le projet d'\emph{openTURNS} est un regroupement d'un ensemble d'algorithmes performants écrits en C++, se basant sur la théorie développée pour les traitement des incertitudes, l'optimisation robuste, et les études de sensibilité.\\ 
+Un \textit{wrapper} a été utilisée pour lier l'ensemble de la bibliothèque C++ à un module Python, et de pouvoir profiter de la facilité d'utilisation du langage Python et de sa flexibilité, tout en gardant les vitesses d’exécution du C++.\\
+\textbf{PHIMECA} développe des logiciels commerciaux en se basant sur le module \emph{openTURNS}, qui sont plus ergonomiques dans leur utilisation et automatisent certaines parties moins évidentes en utilisation directe de la librairie. \\
+Néanmoins, la librairie reste quand même extrêmement bien documentée, avec la théorie mathématique sous-jacente à chaque algorithme d'explicitée, tout comme de nombreux exemples. La documentation présente de même des cas d'applications précis montrant la logique à avoir lors de l'écriture de codes avec \emph{openTURNS}.
+
+
+
+\subsection{Exemple théorique simple, premiers codes}
+Pour parvenir a tester les méthodes trouvées lors de la recherche bibliographique, et avoir un modèle simple et rapide à exécuter, un exemple simple a été développé : 
+Il s'agit d'un modèle de poutre en appui sur ses deux extrémités
+\begin{figure}[H]
+   \centering   
+   \includegraphics[scale=0.20]{beam_structure.png}
+      \caption{Modélisation d'une poutre en appui sur ses deux extrémités avec la bibliothèque anastruct}
+         \label{fig:nonfloat}
+\end{figure}
+
+La particularité de ce modèle de poutre est, en plus d'être une aberration physique, le fait que le diamètre et le module de young sont gouvernés par un processus gaussien en une dimension, suivant la longueur de la barre. Pour parvenir à modéliser cette variation, le modèle est bien-sûr subdivisé en une centaine d'éléments finis, et le champ discrétisé sur un maillage de même longueur.\\
+En plus de ces deux grandeurs gouvernées par des champs, la densité du matériau, la position de la force, et la norme de la force dont représentés par des variables aléatoires Gaussiennes. 
+
+\begin{figure}[H]
+   \centering   
+   \includegraphics[scale=0.33]{beam_experience.png}
+      \caption{Échantillon de 5 réalisations de la poutre en flexion. [Sur la gauche : Processus gouvernant le module de young, Processus gouvernant le diamètre, contrainte de Von Mises] | [Sur la droite : Contrainte de cisaillement, moment de flexion, déflexion] }
+         \label{beamExperience}
+\end{figure}
+
+Les grandeurs d'étude choisies ici sont la contrainte de Von Mises, la déflection de chaque noeud, et la déflection maximale. On pourrait de même choisir une contrainte de Von Mises maximale pour représenter la défaillance. 
+
+Comme chacun des processus stochastiques peut être décomposé en une somme finie de variables aléatoires normales grâce à la décomposition de karhunen-Loeve, l'on peut à l'inverse, générer des champs stochastiques à partir d'une collection de variables aléatoires, dont les paramètres sont issus de l'analyse même du champ.
+
+L'on considère donc notre modèle plus comme fonction de variables aléatoires et de processus stochastiques, mais seulement comme une fonction de variables aléatoires scalaires.
+
+Ceci permet de faire l'analyse de sobol classique (avec l'algorithme de sensibilité de \textit{Saltelli}) sur ces nouvelles variables aléatoires.
+
+La difficultée ici, est d'ensuite relier les indices de sensiblité de Sobol des variables aléatoires définissant le champ au champ stochastique même. (On ne souhaite n'avoir qu'un seul indice de sobol pour un champ. ) 
+
+\subsection{Choix des codes et difficultées algorithmiques}
+Au vu de choix de développer une méthode algorithmique pour l'analyse de sensiblité sur des champs stochastiques, et non pas de juste faire l'analyse de sensibilité sur une seule problématique, il y avait un besoin de robustesse supplémentaire pour l'écriture des différents codes. Ces derniers doivent pouvoir fonctionner avec tout type de fonction en python prennant en entrée des champs et variables aléatoire, et renvoyant un tuple de variables aléatoires. 
+
+Pour pouvoir tester ceci, l'exemple de la poutre en éléments fins à été codée a part, et peut être utilisée directement comme fonction, indépendamment de l'analyse de sensibilité. Cette dernière prend de même en entrée deux champs stochastiques et trois variables aléatoires, et peut renvoyer plusieurs arguments. Les tests ont été faits avec la fonction renvoyant qu'une collection de champs (contraintes de von mises) et avec la fonction renvoyant un tuple (collection de champs + vecteur déflection maximale). Ce choix augmente le nombre de vérification qu'il y a éffectuer au sein du code, mais permet l'utilisation d'un plus grand nombre de fonctions, et l'analyse de sensiblité sur l'ensemble des variables de sortie en une seule fois.
+
+Pour parvenir à bien controller les processus stochastiques, une classe a été écrite \textit{NdGaussianProcessConstructor}, qui permet de définir entièrement un processus stochastique, et possède de nombreuses méthodes pour créer des samples, faire les décompositions de Karhunen-Loeve, ou encore reconstituer un champ à partir de la dite décomposition. Enfin, comme les samples sont nécessaires pour la décomposition de Karhunen-Loeve, et que ceux-ci peuvent être de taille plutôt importante, ils sont enregistrés sous form de \textit{numpy.memmap} dans un fichier temporaire, pour relacher un peu de pression sur la mémoire vive.\\
+
+En interne, le modèle fonction de champs stochastiques, passe par un wrapper qui fait qu'on peut la considerer comme seulement fonction de variables aléatoires gaussiennes. Cela permet d'utiliser les méthodes internes à openturns comme l'algorithme de saltellie pour identifier les indices de sobol. \\
+
+Néanmoins, pour pallier à certaines difficultées comme les fonctions qui par moment renvoie des \textit{np.nan} (donc lorsqu'il y a eu une erreur), on passe d'abord par une étape de correction:  l'ensemble des valeurs de sortie contenant des \textit{nan} sont regénérés, et comme les entrées de l'étude sont des combinaison de deux ensembles de variables aléatoires A et B, tout les autres permuttations des entrées ayant entrainé l'erreur sont supprimés. \
+
+Les codes sont accessibles via github.\\
+
+\begin{figure}[H]
+   \centering   
+   \includegraphics[scale=0.45]{schema_postprocessing.pdf}
+      \caption{Organsiation des variables d'entrée, expliquant l'étape de postprocessing}
+         \label{posprocessing}
+\end{figure}
+
+
+
+
+
+\LaTeX\, uses a simple and convenient system for assigning numbered labels
+to equations and other objects (figures, tables, etc\ldots) and for referring
+to them. After having edited the source file and rearranged the position of
+the equations, \LaTeX\, will  change labels and references
+consistently throughout the text (if you did the things right of
+course\ldots) 
+ 
+Examples of text containing mathematical expressions and equations: 
+   \[
+      \begin{array}{lp{0.8\linewidth}}
+         M_{r}  & mass internal to the radius $r$     \\
+         m               & mass of the zone                    \\
+         r_0             & unperturbed zone radius             \\
+         \rho_0          & unperturbed density in the zone     \\
+         T_0             & unperturbed temperature in the zone \\
+         L_{r0}          & unperturbed luminosity              \\
+         E_{\mathrm{th}} & thermal energy of the zone
+      \end{array}
+   \]
+
+\noindent
+    
+   \begin{equation}
+      \tau_{\mathrm{co}} = \frac{E_{\mathrm{th}}}{L_{r0}} \,,
+   \end{equation}
+
+
+   \begin{equation}
+      \tau_{\mathrm{ff}} =
+         \sqrt{ 
+	 	\frac{3 \pi}{32 G} \frac{4\pi r_0^3}{3 M_{\mathrm{r}}}
+	 }\,,
+   \end{equation}
+
+
+   \begin{displaymath}
+      \nabla_{\mathrm{ad}} = \left( \frac{ \partial \ln T}
+                             { \partial\ln P} \right)_{S} \, , \;
+      \chi^{}_T       = \left( \frac{ \partial \ln P}
+                             { \partial\ln T} \right)_{\rho} \, , \;
+      \kappa^{}_{T}   = \left( \frac{ \partial \ln \kappa}
+                             { \partial\ln T} \right)_{T}
+   \end{displaymath}
+
+   \begin{eqnarray}
+      \frac{\pi^2}{8} \frac{1}{\tau_{\mathrm{ff}}^2}
+                ( 3 \Gamma_1 - 4 )
+         & > & 0 \label{ZSDynSta} \\
+      \frac{\pi^2}{\tau_{\mathrm{co}}
+                   \tau_{\mathrm{ff}}^2}
+                   \Gamma_1 \nabla_{\mathrm{ad}}
+                   \left[ \frac{ 1- 3/4 \chi^{}_\rho }{ \chi^{}_T }
+                          ( \kappa^{}_T - 4 )
+                        + \kappa^{}_P + 1
+                   \right]
+        & > & 0 \label{ZSSecSta} \\
+     \frac{\pi^2}{4} \frac{3}{\tau_{ \mathrm{co} }
+                              \tau_{ \mathrm{ff} }^2
+                             }
+         \Gamma_1^2 \, \nabla_{\mathrm{ad}} \left[
+                                   4 \nabla_{\mathrm{ad}}
+                                   - ( \nabla_{\mathrm{ad}} \kappa^{}_T
+                                     + \kappa^{}_P
+                                     )
+                                   - \frac{4}{3 \Gamma_1}
+                                \right]
+        & > & 0   \label{ZSVibSta}
+   \end{eqnarray}
+
+\subsection{Example of verbatim text}
+
+\begin{verbatim}
+        PROGRAM area
+        REAL base, height, area
+        PRINT *,'Enter the values for the base and height of a triangle.'
+        READ *, base, height
+        area = (1.0/2.0) * base * height
+        PRINT *,'The area of a triangle with base ', base
+        PRINT *,'and height ', height,' is ', area
+        STOP
+        END
+\end{verbatim}
+
+\paragraph{Note:}
+In \texttt{verbatim} mode you can easily end up outside the
+margins, as in the example above: pay attention to that!
+
+\subsection{Lists}
+Example of a list with numbered items:
+
+   \begin{enumerate}
+      \item  Planets, asteroids, moons \ldots
+      \item  Stars, galaxies, quasars
+  \end{enumerate}
+
+Example of a list with unnumbered items:
+
+   \begin{itemize}
+      \item  Planets, asteroids, moons \ldots
+      \item  Stars, galaxies, quasars
+          
+   \end{itemize}
+
+\section{Results}
+
+\newpage
+\section{Tables and figures}
+
+
+
+
+\begin{table}[htb]
+      \caption[]{Example of table caption: opacity sources.}
+         \label{KapSou}
+     $$ 
+         \begin{array}{p{0.7\linewidth}l}
+            \hline
+            \noalign{\smallskip}
+            Source      &  T / {[\mathrm{K}]} \\
+            \noalign{\smallskip}
+            \hline
+            \noalign{\smallskip}
+            Yorke 1979, Yorke 1980a & \leq 1700           \\
+            Kr\"ugel 1971           & 1700 \leq T \leq 5000 \\
+            Cox \& Stewart 1969     & 5000 \leq             \\
+            \noalign{\smallskip}
+            \hline
+         \end{array}
+     $$ 
+\end{table}
+
+\section{Discussion}
+
+\section{Conclusions}
+
+
+
+% TABLES
+
+\bibliography{Bibliographie_rapport_PHIMECA_Simady}
+
+
+\end{document}
+
