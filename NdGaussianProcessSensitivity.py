@@ -68,14 +68,14 @@ class NdGaussianProcessSensitivityAnalysis(object):
                                                                self.functionSolo, 
                                                                self.inputDictionary,
                                                                self.outputVariables)
-        self.sampleSize      = sampleSize
-        self.errorWNans      = 0
-        self.sobolBatchSize  = None
-        self._inputDesignNC  = None
-        self.inputDesign     = None
-        self._outputDesignNC = None 
-        self.outputDesign    = None 
-        self._designsWErrors = None
+        self.sampleSize          = sampleSize
+        self.errorWNans          = 0
+        self.sobolBatchSize      = None
+        self._inputDesignNC      = None
+        self.inputDesign         = None
+        self._outputDesignListNC = None 
+        self.outputDesignList    = None 
+        self._designsWErrors     = None
 
 
 
@@ -106,7 +106,7 @@ class NdGaussianProcessSensitivityAnalysis(object):
             raise NotImplementedError
         n_outputs = len(self.outputVariables.keys())
         if n_outputs >1 :
-            outputDesignList     = [(outputDesign[i]) for i in range(n_outputs)]
+            outputDesignList     = [outputDesign[i] for i in range(n_outputs)]
         else : 
             outputDesignList     = [outputDesign]
         self._outputDesignListNC = outputDesignList
@@ -123,12 +123,12 @@ class NdGaussianProcessSensitivityAnalysis(object):
         dimensionInput       = composedDistribution.getDimension()
         dimensionOutput      = len(self.outputVariables.keys())
         outputList           = self.outputDesignList
-        outputListZip        = [a for a in zip(*outputList)]
         ## We flatten all the realisation of each sample, to check if we have np.nans
-        outputListFlattend   = [numpy.array(self.flattenTuple(outputListZip[i])) for i in range(len(outputListZip))]
-        whereNan             = numpy.argwhere(numpy.isnan(outputListFlattend))[...,0]
+        outputMatrixFlattend = self.flattenTupleOfArray(outputList)
+        whereNan             = numpy.argwhere(numpy.isnan(outputMatrixFlattend))[...,0]
         columnIdx            = numpy.squeeze(numpy.unique(whereNan))
-        n_nans               = len(columnIdx)
+        n_nans               = len(columnIdx.tolist())
+        outputZipped         = [list(a) for a in zip(*outputList)]
         self.errorWNans      += n_nans
         inputArray           = numpy.array(self._inputDesignNC)
         self._designsWErrors = inputArray[columnIdx, ...]
@@ -138,12 +138,12 @@ class NdGaussianProcessSensitivityAnalysis(object):
                 idxInSample               = columnIdx[i]%size
                 idx2Change                = numpy.arange(dimensionInput+2)*size + idxInSample
                 newInputDes, newOutputDes = self._regenerate_missing_vals_safe()
-                newOutputDesZip           = [list(a) for a in zip(*newOutputDes)]
+                outputDesNewZip           = [list(a) for a in zip(*newOutputDes)]
                 for q in range(len(idx2Change)):
                     p                   = idx2Change[i]
                     self.inputDesign[p] = newInputDes[q]
-                    outputListZip[p]    = newOutputDesZip[q]
-            self.outputDesignList   = [X for X in zip(*outputListZip)] 
+                    outputZipped[p]     = outputDesNewZip[q]
+            self.outputDesignList   = [np.array(X) for X in zip(*outputZipped)] 
         else :
             print('No errors while processing, the function has returned no np.nan.')
 
@@ -163,22 +163,46 @@ class NdGaussianProcessSensitivityAnalysis(object):
         return inputDes, outputDes
 
 
-    def flattenTuple(self, tuple):
-        flatArray = numpy.array([])
-        for obj in tuple :
-            flatArray = numpy.concatenate([flatArray,numpy.flatten(numpy.array(obj))])
-        print(flatArray.shape)
+    def flattenTupleOfArray(self, tuple):
+        '''Flattens a tuple of ndarrays, sharing the same first dimension
+        '''
+        # Should be ok...
+        flatArrayList = list()
+        n_tot         = int(numpy.array(tuple[0]).shape[0])
+        for array in tuple :
+            array     = numpy.array(array) #to be sure
+            shapeArr  = array.shape
+            dimNew    = int(numpy.prod(shapeArr[1:]))
+            arrayFlat = numpy.reshape(array, [n_tot, dimNew])
+            flatArrayList.append(arrayFlat)
+        flatArray = numpy.hstack(flatArrayList)
         return flatArray
 
     def getSobolIndiciesKLCoefs(self):
         '''get sobol indices for each element of the output
-        if the output is a field, the sobol indices will be a field.
+        As the output should be a list of fields and scalars, this step will
+        return a list of scalar sobol indices and field sobol indices
         '''
-        size         = self.sampleSize
-        inputDesign  = self.inputDesign
-        outputDesign = self.outputDesign
-        sensitivityAnalysisList = [ot.SaltelliSensitivityAlgorithm(inputDesign, numpy.expand_dims(output[...,i], 1), size) for i in range(len(outputList))]
-
+        size             = self.sampleSize
+        inputDesign      = self.inputDesign
+        dimensionInput   = len(inputDesign[0])
+        dimensionOutput  = len(self.outputVariables.keys())
+        outputDesignList = self.outputDesignList
+        sensitivityIndicesList = list()
+        n_tot  = size*(2+dimensionInput)
+        for k in range(dimensionOutput):
+            outputDesign      = numpy.array(outputDesignList[k])
+            shapeDesign       = outputDesign.shape 
+            shapeNew          = int(numpy.prod(shapeDesign[1:]))
+            shapeDesResh      = numpy.reshape(outputDesign, [n_tot, shapeNew])
+            sensitivityIdList = [openturns.SaltelliSensitivityAlgorithm(inputDesign, numpy.expand_dims(shapeDesResh[...,i], 1), size) for i in range(shapeNew)]
+            sensitivityIdArr  = numpy.array(sensitivityIdList)
+            endShape          = shapeDesign
+            endShape[0]       = dimensionInput
+            sensitivityField  = numpy.reshape(sensitivityIdArr, endShape)
+            print('Shape sensitivity field : ',sensitivityField.shape)
+            sensitivityIndicesList.append(sensitivityField)
+        return sensitivityIndicesList
 
     def setInputsFromNormalDistributionsAndNdGaussianProcesses(self, listfOfProcessesAndDistributions):
         '''Function to transform list of Process object into a dictionary, as used in the 
@@ -216,7 +240,7 @@ class NdGaussianProcessSensitivityAnalysis(object):
             else :
                 print('''
                       Make sure that the input processes and RVs are in the right order and are from \n 
-                      type NdGaussianProcessConstructor.NdGaussianProcessConstructor or \n
+                      type NdGaussianProcessConstructor.NdGaussianProcessConstructor or \n   
                       type NdGaussianProcessConstructor.NormalDistribution
                       ''')
                 raise TypeError 
