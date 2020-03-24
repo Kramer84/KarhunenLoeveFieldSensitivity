@@ -126,8 +126,9 @@ class NdGaussianProcessSensitivityAnalysis(object):
         ## We flatten all the realisation of each sample, to check if we have np.nans
         outputMatrixFlattend = self.flattenTupleOfArray(outputList)
         whereNan             = numpy.argwhere(numpy.isnan(outputMatrixFlattend))[...,0]
-        columnIdx            = numpy.squeeze(numpy.unique(whereNan))
-        n_nans               = len(columnIdx.tolist())
+        columnIdx            = numpy.atleast_1d(numpy.squeeze(numpy.unique(whereNan)))
+        print('columns where nan : ',columnIdx)
+        n_nans               = len(columnIdx)
         outputZipped         = [list(a) for a in zip(*outputList)]
         self.errorWNans      += n_nans
         inputArray           = numpy.array(self._inputDesignNC)
@@ -143,7 +144,7 @@ class NdGaussianProcessSensitivityAnalysis(object):
                     p                   = idx2Change[i]
                     self.inputDesign[p] = newInputDes[q]
                     outputZipped[p]     = outputDesNewZip[q]
-            self.outputDesignList   = [np.array(X) for X in zip(*outputZipped)] 
+            self.outputDesignList   = [numpy.array(X) for X in zip(*outputZipped)] 
         else :
             print('No errors while processing, the function has returned no np.nan.')
 
@@ -155,8 +156,10 @@ class NdGaussianProcessSensitivityAnalysis(object):
             sobolReg  = openturns.SobolIndicesExperiment(composedDistribution, 1)
             inputDes  = sobolReg.generate()
             outputDes = self.wrappedFunction(inputDes)
-            exit      = len(numpy.argwhere(numpy.isnan(numpy.array(outputDes))))
-            tries += 1
+            outputDesFlat = self.flattenTupleOfArray(outputDes)
+            #should be 0 when there is no nan
+            exit      = len(numpy.atleast_1d(numpy.squeeze(numpy.argwhere(numpy.isnan(outputDesFlat))[...,0])))
+            tries     += 1
             if tries == 50 :
                 print('Error with function')
                 raise FunctionError('The function used does only return nans, done over 50 loops')
@@ -185,23 +188,34 @@ class NdGaussianProcessSensitivityAnalysis(object):
         '''
         size             = self.sampleSize
         inputDesign      = self.inputDesign
-        dimensionInput   = len(inputDesign[0])
+        dimensionInput   = int(len(inputDesign[0]))
         dimensionOutput  = len(self.outputVariables.keys())
         outputDesignList = self.outputDesignList
         sensitivityIndicesList = list()
         n_tot  = size*(2+dimensionInput)
         for k in range(dimensionOutput):
             outputDesign      = numpy.array(outputDesignList[k])
-            shapeDesign       = outputDesign.shape 
+            shapeDesign       = list(outputDesign.shape) 
             shapeNew          = int(numpy.prod(shapeDesign[1:]))
+            print('new shape is: ', shapeNew)
             shapeDesResh      = numpy.reshape(outputDesign, [n_tot, shapeNew])
-            sensitivityIdList = [openturns.SaltelliSensitivityAlgorithm(inputDesign, numpy.expand_dims(shapeDesResh[...,i], 1), size) for i in range(shapeNew)]
-            sensitivityIdArr  = numpy.array(sensitivityIdList)
-            endShape          = shapeDesign
-            endShape[0]       = dimensionInput
-            sensitivityField  = numpy.reshape(sensitivityIdArr, endShape)
-            print('Shape sensitivity field : ',sensitivityField.shape)
-            sensitivityIndicesList.append(sensitivityField)
+            if shapeNew == 1 :
+                shapeDesResh  = numpy.squeeze(shapeDesResh.flatten())
+                print(shapeDesResh)
+                sensitivitySaltelli = openturns.SaltelliSensitivityAlgorithm(inputDesign, numpy.expand_dims(shapeDesResh,1), size)
+                sensitivityIndicesList.append(sensitivitySaltelli)
+            elif shapeNew > 1 :            
+                sensitivityIdList = [openturns.SaltelliSensitivityAlgorithm(inputDesign, numpy.expand_dims(shapeDesResh[...,i], 1), size) for i in range(shapeNew)]
+                sensitivityIdArr  = numpy.array(sensitivityIdList)
+                endShape          = list(shapeDesign)
+                endShape[0]       = 1
+                print('sobol field shape: ',endShape)
+                sensitivityField  = numpy.reshape(sensitivityIdArr, endShape)
+                print('Shape sensitivity field : ',sensitivityField.shape)
+                sensitivityIndicesList.append(sensitivityField)
+            else :
+                print('Unknown problem')
+                raise TypeError
         return sensitivityIndicesList
 
     def setInputsFromNormalDistributionsAndNdGaussianProcesses(self, listfOfProcessesAndDistributions):

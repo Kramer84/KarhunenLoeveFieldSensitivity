@@ -712,6 +712,7 @@ class sampleAndSoloFunctionWrapper(object):
                                                      RV_Rho,
                                                      RV_FPos,
                                                      RV_FNorm)
+        self.results = None
 
     @cw.timing
     def randomBeamFunctionSample(self,
@@ -724,8 +725,10 @@ class sampleAndSoloFunctionWrapper(object):
         result = self.RandomBeamObject.multiprocessBatchField(random_young_modulus, random_diameter, random_density, random_forcePos, random_forceNorm )
         monteCarloResults_elem, monteCarloResults_node, monteCarloResults_glob = result
         vonMisesStress = self.RandomBeamObject.getVonMisesStress(monteCarloResults_elem)
-        maxDeflection = numpy.amax(monteCarloResults_node[...,1], 1)
-        print('maxDeflection shape  ', maxDeflection.shape)
+        maxDeflection = numpy.abs(numpy.amin(a=monteCarloResults_node[...,1], axis=1, keepdims = False))
+        print('maxDeflection shape  ', maxDeflection)
+        print('deflection std deviation ',numpy.std(maxDeflection))
+        self.results=result
         return vonMisesStress, maxDeflection
 
     @cw.timing
@@ -745,7 +748,7 @@ class sampleAndSoloFunctionWrapper(object):
         maxbendingStress          = self.RandomBeamObject.getMaximumBendingStress(moment, inertia, numpy.squeeze(numpy.asarray(field_diam)))
         shearStress               = (4/3)*numpy.divide(shear, area)  
         vonMisesCriteria          = numpy.sqrt(numpy.square(maxbendingStress) + numpy.multiply(numpy.square(shearStress), 3))
-        maxDeflection             = max(deflection)
+        maxDeflection             = numpy.abs(np.min(deflection))
         return vonMisesCriteria, maxDeflection     
 
 
