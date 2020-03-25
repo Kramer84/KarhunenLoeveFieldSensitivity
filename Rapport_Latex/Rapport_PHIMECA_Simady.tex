@@ -10,6 +10,7 @@
 \usepackage{float}
 \usepackage[section]{placeins}
 \bibliographystyle{plain}
+\usepackage{hyperref}
 
 \begin{document}
 %
@@ -168,9 +169,10 @@ Pour parvenir à bien controller les processus stochastiques, une classe a été
 
 En interne, le modèle fonction de champs stochastiques, passe par un wrapper qui fait qu'on peut la considerer comme seulement fonction de variables aléatoires gaussiennes. Cela permet d'utiliser les méthodes internes à openturns comme l'algorithme de saltellie pour identifier les indices de sobol. \\
 
-Néanmoins, pour pallier à certaines difficultées comme les fonctions qui par moment renvoie des \textit{np.nan} (donc lorsqu'il y a eu une erreur), on passe d'abord par une étape de correction:  l'ensemble des valeurs de sortie contenant des \textit{nan} sont regénérés, et comme les entrées de l'étude sont des combinaison de deux ensembles de variables aléatoires A et B, tout les autres permuttations des entrées ayant entrainé l'erreur sont supprimés. \
+Néanmoins, pour pallier à certaines difficultées comme les fonctions qui par moment renvoient des \textbf{\textit{np.nan}} (donc lorsqu'il y a eu une erreur), on passe d'abord par une étape de correction:  l'ensemble des valeurs de sortie contenant des \textit{nan} sont regénérées, et comme les entrées de l'étude sont des combinaison de deux ensembles de variables aléatoires A et B, toutes les autres permuttations des entrées ayant entrainé des erreurs sont supprimées et remplacées. \
 
-Les codes sont accessibles via github.\\
+Les codes sont accessibles via \textit{\textbf{github}}: \\
+\url{https://github.com/Kramer84/stochastic_process_analysis}
 
 \begin{figure}[H]
    \centering   
@@ -178,6 +180,8 @@ Les codes sont accessibles via github.\\
       \caption{Organsiation des variables d'entrée, expliquant l'étape de postprocessing}
          \label{posprocessing}
 \end{figure}
+
+
 
 
 

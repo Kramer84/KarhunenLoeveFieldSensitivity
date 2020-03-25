@@ -1,5 +1,6 @@
 import openturns
 import numpy
+from   copy import deepcopy
 import NdGaussianProcessConstructor as ngpc
 import atexit
 
@@ -122,7 +123,7 @@ class NdGaussianProcessSensitivityAnalysis(object):
         size                 = self.sampleSize
         dimensionInput       = composedDistribution.getDimension()
         dimensionOutput      = len(self.outputVariables.keys())
-        outputList           = self.outputDesignList
+        outputList           = deepcopy(self.outputDesignList)
         ## We flatten all the realisation of each sample, to check if we have np.nans
         outputMatrixFlattend = self.flattenTupleOfArray(outputList)
         whereNan             = numpy.argwhere(numpy.isnan(outputMatrixFlattend))[...,0]
@@ -131,20 +132,24 @@ class NdGaussianProcessSensitivityAnalysis(object):
         n_nans               = len(columnIdx)
         outputZipped         = [list(a) for a in zip(*outputList)]
         self.errorWNans      += n_nans
-        inputArray           = numpy.array(self._inputDesignNC)
+        inputArray           = deepcopy(numpy.array(self._inputDesignNC))
         self._designsWErrors = inputArray[columnIdx, ...]
         if n_nans > 0:
             print('There were ',n_nans, ' errors (numpy.nan) while processing, trying to regenerate missing outputs \n')
             for i  in range(n_nans):
                 idxInSample               = columnIdx[i]%size
                 idx2Change                = numpy.arange(dimensionInput+2)*size + idxInSample
+                print('index in sample: ',idxInSample)
+                print('index to change: ',idx2Change)
                 newInputDes, newOutputDes = self._regenerate_missing_vals_safe()
                 outputDesNewZip           = [list(a) for a in zip(*newOutputDes)]
                 for q in range(len(idx2Change)):
                     p                   = idx2Change[i]
-                    self.inputDesign[p] = newInputDes[q]
-                    outputZipped[p]     = outputDesNewZip[q]
-            self.outputDesignList   = [numpy.array(X) for X in zip(*outputZipped)] 
+                    self.inputDesign[p] = deepcopy(newInputDes[q])
+                    outputZipped[p]     = deepcopy(outputDesNewZip[q])
+            self.outputDesignList   = deepcopy([numpy.array(X) for X in zip(*outputZipped)]) 
+            assert numpy.array_equal(inputArray,numpy.array(self.inputDesign))==False, "after correction they should be some difference"
+            print(' - Correction assertion passed - \n')
         else :
             print('No errors while processing, the function has returned no np.nan.')
 
@@ -153,20 +158,23 @@ class NdGaussianProcessSensitivityAnalysis(object):
         exit                 = 1
         tries                = 0
         while exit != 0:
-            sobolReg  = openturns.SobolIndicesExperiment(composedDistribution, 1)
-            inputDes  = sobolReg.generate()
-            outputDes = self.wrappedFunction(inputDes)
-            outputDesFlat = self.flattenTupleOfArray(outputDes)
+            sobolReg      = openturns.SobolIndicesExperiment(composedDistribution, 1)
+            inputDes      = sobolReg.generate()
+            outputDes     = self.wrappedFunction(inputDes)
+            inputDes      = numpy.array(inputDes).tolist()
+            outputDesFlat = NdGaussianProcessSensitivityAnalysis.flattenTupleOfArray(outputDes)
             #should be 0 when there is no nan
-            exit      = len(numpy.atleast_1d(numpy.squeeze(numpy.argwhere(numpy.isnan(outputDesFlat))[...,0])))
-            tries     += 1
+            exit  = len(numpy.atleast_1d(numpy.squeeze(numpy.argwhere(numpy.isnan(outputDesFlat))[...,0])))
+            tries += 1
             if tries == 50 :
                 print('Error with function')
                 raise FunctionError('The function used does only return nans, done over 50 loops')
+            print('new input design length: ', len(inputDes))
+            print('new output design: ', outputDes)
         return inputDes, outputDes
 
-
-    def flattenTupleOfArray(self, tuple):
+    @staticmethod
+    def flattenTupleOfArray( tuple):
         '''Flattens a tuple of ndarrays, sharing the same first dimension
         '''
         # Should be ok...
@@ -279,12 +287,6 @@ class NdGaussianProcessSensitivityAnalysis(object):
         '''
         self.funcModel = wrapFunction
 
-    def shuffleVariablesSobol(self, ):
-        pass
-
-    def getDistributionFromKLcoeffs(self, KL_coefs):
-        pass
-
     def KarhunenLoeveSVDAlgorithm(self, numpy_array, process_sample=None, nbModes=15, threshold = 0.0001, centeredFlag = False):
         '''Function to get Kahrunen Loeve decomposition from samples stored in array
         '''
@@ -331,89 +333,15 @@ class NdGaussianProcessSensitivityAnalysis(object):
         mesh.setName(str(dimension)+'D_Grid')
         return mesh
 
-
-
-
-
-variablesDict = {
-                 'var1' :
-                 {
-                  'nameProcess'     : 'E_', 
-                    #name to identify variable after analysis
-                  'position' : 0 ,
-                    #position of argument in function
-                  'shapeGrid'       : [[0,1000,100],] ,
-                    #shape of discrete grid the field is defined on
-                  'covarianceModel' : {
-                                  'NameModel' :'MaternModel',
-                                  'amplitude' :5000.,
-                                  'scale'     :300.,
-                                  'nu'        :13/3
-                                      },
-                    #dictionary as in NdGaussianProcessConstructor
-                  'trendFunction'   : [['x'],210000] 
-                    # [['var1', ...],'symbolicFunctionOrConstant']  
-                 },
-
-                 'var2' :
-                 {
-                  'nameProcess'     : 'D_', 
-                    #name to identify variable after analysis
-                  'position' : 1  ,
-                    #position of argument in function
-                  'shapeGrid'       : [[0,1000,100],] ,
-                    #shape of discrete grid the field is defined on
-                  'covarianceModel' : {
-                                  'NameModel' :'MaternModel',
-                                  'amplitude' :.3,
-                                  'scale'     :250.,
-                                  'nu'        :7.4/3
-                                      },
-                    #dictionary as in NdGaussianProcessConstructor
-                  'trendFunction'   : [['x'],10] 
-                    # [['var1', ...],'symbolicFunctionOrConstant']  
-                 },
-
-                 'var3' :
-                 {
-                  'nameRV'     : 'Rho',
-                  'position'   : 2,
-                  'meanAndStd' : [7850, 250]
-                 },
-
-                 'var4' :
-                 {
-                  'nameRV'     : 'FP',
-                  'position'   : 3,
-                  'meanAndStd' : [500, 50]
-                 },
-
-                 'var5' :
-                 {
-                  'nameRV'     : 'FN',
-                  'position'   : 4,
-                  'meanAndStd' : [100, 15]
-                 }               
-                }
-
-outputDict   = {'out1' :
-                {
-                 'name'     : 'VonMisesStress',
-                 'position' : 0,
-                 'shape'    : (100,)  
-                }
-               }
-
-
-import RandomBeamGenerationClass as rbgc
-functionSample = rbgc.RandomBeam_anastruct.multiprocessBatchField
-functionSolo   = rbgc.RandomBeam_anastruct.multiprocessBatchField
+#######################################################################################
+#######################################################################################
+#######################################################################################
 
 class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
-    def __init__(self, functionSample = functionSample, 
+    def __init__(self, functionSample = None, 
                        functionSolo   = None,  
-                       inputDict      = variablesDict, 
-                       outputDict     = outputDict):
+                       inputDict      = None, 
+                       outputDict     = None):
         self.inputDict              = inputDict
         self.outputDict             = outputDict
         self.PythonFunctionSample   = functionSample
@@ -534,7 +462,9 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         inputProcessNRVs = self.liftKLComposedDistributionAsFieldAndRvs(X)
         return self.PythonFunctionSample(*inputProcessNRVs)
 
-
+#######################################################################################
+#######################################################################################
+#######################################################################################
 
 @atexit.register
 def cleanAtExit() :
@@ -548,6 +478,83 @@ def cleanAtExit() :
 
 class FunctionError(Exception):
     pass
+
+
+
+
+variablesDict = {
+                 'var1' :
+                 {
+                  'nameProcess'     : 'E_', 
+                    #name to identify variable after analysis
+                  'position' : 0 ,
+                    #position of argument in function
+                  'shapeGrid'       : [[0,1000,100],] ,
+                    #shape of discrete grid the field is defined on
+                  'covarianceModel' : {
+                                  'NameModel' :'MaternModel',
+                                  'amplitude' :5000.,
+                                  'scale'     :300.,
+                                  'nu'        :13/3
+                                      },
+                    #dictionary as in NdGaussianProcessConstructor
+                  'trendFunction'   : [['x'],210000] 
+                    # [['var1', ...],'symbolicFunctionOrConstant']  
+                 },
+
+                 'var2' :
+                 {
+                  'nameProcess'     : 'D_', 
+                    #name to identify variable after analysis
+                  'position' : 1  ,
+                    #position of argument in function
+                  'shapeGrid'       : [[0,1000,100],] ,
+                    #shape of discrete grid the field is defined on
+                  'covarianceModel' : {
+                                  'NameModel' :'MaternModel',
+                                  'amplitude' :.3,
+                                  'scale'     :250.,
+                                  'nu'        :7.4/3
+                                      },
+                    #dictionary as in NdGaussianProcessConstructor
+                  'trendFunction'   : [['x'],10] 
+                    # [['var1', ...],'symbolicFunctionOrConstant']  
+                 },
+
+                 'var3' :
+                 {
+                  'nameRV'     : 'Rho',
+                  'position'   : 2,
+                  'meanAndStd' : [7850, 250]
+                 },
+
+                 'var4' :
+                 {
+                  'nameRV'     : 'FP',
+                  'position'   : 3,
+                  'meanAndStd' : [500, 50]
+                 },
+
+                 'var5' :
+                 {
+                  'nameRV'     : 'FN',
+                  'position'   : 4,
+                  'meanAndStd' : [100, 15]
+                 }               
+                }
+
+outputDict   = {'out1' :
+                {
+                 'name'     : 'VonMisesStress',
+                 'position' : 0,
+                 'shape'    : (100,)  
+                }
+               }
+
+
+import RandomBeamGenerationClass as rbgc
+functionSample = rbgc.RandomBeam_anastruct.multiprocessBatchField
+functionSolo   = rbgc.RandomBeam_anastruct.multiprocessBatchField
 
 
 '''
