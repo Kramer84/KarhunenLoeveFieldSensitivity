@@ -158,7 +158,7 @@ L'on considère donc notre modèle plus comme fonction de variables aléatoires 
 
 Ceci permet de faire l'analyse de sobol classique (avec l'algorithme de sensibilité de \textit{Saltelli}) sur ces nouvelles variables aléatoires.
 
-La difficultée ici, est d'ensuite relier les indices de sensiblité de Sobol des variables aléatoires définissant le champ au champ stochastique même. (On ne souhaite n'avoir qu'un seul indice de sobol pour un champ. ) 
+La difficultée ici, est d'ensuite relier les indices de sensiblité de Sobol des variables aléatoires définissant le champ au champ stochastique même. (On ne souhaite n'avoir qu'un seul indice de sobol pour un champ.) 
 
 \subsection{Choix des codes et difficultées algorithmiques}
 Au vu de choix de développer une méthode algorithmique pour l'analyse de sensiblité sur des champs stochastiques, et non pas de juste faire l'analyse de sensibilité sur une seule problématique, il y avait un besoin de robustesse supplémentaire pour l'écriture des différents codes. Ces derniers doivent pouvoir fonctionner avec tout type de fonction en python prennant en entrée des champs et variables aléatoire, et renvoyant un tuple de variables aléatoires. 

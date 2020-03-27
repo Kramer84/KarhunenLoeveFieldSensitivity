@@ -150,6 +150,7 @@ class NdGaussianProcessSensitivityAnalysis(object):
             assert numpy.allclose(inputArray,numpy.array(self.inputDesign), equal_nan=True) == False, "after correction they should be some difference"
             assert numpy.allclose(outputMatrix0,outputMatrix, equal_nan=True) == False,               "after correction they should be some difference"
             print(' - Correction assertion passed - \n')
+            assert numpy.isnan(outputMatrix).any() == False, "should have no nan anymore"
             self.outputDesignList   = self.wrappedFunction.matrixToOutputList(outputMatrix)
         else :
             self.outputDesignList = self._outputDesignListNC
@@ -172,9 +173,8 @@ class NdGaussianProcessSensitivityAnalysis(object):
                 print('Error with function')
                 raise FunctionError('The function used does only return nans, done over 50 loops')
             print('new input design length: ', len(inputDes))
-            print('new output design: ', outputDes)
-        outputDes = self.wrappedFunction.outputListToMatrix(outputDes)
-        return inputDes, outputDes
+            print('new output design shape: ', outputDesFlat.shape)
+        return inputDes, outputDesFlat
 
     def getSobolIndiciesKLCoefs(self):
         '''get sobol indices for each element of the output
@@ -430,7 +430,7 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         n_outputs  = len(outputDict.keys())
         shapeList  = list()
         for key in outputDict.keys() : 
-            shapeList.append(outputDict[key]['shape'])
+            shapeList.append(list(outputDict[key]['shape']))
         tot_dim = 0
         dim_perOut = list()
         for shape in shapeList : 
@@ -463,13 +463,19 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         # Should be ok...
         flatArrayList = list()
         n_tot         = int(numpy.array(outputList[0]).shape[0])
+        print('Converting list of outputs into matrix: ')
+        el = 1
         for array in outputList :
             array     = numpy.array(array) #to be sure
             shapeArr  = array.shape
+            print('Element ', el ,' has shape ', array.shape)
             dimNew    = int(numpy.prod(shapeArr[1:]))
             arrayFlat = numpy.reshape(array, [n_tot, dimNew])
             flatArrayList.append(arrayFlat)
+            el += 1
         flatArray = numpy.hstack(flatArrayList)
+        print('Final shape matrix: ', flatArray.shape)
+
         return flatArray
 
     def matrixToOutputList(self, matrix):
@@ -481,12 +487,18 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         assert matrix.shape[1] == tot_dim, "Should be the same if from same function"
         outputList = list()
         increment = 0
+        print('Transforming matrix of shape ',matrix.shape)
+        print('Into list of Ndarrays according to output definition')
         for i in range(n_outputs) : 
-            flattenedOutput = matrix[:,increment+dim_perOut[i]]
-            shape = [matrix.shape[0]].extend(list(shapeList[i]))
-            reshapedOutput  = numpy.reshape(flattenedOutput, shape)
+            flattenedOutput = matrix[...,increment : increment+dim_perOut[i]]
+            print('Dimension output ',i, ' is ',dim_perOut[i])
+            print('Intermediary shape is :', flattenedOutput.shape)
+            shape = sum([[matrix.shape[0]],shapeList[i]],[])
+            print('new shape is: ',shape)
+            reshapedOutput  = numpy.squeeze(numpy.reshape(flattenedOutput, shape))
             increment       += dim_perOut[i]-1
             outputList.append(reshapedOutput)
+            print('Output element ',i,' has shape ', reshapedOutput.shape)
         return outputList
 
     def _exec(self, X):
