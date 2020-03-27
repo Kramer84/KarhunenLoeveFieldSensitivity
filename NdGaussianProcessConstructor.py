@@ -101,7 +101,7 @@ class NdGaussianProcessConstructor(openturns.Process):
         self._trendFunc                     = trend_function
         self.trendFunction                  = None
         self.GaussianProcess                = None
-        self.resultsKahrunenLoeve           = None
+        self.resultsKarhunenLoeve           = None
         self.sample_map                     = None 
         self.fieldSampleEigenmodeProjection = None
         self.decompositionAsRandomVector    = None
@@ -149,7 +149,7 @@ class NdGaussianProcessConstructor(openturns.Process):
     def __del__(self):
         del(self.GaussianProcess)
         del(self.sample_map)
-        del(self.resultsKahrunenLoeve)
+        del(self.resultsKarhunenLoeve)
         del(self.fieldSampleEigenmodeProjection)
         del(self.decompositionAsRandomVector)
         del(self)
@@ -277,7 +277,7 @@ class NdGaussianProcessConstructor(openturns.Process):
             self.GaussianProcess = openturns.GaussianProcess(self.covarianceModel, self.mesh)
         self.GaussianProcess.setName(str(self.dimension)+'D_Gaussian_Process')
 
-## Everything concerning Kahrunen Loève
+## Everything concerning Karhunen Loève
 ###################################################################################################
 
     def getMetamodelProcessKarhunenLoeve(self, threshold = 0.0001, getResult = False):
@@ -295,21 +295,21 @@ class NdGaussianProcessConstructor(openturns.Process):
         KL_algorithm.setName('Karhunen Loeve Metamodel')
         KL_algorithm.run()
         KL_algo_results             = KL_algorithm.getResult()
-        self.resultsKahrunenLoeve   = KL_algo_results
+        self.resultsKarhunenLoeve   = KL_algo_results
         if getResult == True :
             return KL_algo_results
 
     def getFieldProjectionOnEigenmodes(self, ProcessSample=None):
         ''' for each element of a field sample get the corresponding set of random variables
         '''
-        if self.resultsKahrunenLoeve is None:
+        if self.resultsKarhunenLoeve is None:
             self.getMetamodelProcessKarhunenLoeve()    
         assert(self.sample_map is not None or ProcessSample is not None), ""
         if ProcessSample is None : 
             ProcessSample       = self.ndarray2ProcessSample(self.sample_map)
         if type(ProcessSample) == numpy.ndarray :
             ProcessSample = self.ndarray2ProcessSample(ProcessSample)
-        KL_eigenmodes           = self.resultsKahrunenLoeve.project(ProcessSample)
+        KL_eigenmodes           = self.resultsKarhunenLoeve.project(ProcessSample)
         self.fieldSampleEigenmodeProjection = numpy.array(KL_eigenmodes)
 
     def getDecompositionAsRandomVector(self, optName = None):
@@ -331,15 +331,15 @@ class NdGaussianProcessConstructor(openturns.Process):
         '''transforms a randomVector or collection of random vectors into gaussian fields
         '''
         try : 
-            assert self.resultsKahrunenLoeve is not None, "first run self.getMetamodelProcessKarhunenLoeve()"
+            assert self.resultsKarhunenLoeve is not None, "first run self.getMetamodelProcessKarhunenLoeve()"
         except :
             self.getMetamodelProcessKarhunenLoeve()
         if type(randomVector[0]) == float : # if it is only one realisation
-            field = self.resultsKahrunenLoeve.liftAsField(randomVector)
+            field = self.resultsKarhunenLoeve.liftAsField(randomVector)
             return field 
         elif type(randomVector[0]) == list: # if it is a collection of realisations
             dimension = len(randomVector)
-            field_list = [self.resultsKahrunenLoeve.liftAsField(randomVector[i]) for i in range(dimension)]
+            field_list = [self.resultsKarhunenLoeve.liftAsField(randomVector[i]) for i in range(dimension)]
             process_sample = openturns.ProcessSample(self.mesh, 0, dimension)
             [process_sample.add(field_list[i]) for i in range(len(field_list))]
             return process_sample

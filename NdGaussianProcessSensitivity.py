@@ -1,5 +1,6 @@
 import openturns
 import numpy
+import pandas as pd
 from   copy import deepcopy
 import NdGaussianProcessConstructor as ngpc
 import atexit
@@ -78,8 +79,6 @@ class NdGaussianProcessSensitivityAnalysis(object):
         self.outputDesignList    = None 
         self._designsWErrors     = None
 
-
-
     def makeExperiment(self):
         self.prepareSobolIndicesExperiment()
         self.getOutputDesignAndPostprocess()
@@ -111,46 +110,49 @@ class NdGaussianProcessSensitivityAnalysis(object):
         else : 
             outputDesignList     = [outputDesign]
         self._outputDesignListNC = outputDesignList
-        self.outputDesignList    = outputDesignList
         self._postProcessOutputDesign()
 
     def _postProcessOutputDesign(self):
         '''To check if there are nan values and replace them with new realizations
            We not only have to erase the value with the nan, but all the corresponding
            permutations. 
+
+           Note
+           ----
+           
         '''
         composedDistribution = self.wrappedFunction.KLComposedDistribution
         size                 = self.sampleSize
         dimensionInput       = composedDistribution.getDimension()
-        dimensionOutput      = len(self.outputVariables.keys())
-        outputList           = deepcopy(self.outputDesignList)
+        outputList           = deepcopy(self._outputDesignListNC)
         ## We flatten all the realisation of each sample, to check if we have np.nans
-        outputMatrixFlattend = self.flattenTupleOfArray(outputList)
-        whereNan             = numpy.argwhere(numpy.isnan(outputMatrixFlattend))[...,0]
+        outputMatrix         = self.wrappedFunction.outputListToMatrix(outputList)
+        outputMatrix0        = deepcopy(outputMatrix)
+        whereNan             = numpy.argwhere(numpy.isnan(deepcopy(outputMatrix)))[...,0]
         columnIdx            = numpy.atleast_1d(numpy.squeeze(numpy.unique(whereNan)))
         print('columns where nan : ',columnIdx)
         n_nans               = len(columnIdx)
-        outputZipped         = [list(a) for a in zip(*outputList)]
         self.errorWNans      += n_nans
         inputArray           = deepcopy(numpy.array(self._inputDesignNC))
         self._designsWErrors = inputArray[columnIdx, ...]
         if n_nans > 0:
             print('There were ',n_nans, ' errors (numpy.nan) while processing, trying to regenerate missing outputs \n')
             for i  in range(n_nans):
-                idxInSample               = columnIdx[i]%size
-                idx2Change                = numpy.arange(dimensionInput+2)*size + idxInSample
+                idxInSample  = columnIdx[i]%size
+                idx2Change   = numpy.arange(dimensionInput+2)*size + idxInSample
                 print('index in sample: ',idxInSample)
                 print('index to change: ',idx2Change)
-                newInputDes, newOutputDes = self._regenerate_missing_vals_safe()
-                outputDesNewZip           = [list(a) for a in zip(*newOutputDes)]
+                newInputDes, newOutputMatrix = self._regenerate_missing_vals_safe()
                 for q in range(len(idx2Change)):
                     p                   = idx2Change[i]
                     self.inputDesign[p] = deepcopy(newInputDes[q])
-                    outputZipped[p]     = deepcopy(outputDesNewZip[q])
-            self.outputDesignList   = deepcopy([numpy.array(X) for X in zip(*outputZipped)]) 
-            assert numpy.array_equal(inputArray,numpy.array(self.inputDesign))==False, "after correction they should be some difference"
+                    outputMatrix[p, ...] = deepcopy(newOutputMatrix[q, ...])
+            assert numpy.allclose(inputArray,numpy.array(self.inputDesign), equal_nan=True) == False, "after correction they should be some difference"
+            assert numpy.allclose(outputMatrix0,outputMatrix, equal_nan=True) == False,               "after correction they should be some difference"
             print(' - Correction assertion passed - \n')
+            self.outputDesignList   = self.wrappedFunction.matrixToOutputList(outputMatrix)
         else :
+            self.outputDesignList = self._outputDesignListNC
             print('No errors while processing, the function has returned no np.nan.')
 
     def _regenerate_missing_vals_safe(self): 
@@ -162,7 +164,7 @@ class NdGaussianProcessSensitivityAnalysis(object):
             inputDes      = sobolReg.generate()
             outputDes     = self.wrappedFunction(inputDes)
             inputDes      = numpy.array(inputDes).tolist()
-            outputDesFlat = NdGaussianProcessSensitivityAnalysis.flattenTupleOfArray(outputDes)
+            outputDesFlat = self.wrappedFunction.outputListToMatrix(outputDes)
             #should be 0 when there is no nan
             exit  = len(numpy.atleast_1d(numpy.squeeze(numpy.argwhere(numpy.isnan(outputDesFlat))[...,0])))
             tries += 1
@@ -171,23 +173,8 @@ class NdGaussianProcessSensitivityAnalysis(object):
                 raise FunctionError('The function used does only return nans, done over 50 loops')
             print('new input design length: ', len(inputDes))
             print('new output design: ', outputDes)
+        outputDes = self.wrappedFunction.outputListToMatrix(outputDes)
         return inputDes, outputDes
-
-    @staticmethod
-    def flattenTupleOfArray( tuple):
-        '''Flattens a tuple of ndarrays, sharing the same first dimension
-        '''
-        # Should be ok...
-        flatArrayList = list()
-        n_tot         = int(numpy.array(tuple[0]).shape[0])
-        for array in tuple :
-            array     = numpy.array(array) #to be sure
-            shapeArr  = array.shape
-            dimNew    = int(numpy.prod(shapeArr[1:]))
-            arrayFlat = numpy.reshape(array, [n_tot, dimNew])
-            flatArrayList.append(arrayFlat)
-        flatArray = numpy.hstack(flatArrayList)
-        return flatArray
 
     def getSobolIndiciesKLCoefs(self):
         '''get sobol indices for each element of the output
@@ -438,6 +425,21 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
             except KeyError :
                 print('Error in your output dictionary')
 
+    def getTotalOutputDimension(self):
+        outputDict = self.outputDict
+        n_outputs  = len(outputDict.keys())
+        shapeList  = list()
+        for key in outputDict.keys() : 
+            shapeList.append(outputDict[key]['shape'])
+        tot_dim = 0
+        dim_perOut = list()
+        for shape in shapeList : 
+            size = numpy.prod(numpy.array(list(shape)))
+            tot_dim = tot_dim + size
+            dim_perOut.append(size)
+        return tot_dim, dim_perOut, shapeList
+
+
     def getKLDecompositionVarNames(self):
         fieldPositions    = [self.NdGaussianProcessList[i][0] for i in range(len(self.NdGaussianProcessList))]
         numberModesFields = [int(self.NdGaussianProcessList[i][1].decompositionAsRandomVector.n_modes) for i in range(len(self.NdGaussianProcessList))]
@@ -453,6 +455,39 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
                 namesArray = numpy.hstack([namesArray[:i+reIdx],numpy.asarray(RVNames[idx]),namesArray[1+i+reIdx:]])
                 reIdx      += numberModesFields[idx]-1
         return namesArray.tolist()
+
+    
+    def outputListToMatrix(self, outputList):
+        '''Flattens a list of ndarrays, sharing the same first dimension
+        '''
+        # Should be ok...
+        flatArrayList = list()
+        n_tot         = int(numpy.array(outputList[0]).shape[0])
+        for array in outputList :
+            array     = numpy.array(array) #to be sure
+            shapeArr  = array.shape
+            dimNew    = int(numpy.prod(shapeArr[1:]))
+            arrayFlat = numpy.reshape(array, [n_tot, dimNew])
+            flatArrayList.append(arrayFlat)
+        flatArray = numpy.hstack(flatArrayList)
+        return flatArray
+
+    def matrixToOutputList(self, matrix):
+        '''Tranform the flattened image of the output back into it's original
+        shape
+        '''
+        n_outputs = len(self.outputDict.keys())
+        tot_dim, dim_perOut, shapeList = self.getTotalOutputDimension()
+        assert matrix.shape[1] == tot_dim, "Should be the same if from same function"
+        outputList = list()
+        increment = 0
+        for i in range(n_outputs) : 
+            flattenedOutput = matrix[:,increment+dim_perOut[i]]
+            shape = [matrix.shape[0]].extend(list(shapeList[i]))
+            reshapedOutput  = numpy.reshape(flattenedOutput, shape)
+            increment       += dim_perOut[i]-1
+            outputList.append(reshapedOutput)
+        return outputList
 
     def _exec(self, X):
         inputProcessNRVs = self.liftKLComposedDistributionAsFieldAndRvs(X)
