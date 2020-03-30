@@ -93,7 +93,6 @@ class NdGaussianProcessSensitivityAnalysis(object):
         print('len(inputDesign) = ', sobolBatchSize)
         self.sobolBatchSize     = sobolBatchSize
         self._inputDesignNC     = inputDesign
-        self.inputDesign        = inputDesign
 
     def getOutputDesignAndPostprocess(self):
         self.errorWNans  = 0
@@ -127,33 +126,42 @@ class NdGaussianProcessSensitivityAnalysis(object):
         outputList           = deepcopy(self._outputDesignListNC)
         ## We flatten all the realisation of each sample, to check if we have np.nans
         outputMatrix         = self.wrappedFunction.outputListToMatrix(outputList)
-        outputMatrix0        = deepcopy(outputMatrix)
-        whereNan             = numpy.argwhere(numpy.isnan(deepcopy(outputMatrix)))[...,0]
+        inputArray           = numpy.asarray(deepcopy(self._inputDesignNC))     
+        combinedMatrix       = numpy.hstack([inputArray, outputMatrix]) # of size (N_samples, inputDim*outputDim)
+        combinedMatrix0      = deepcopy(combinedMatrix)
+        whereNan             = numpy.argwhere(numpy.isnan(deepcopy(combinedMatrix)))[...,0]
         columnIdx            = numpy.atleast_1d(numpy.squeeze(numpy.unique(whereNan)))
-        print('columns where nan : ',columnIdx)
+        print('columns where nan : ', columnIdx)
         n_nans               = len(columnIdx)
         self.errorWNans      += n_nans
-        inputArray           = deepcopy(numpy.array(self._inputDesignNC))
         self._designsWErrors = inputArray[columnIdx, ...]
         if n_nans > 0:
             print('There were ',n_nans, ' errors (numpy.nan) while processing, trying to regenerate missing outputs \n')
             for i  in range(n_nans):
-                idxInSample  = columnIdx[i]%size
-                idx2Change   = numpy.arange(dimensionInput+2)*size + idxInSample
-                print('index in sample: ',idxInSample)
+                assert numpy.isnan(combinedMatrix[columnIdx[i], ...]).any() == True, "should contain nans"
+                idx2Change   = numpy.arange(dimensionInput+2)*size + columnIdx[i]%size
                 print('index to change: ',idx2Change)
-                newInputDes, newOutputMatrix = self._regenerate_missing_vals_safe()
+                newCombinedMatrix        = self._regenerate_missing_vals_safe()
                 for q in range(len(idx2Change)):
-                    p                   = idx2Change[i]
-                    self.inputDesign[p] = deepcopy(newInputDes[q])
-                    outputMatrix[p, ...] = deepcopy(newOutputMatrix[q, ...])
-            assert numpy.allclose(inputArray,numpy.array(self.inputDesign), equal_nan=True) == False, "after correction they should be some difference"
-            assert numpy.allclose(outputMatrix0,outputMatrix, equal_nan=True) == False,               "after correction they should be some difference"
+                    p                      = idx2Change[i]
+                    combinedMatrix[p, ...] = newCombinedMatrix[q, ...]
+            try :
+                assert numpy.allclose(combinedMatrix0,combinedMatrix, equal_nan=True) == False, "after correction they should be some difference"
+                assert numpy.isnan(combinedMatrix).any() == False, "should have no nan anymore"
+            except : 
+                whereNan             = numpy.argwhere(numpy.isnan(deepcopy(combinedMatrix)))[...,0]
+                columnIdx            = numpy.atleast_1d(numpy.squeeze(numpy.unique(whereNan)))
+                print('columns where still nan :@!! ', columnIdx)
+
             print(' - Correction assertion passed - \n')
-            assert numpy.isnan(outputMatrix).any() == False, "should have no nan anymore"
-            self.outputDesignList   = self.wrappedFunction.matrixToOutputList(outputMatrix)
+            inputArray  = deepcopy(combinedMatrix[..., :dimensionInput])
+            outputArray = deepcopy(combinedMatrix[..., dimensionInput:])
+            inputSample = openturns.Sample(inputArray).setDescription(self._inputDesignNC.getDescription())
+            self.outputDesignList = deepcopy(self.wrappedFunction.matrixToOutputList(outputArray))
+            self.inputDesign      = deepcopy(inputSample)
         else :
-            self.outputDesignList = self._outputDesignListNC
+            self.outputDesignList = deepcopy(self._outputDesignListNC)
+            self.inputDesign      = deepcopy(self._inputDesignNC)
             print('No errors while processing, the function has returned no np.nan.')
 
     def _regenerate_missing_vals_safe(self): 
@@ -174,7 +182,8 @@ class NdGaussianProcessSensitivityAnalysis(object):
                 raise FunctionError('The function used does only return nans, done over 50 loops')
             print('new input design length: ', len(inputDes))
             print('new output design shape: ', outputDesFlat.shape)
-        return inputDes, outputDesFlat
+
+        return numpy.hstack([inputDes, outputDesFlat])
 
     def getSobolIndiciesKLCoefs(self):
         '''get sobol indices for each element of the output
@@ -461,6 +470,7 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         '''Flattens a list of ndarrays, sharing the same first dimension
         '''
         # Should be ok...
+        outputList    = deepcopy(outputList)
         flatArrayList = list()
         n_tot         = int(numpy.array(outputList[0]).shape[0])
         print('Converting list of outputs into matrix: ')
@@ -502,10 +512,12 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         return outputList
 
     def _exec(self, X):
+        X = deepcopy(X)
         inputProcessNRVs = self.liftKLComposedDistributionAsFieldAndRvs(X)
         return self.PythonFunction(*inputProcessNRVs)
 
     def _exec_sample(self, X):
+        X = deepcopy(X)
         inputProcessNRVs = self.liftKLComposedDistributionAsFieldAndRvs(X)
         return self.PythonFunctionSample(*inputProcessNRVs)
 
