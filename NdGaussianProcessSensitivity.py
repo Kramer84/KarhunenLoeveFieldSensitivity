@@ -93,13 +93,14 @@ class NdGaussianProcessSensitivityAnalysis(object):
         print('len(inputDesign) = ', sobolBatchSize)
         self.sobolBatchSize     = sobolBatchSize
         self._inputDesignNC     = inputDesign
+        print('input design is: ',inputDesign)
 
     def getOutputDesignAndPostprocess(self):
-        self.errorWNans  = 0
         assert self._inputDesignNC is not None, ""
         assert self.functionSample is not None or self.functionSolo is not None , ""
         if self.functionSample is not None : 
-            outputDesign     = self.wrappedFunction(self._inputDesignNC)
+            inputDes         = deepcopy(self._inputDesignNC)
+            outputDesign     = self.wrappedFunction(inputDes)
         else :
           ## We first have to implement the multiprocessing of the single evaluation model
             raise NotImplementedError
@@ -126,9 +127,10 @@ class NdGaussianProcessSensitivityAnalysis(object):
         outputList           = deepcopy(self._outputDesignListNC)
         ## We flatten all the realisation of each sample, to check if we have np.nans
         outputMatrix         = self.wrappedFunction.outputListToMatrix(outputList)
-        inputArray           = numpy.asarray(deepcopy(self._inputDesignNC))     
-        combinedMatrix       = numpy.hstack([inputArray, outputMatrix]) # of size (N_samples, inputDim*outputDim)
-        combinedMatrix0      = deepcopy(combinedMatrix)
+        inputDes             = deepcopy(self._inputDesignNC)
+        inputArray           = numpy.array(inputDes) 
+        combinedMatrix       = numpy.hstack([inputArray, outputMatrix]).copy() # of size (N_samples, inputDim*outputDim)
+        combinedMatrix0      = combinedMatrix.copy()
         whereNan             = numpy.argwhere(numpy.isnan(deepcopy(combinedMatrix)))[...,0]
         columnIdx            = numpy.atleast_1d(numpy.squeeze(numpy.unique(whereNan)))
         print('columns where nan : ', columnIdx)
@@ -139,11 +141,12 @@ class NdGaussianProcessSensitivityAnalysis(object):
             print('There were ',n_nans, ' errors (numpy.nan) while processing, trying to regenerate missing outputs \n')
             for i  in range(n_nans):
                 assert numpy.isnan(combinedMatrix[columnIdx[i], ...]).any() == True, "should contain nans"
+                print('This row should contain nans, row number ',columnIdx[i], ' : \n',combinedMatrix[columnIdx[i], ...])
                 idx2Change   = numpy.arange(dimensionInput+2)*size + columnIdx[i]%size
                 print('index to change: ',idx2Change)
                 newCombinedMatrix        = self._regenerate_missing_vals_safe()
                 for q in range(len(idx2Change)):
-                    p                      = idx2Change[i]
+                    p                      = idx2Change[q]
                     combinedMatrix[p, ...] = newCombinedMatrix[q, ...]
             try :
                 assert numpy.allclose(combinedMatrix0,combinedMatrix, equal_nan=True) == False, "after correction they should be some difference"
@@ -156,7 +159,7 @@ class NdGaussianProcessSensitivityAnalysis(object):
             print(' - Correction assertion passed - \n')
             inputArray  = deepcopy(combinedMatrix[..., :dimensionInput])
             outputArray = deepcopy(combinedMatrix[..., dimensionInput:])
-            inputSample = openturns.Sample(inputArray).setDescription(self._inputDesignNC.getDescription())
+            inputSample = openturns.Sample(inputArray).setDescription(self.wrappedFunction.getInputDescription())
             self.outputDesignList = deepcopy(self.wrappedFunction.matrixToOutputList(outputArray))
             self.inputDesign      = deepcopy(inputSample)
         else :
