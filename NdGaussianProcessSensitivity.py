@@ -1,10 +1,8 @@
 import openturns
 import numpy
-import pandas as pd
-from   copy import deepcopy
+from   copy     import deepcopy
 import NdGaussianProcessConstructor as ngpc
 import atexit
-
 
 class NdGaussianProcessSensitivityAnalysis(object):
     '''Custom class to do sensitivity analysis on complex models
@@ -90,7 +88,7 @@ class NdGaussianProcessSensitivityAnalysis(object):
         inputDesign             = sobolExperiment.generate()
         inputDesign.setDescription(self.wrappedFunction.getInputDescription())
         sobolBatchSize          = len(inputDesign)
-        print('len(inputDesign) = ', sobolBatchSize)
+        print('number of samples for sobol experiment = ', sobolBatchSize, '\n')
         self.sobolBatchSize     = sobolBatchSize
         self._inputDesignNC     = inputDesign
         print('input design is: ',inputDesign)
@@ -116,9 +114,6 @@ class NdGaussianProcessSensitivityAnalysis(object):
         '''To check if there are nan values and replace them with new realizations
            We not only have to erase the value with the nan, but all the corresponding
            permutations. 
-
-           Note
-           ----
            
         '''
         composedDistribution = self.wrappedFunction.KLComposedDistribution
@@ -132,7 +127,7 @@ class NdGaussianProcessSensitivityAnalysis(object):
         combinedMatrix0      = combinedMatrix.copy()
         whereNan             = numpy.argwhere(numpy.isnan(deepcopy(combinedMatrix)))[...,0]
         columnIdx            = numpy.atleast_1d(numpy.squeeze(numpy.unique(whereNan)))
-        print('columns where nan : ', columnIdx)
+        print('Columns where nan : ', columnIdx,'\n')
         n_nans               = len(columnIdx)
         self.errorWNans      += n_nans
         self._designsWErrors = inputArray[columnIdx, ...]
@@ -152,19 +147,19 @@ class NdGaussianProcessSensitivityAnalysis(object):
             except : 
                 whereNan             = numpy.argwhere(numpy.isnan(deepcopy(combinedMatrix)))[...,0]
                 columnIdx            = numpy.atleast_1d(numpy.squeeze(numpy.unique(whereNan)))
-                print('columns where still nan :@!! ', columnIdx)
+                print('columns where still nan', columnIdx)
 
-            print(' - Correction assertion passed - \n')
-            inputArray  = deepcopy(combinedMatrix[..., :dimensionInput])
-            outputArray = deepcopy(combinedMatrix[..., dimensionInput:])
+            print(' - Post replacement assertion passed - \n')
+            inputArray  = combinedMatrix[..., :dimensionInput]
+            outputArray = combinedMatrix[..., dimensionInput:]
             inputSample = openturns.Sample(inputArray)
             inputSample.setDescription(self.wrappedFunction.getInputDescription())
-            self.outputDesignList = deepcopy(self.wrappedFunction.matrixToOutputList(outputArray))
-            self.inputDesign      = deepcopy(inputSample)
+            self.outputDesignList = self.wrappedFunction.matrixToOutputList(outputArray)
+            self.inputDesign      = inputSample
         else :
-            self.outputDesignList = deepcopy(self._outputDesignListNC)
-            self.inputDesign      = deepcopy(self._inputDesignNC)
-            print('No errors while processing, the function has returned no np.nan.')
+            self.outputDesignList = self._outputDesignListNC
+            self.inputDesign      = self._inputDesignNC
+            print('\nNo errors while processing, the function has returned no np.nan.\n')
 
     def _regenerate_missing_vals_safe(self): 
         composedDistribution = self.wrappedFunction.KLComposedDistribution
@@ -182,16 +177,19 @@ class NdGaussianProcessSensitivityAnalysis(object):
             if tries == 50 :
                 print('Error with function')
                 raise FunctionError('The function used does only return nans, done over 50 loops')
-            print('new input design length: ', len(inputDes))
-            print('new output design shape: ', outputDesFlat.shape)
 
         return numpy.hstack([inputDes, outputDesFlat])
 
-    def getSobolIndiciesKLCoefs(self):
+    def getSensitivityAnalysisResults(self, methodOfChoice = 'SaltelliSensitivityAlgorithm'):
         '''get sobol indices for each element of the output
         As the output should be a list of fields and scalars, this step will
         return a list of scalar sobol indices and field sobol indices
         '''
+        algoDict = {'SaltelliSensitivityAlgorithm'         : openturns.SaltelliSensitivityAlgorithm,
+                    'MartinezSensitivityAlgorithm'         : openturns.MartinezSensitivityAlgorithm,
+                    'JansenSensitivityAlgorithm'           : openturns.JansenSensitivityAlgorithm,
+                    'MauntzKucherenkoSensitivityAlgorithm' : openturns.MauntzKucherenkoSensitivityAlgorithm}
+
         size             = self.sampleSize
         inputDesign      = self.inputDesign
         dimensionInput   = int(len(inputDesign[0]))
@@ -223,6 +221,9 @@ class NdGaussianProcessSensitivityAnalysis(object):
                 print('Unknown problem')
                 raise TypeError
         return sensitivityIndicesList
+
+
+
 
     def setInputsFromNormalDistributionsAndNdGaussianProcesses(self, listfOfProcessesAndDistributions):
         '''Function to transform list of Process object into a dictionary, as used in the 
@@ -541,135 +542,8 @@ class FunctionError(Exception):
     pass
 
 
-
-
-variablesDict = {
-                 'var1' :
-                 {
-                  'nameProcess'     : 'E_', 
-                    #name to identify variable after analysis
-                  'position' : 0 ,
-                    #position of argument in function
-                  'shapeGrid'       : [[0,1000,100],] ,
-                    #shape of discrete grid the field is defined on
-                  'covarianceModel' : {
-                                  'NameModel' :'MaternModel',
-                                  'amplitude' :5000.,
-                                  'scale'     :300.,
-                                  'nu'        :13/3
-                                      },
-                    #dictionary as in NdGaussianProcessConstructor
-                  'trendFunction'   : [['x'],210000] 
-                    # [['var1', ...],'symbolicFunctionOrConstant']  
-                 },
-
-                 'var2' :
-                 {
-                  'nameProcess'     : 'D_', 
-                    #name to identify variable after analysis
-                  'position' : 1  ,
-                    #position of argument in function
-                  'shapeGrid'       : [[0,1000,100],] ,
-                    #shape of discrete grid the field is defined on
-                  'covarianceModel' : {
-                                  'NameModel' :'MaternModel',
-                                  'amplitude' :.3,
-                                  'scale'     :250.,
-                                  'nu'        :7.4/3
-                                      },
-                    #dictionary as in NdGaussianProcessConstructor
-                  'trendFunction'   : [['x'],10] 
-                    # [['var1', ...],'symbolicFunctionOrConstant']  
-                 },
-
-                 'var3' :
-                 {
-                  'nameRV'     : 'Rho',
-                  'position'   : 2,
-                  'meanAndStd' : [7850, 250]
-                 },
-
-                 'var4' :
-                 {
-                  'nameRV'     : 'FP',
-                  'position'   : 3,
-                  'meanAndStd' : [500, 50]
-                 },
-
-                 'var5' :
-                 {
-                  'nameRV'     : 'FN',
-                  'position'   : 4,
-                  'meanAndStd' : [100, 15]
-                 }               
-                }
-
-outputDict   = {'out1' :
-                {
-                 'name'     : 'VonMisesStress',
-                 'position' : 0,
-                 'shape'    : (100,)  
-                }
-               }
-
-
-import RandomBeamGenerationClass as rbgc
-functionSample = rbgc.RandomBeam_anastruct.multiprocessBatchField
-functionSolo   = rbgc.RandomBeam_anastruct.multiprocessBatchField
-
-
 '''
 import NdGaussianProcessSensitivity as ngps
 
-
 '''
 
-
-
-
-
-
-
-'''
-    def instanceThroughDictionary(self):
-        assert(self.inputDictionary is not None),"Please enter dictionary of inputs"
-        keyString = list(self.inputDictionary.keys())
-        self.setKeysInputProcess(keyString)
-        nRv     = 0
-        nProc   = 0
-        augmentedDictionary = dict() #To add more data to the inputs
-        sampleSizes         = list()
-        #to make sure each variable (Rv or Field) has the same number of samples
-        for key in keyString :
-            dim         = len(numpy.squeeze(self.inputDictionary[key]).shape)-1 # -1 to get rid of the sample dimension
-            sampleSize  = len(numpy.squeeze(self.inputDictionary[key]))
-            augmentedDictionary[key] = {'sample'     : self.inputDictionary[key],
-                                        'dimension ' : dim,
-                                        'sampleSize' : sampleSize}
-            sampleSizes.append(sampleSize)
-            if dim>0:
-                nRv +=1
-            else:
-                nProc +=1
-        try:
-            assert(numpy.min(sampleSizes)==numpy.max(sampleSizes)),"There should be the same sample size for each variable"
-        except AssertionError :
-            augmentedDictionary = self.normalizeSamples(augmentedDictionary, sampleSizes)
-
-        self.setNumberInputRVs(nRv)
-        self.setNumberInputProcesses(nProc)
-        self._augmentedDict = augmentedDictionary
-
-    def setKeysInputProcess(self, keyStrings : list):
-        assert (type(keyStrings[i])==str for i in range(len(keyStrings))) , "keyString holds the names of the keys in the dictionary."
-        self.keyString = keyString
-
-
-    def normalizeSamples(self, augmentedDictionary, sampleSizes):
-        end_len = numpy.min(sampleSizes)
-        for key in self.keyString :
-            augmentedDictionary[key]['sample']      = augmentedDictionary[key]['sample'][:end_len,...]
-            augmentedDictionary[key]['sampleSize']  = end_len
-        return augmentedDictionary
-
-'''

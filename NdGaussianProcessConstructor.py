@@ -4,9 +4,8 @@ import os
 import gc
 import tempfile #for storing the samples as temporary memmap
 import shutil
-from   joblib import Parallel, delayed, cpu_count
-from   time   import time
-import customWraps as cw
+from   joblib       import Parallel, delayed, cpu_count
+import customWraps  as cw
 
 class NdGaussianProcessConstructor(openturns.Process):
     '''Class to create up to 4-dimensional gaussian processes.
@@ -201,10 +200,10 @@ class NdGaussianProcessConstructor(openturns.Process):
             {'NameModel' : str, ,'amplitude':float, 'scale':float, 'nu':float}
         '''
         self._covarianceModelDict = model_args
-        modelDict = {'AbsoluteExponential'  : openturns.AbsoluteExponential,
-                    'SquaredExponential'    : openturns.SquaredExponential,
-                    'MaternModel'           : openturns.MaternModel,
-                    'ExponentialModel'      : openturns.ExponentialModel}
+        modelDict = {'AbsoluteExponential' : openturns.AbsoluteExponential,
+                    'SquaredExponential'   : openturns.SquaredExponential,
+                    'MaternModel'          : openturns.MaternModel,
+                    'ExponentialModel'     : openturns.ExponentialModel}
 
         assert self.dimension is not None, 'first set dimension with self.setDimension method'
         assert(model_args['NameModel'] in modelDict), "check the self.printHelp method to check possible covariance models"
@@ -217,7 +216,6 @@ class NdGaussianProcessConstructor(openturns.Process):
             assert("nu" in model_args), 'include the "nu" factor when using the MaternModel'
             assert(model_args['nu'] > 0), "nu factor has to be positive"
             nu = model_args['nu']
-        if  model_args['NameModel'] == 'MaternModel':
             covarianceModel = modelDict[model_args['NameModel']](scale, amplitude, nu)
         else : 
             covarianceModel = modelDict[model_args['NameModel']](scale, amplitude)
