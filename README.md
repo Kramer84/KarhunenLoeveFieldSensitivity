@@ -22,14 +22,14 @@ Important packages used:
 
 The environment installation is simple, just have conda install and paste that line in your terminal
 ```
-conda env create -f  sensitivityEnv.yml```
+conda env create -f  sensitivityEnv.yml
 ```
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+* [openTURNS](https://github.com/openturns/openturns) - Codes and methods for efficient sensitivity analysis
+* [anaStruct](https://github.com/ritchie46/anaStruct) - 2D efficient finite element analysis in Python
+* [Numba](https://numba.pydata.org/)                  - Easy code acceleration 
 
 ## Contributing
 
