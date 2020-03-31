@@ -728,7 +728,6 @@ class sampleAndSoloFunctionWrapper(object):
         print('shape deflection: ', deflection.shape, ' should be [N,10X] something')
         vonMisesStress = self.RandomBeamObject.getVonMisesStress(monteCarloResults_elem)
         maxDeflection = numpy.amax(numpy.abs(deflection), 1)
-        print('maxDeflection list: ', maxDeflection[:42])
         print('deflection std deviation ',numpy.std(maxDeflection))
         self.results=result
         return vonMisesStress, maxDeflection

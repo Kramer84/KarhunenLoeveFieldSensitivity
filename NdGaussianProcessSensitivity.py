@@ -127,8 +127,7 @@ class NdGaussianProcessSensitivityAnalysis(object):
         outputList           = deepcopy(self._outputDesignListNC)
         ## We flatten all the realisation of each sample, to check if we have np.nans
         outputMatrix         = self.wrappedFunction.outputListToMatrix(outputList)
-        inputDes             = deepcopy(self._inputDesignNC)
-        inputArray           = numpy.array(inputDes) 
+        inputArray           = numpy.array(deepcopy(self._inputDesignNC)) 
         combinedMatrix       = numpy.hstack([inputArray, outputMatrix]).copy() # of size (N_samples, inputDim*outputDim)
         combinedMatrix0      = combinedMatrix.copy()
         whereNan             = numpy.argwhere(numpy.isnan(deepcopy(combinedMatrix)))[...,0]
@@ -141,7 +140,6 @@ class NdGaussianProcessSensitivityAnalysis(object):
             print('There were ',n_nans, ' errors (numpy.nan) while processing, trying to regenerate missing outputs \n')
             for i  in range(n_nans):
                 assert numpy.isnan(combinedMatrix[columnIdx[i], ...]).any() == True, "should contain nans"
-                print('This row should contain nans, row number ',columnIdx[i], ' : \n',combinedMatrix[columnIdx[i], ...])
                 idx2Change   = numpy.arange(dimensionInput+2)*size + columnIdx[i]%size
                 print('index to change: ',idx2Change)
                 newCombinedMatrix        = self._regenerate_missing_vals_safe()
@@ -159,7 +157,8 @@ class NdGaussianProcessSensitivityAnalysis(object):
             print(' - Correction assertion passed - \n')
             inputArray  = deepcopy(combinedMatrix[..., :dimensionInput])
             outputArray = deepcopy(combinedMatrix[..., dimensionInput:])
-            inputSample = openturns.Sample(inputArray).setDescription(self.wrappedFunction.getInputDescription())
+            inputSample = openturns.Sample(inputArray)
+            inputSample.setDescription(self.wrappedFunction.getInputDescription())
             self.outputDesignList = deepcopy(self.wrappedFunction.matrixToOutputList(outputArray))
             self.inputDesign      = deepcopy(inputSample)
         else :
