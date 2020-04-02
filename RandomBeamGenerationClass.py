@@ -6,7 +6,6 @@ import  os
 import  traceback
 import  logging
 from    time                            import  time
-from    numba                           import  jit
 from    copy                            import  deepcopy 
 from    PIL                             import  Image
 from    anastruct.fem.system            import  SystemElements, Vertex

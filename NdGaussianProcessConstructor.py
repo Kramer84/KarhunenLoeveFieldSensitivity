@@ -2,10 +2,10 @@ import openturns
 import numpy 
 import os
 import gc
-import tempfile #for storing the samples as temporary memmap
+import tempfile     #for storing the samples as temporary memmaps
 import shutil
-from   joblib       import Parallel, delayed, cpu_count
-import customWraps  as cw
+from   joblib       import  Parallel, delayed, cpu_count
+import customWraps  as      cw
 
 class NdGaussianProcessConstructor(openturns.Process):
     '''Class to create up to 4-dimensional gaussian processes.

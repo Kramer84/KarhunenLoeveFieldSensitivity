@@ -14,8 +14,8 @@ class NdGaussianProcessSensitivityAnalysis(object):
         To make the analysis possible, some informations are required in 
         advance, mainly the shape of the inputs, the laws or processes 
         that these inputs follow, as well as the nature of the outputs.
-        This informations are added to the sensitivity analysis by using
-        the different methods in the right order.
+        This informations are added by passing a list of objects defined in
+        an other class: NdGaussianProcessConstructor
         
         The function indicated can be any python function, but not the 
         openTurnsPythonFunction type, as this is done internaly. The
@@ -23,28 +23,11 @@ class NdGaussianProcessSensitivityAnalysis(object):
         modified function taking in decompositions like kahrunen loeve.
 
         Attributes:
-            listfOfProcessesAndDistributions    : nested dict
-                dictionary containing the parameters for the inputs
-                    dictModel = {'process_1' :
-                                 {
-                                  'nameProcess'     : str, 
-                                    #name to identify variable after analysis
-                                  'positionProcess' : int  
-                                    #position of argument in function
-                                  'shapeGrid'       : list 
-                                    #shape of discrete grid the field is defined on
-                                  'covarianceModel' : dict 
-                                    #dictionary as in NdGaussianProcessConstructor
-                                  'trendFunction'   : list 
-                                    # [['var1', ...],'symbolicFunctionOrConstant']  
-                                 },
-                                 variable_2' :
-                                 {
-                                  'nameRV'       : str,
-                                  'position'     : int,
-                                  'meanAndStd'   : list
-                                 },
-                                }
+
+            listfOfProcessesAndDistributions    : list
+                list of NdGaussianProcessConstructor.NdGaussianProcessConstructor and 
+                NdGaussianProcessConstructor.NormalDistribution objects
+
             outputVariables   : nested dict
                 dictionary containg the parameters for the output processes
                     dictModel = {'outputField_1' :
@@ -54,8 +37,16 @@ class NdGaussianProcessSensitivityAnalysis(object):
                                   'shape'        : list
                                  },
                                 }
- funcModel         : pythonFunction
-                python function of our model, taking as input RVs and processes
+
+            funcSample         : pythonFunction
+                function taking as an input samples of rvs (vectors) 
+                and samples of fields (ndarrays) for multiprocessing)
+
+            funcSolo           : pythonFunction
+                function taking as a input rvs (scalars) and fields
+
+            sampleSize         : int
+                size of the sample for the sensitivity analysis
     '''
     def __init__(self, listfOfProcessesAndDistributions : list, 
                 outputVariables : dict, funcSample, funcSolo, sampleSize : int):
@@ -180,7 +171,7 @@ class NdGaussianProcessSensitivityAnalysis(object):
 
         return numpy.hstack([inputDes, outputDesFlat])
 
-    def getSensitivityAnalysisResults(self, methodOfChoice = 'SaltelliSensitivityAlgorithm'):
+    def getSensitivityAnalysisResults(self, methodOfChoice = 'MartinezSensitivityAlgorithm'):
         '''get sobol indices for each element of the output
         As the output should be a list of fields and scalars, this step will
         return a list of scalar sobol indices and field sobol indices
@@ -190,40 +181,37 @@ class NdGaussianProcessSensitivityAnalysis(object):
                     'JansenSensitivityAlgorithm'           : openturns.JansenSensitivityAlgorithm,
                     'MauntzKucherenkoSensitivityAlgorithm' : openturns.MauntzKucherenkoSensitivityAlgorithm}
 
+        assert methodOfChoice in algoDict, "argument has to be a string:\n['SaltelliSensitivityAlgorithm','MartinezSensitivityAlgorithm','JansenSensitivityAlgorithm','MauntzKucherenkoSensitivityAlgorithm'] "
         size             = self.sampleSize
         inputDesign      = self.inputDesign
         dimensionInput   = int(len(inputDesign[0]))
         dimensionOutput  = len(self.outputVariables.keys())
         outputDesignList = self.outputDesignList
-        sensitivityIndicesList = list()
+        sensitivityAnalysisList = list()
         n_tot  = size*(2+dimensionInput)
         for k in range(dimensionOutput):
-            outputDesign      = numpy.array(outputDesignList[k])
-            shapeDesign       = list(outputDesign.shape) 
-            shapeNew          = int(numpy.prod(shapeDesign[1:]))
-            print('new shape is: ', shapeNew)
-            shapeDesResh      = numpy.reshape(outputDesign, [n_tot, shapeNew])
+            outputDesign        = numpy.array(outputDesignList[k])
+            shapeDesign         = list(outputDesign.shape) 
+            shapeNew            = int(numpy.prod(shapeDesign[1:]))
+            print('new shape is : ', shapeNew)
+            outputDesResh        = numpy.reshape(outputDesign, [n_tot, shapeNew])
             if shapeNew == 1 :
-                shapeDesResh  = numpy.squeeze(shapeDesResh.flatten())
-                print(shapeDesResh)
-                sensitivitySaltelli = openturns.SaltelliSensitivityAlgorithm(inputDesign, numpy.expand_dims(shapeDesResh,1), size)
-                sensitivityIndicesList.append(sensitivitySaltelli)
+                outputDesResh        = numpy.squeeze(outputDesResh.flatten())
+                print(outputDesResh)
+                sensitivityAna = algoDict[methodOfChoice](inputDesign, numpy.expand_dims(outputDesResh,1), size)
+                sensitivityAnalysisList.append(numpy.array[sensitivityAna])
             elif shapeNew > 1 :            
-                sensitivityIdList = [openturns.SaltelliSensitivityAlgorithm(inputDesign, numpy.expand_dims(shapeDesResh[...,i], 1), size) for i in range(shapeNew)]
+                sensitivityIdList = [algoDict[methodOfChoice](inputDesign, numpy.expand_dims(outputDesResh[...,i], 1), size) for i in range(shapeNew)]
                 sensitivityIdArr  = numpy.array(sensitivityIdList)
-                endShape          = list(shapeDesign)
-                endShape[0]       = 1
+                endShape          = shapeDesign[1:] # we suppress the first dimension as we have fields of objects, not indices
                 print('sobol field shape: ',endShape)
                 sensitivityField  = numpy.reshape(sensitivityIdArr, endShape)
                 print('Shape sensitivity field : ',sensitivityField.shape)
-                sensitivityIndicesList.append(sensitivityField)
+                sensitivityAnalysisList.append(sensitivityField)
             else :
                 print('Unknown problem')
                 raise TypeError
-        return sensitivityIndicesList
-
-
-
+        return sensitivityAnalysisList
 
     def setInputsFromNormalDistributionsAndNdGaussianProcesses(self, listfOfProcessesAndDistributions):
         '''Function to transform list of Process object into a dictionary, as used in the 
@@ -268,13 +256,6 @@ class NdGaussianProcessSensitivityAnalysis(object):
         return dictOfInputs
 
 
-    def setNumberOutputProcesses(self, numberOutputProcesses : int):
-        assert numberOutputProcesses >= 0, "has to be positive"
-        self.numberOutputProcesses = numberOutputProcesses
-
-    def setNumberOutputRVs(self, numberRVs : int):
-        assert numberRVs >= 0, "has to be positive"
-        self.numberOutputRVs = numberRVs
 
     def setFunctionSample(self, wrapFunction):
         '''Python function taking RVs and Processes as samples
@@ -523,6 +504,35 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         X = deepcopy(X)
         inputProcessNRVs = self.liftKLComposedDistributionAsFieldAndRvs(X)
         return self.PythonFunctionSample(*inputProcessNRVs)
+
+#######################################################################################
+#######################################################################################
+#######################################################################################
+
+class senstivityAnalysisWrapper(object):
+    '''Wrapper to easily have access to the different sensitivty indices
+
+    Necessary as the NdGaussianProcessSensitivityAnalysis.getSensitivityAnalysisResults 
+    method returns a list of objects, that can be openturns sensitivityAnalysis objects,
+    or arrays of those same objects. Thus the original methods can't be directly used.
+
+    '''
+    def __init__(self, sensitivityAnalysisList):
+        self.sensitivityAnalysisList = sensitivityAnalysisList
+
+    def getFirstOrderIndices(self):
+        '''Returns a list of the sensitivty indices (Sobol)
+        '''
+        sensitivityAnalysisList = self.sensitivityAnalysisList
+        n_outputs               = len(sensitivityAnalysisList)
+        firstOrderIndicesList   = list()
+        for i in range(n_outputs):
+            sensitivityOutput = sensitivityAnalysisList[i]
+            size_output       = len(sensitivityOutput)
+            for k in range(size_output):
+                # stuffstuff
+                pass
+
 
 #######################################################################################
 #######################################################################################
