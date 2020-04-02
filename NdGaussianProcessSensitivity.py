@@ -62,10 +62,12 @@ class NdGaussianProcessSensitivityAnalysis(object):
         self.sampleSize          = sampleSize
         self.errorWNans          = 0
         self.sobolBatchSize      = None
-        self._inputDesignNC      = None
         self.inputDesign         = None
-        self._outputDesignListNC = None 
         self.outputDesignList    = None 
+        self.sensitivityResults  = None 
+
+        self._inputDesignNC      = None
+        self._outputDesignListNC = None 
         self._designsWErrors     = None
 
     def makeExperiment(self):
@@ -171,7 +173,7 @@ class NdGaussianProcessSensitivityAnalysis(object):
 
         return numpy.hstack([inputDes, outputDesFlat])
 
-    def getSensitivityAnalysisResults(self, methodOfChoice = 'MartinezSensitivityAlgorithm'):
+    def getSensitivityAnalysisResults(self, methodOfChoice = 'MartinezSensitivityAlgorithm', returnStuff = False):
         '''get sobol indices for each element of the output
         As the output should be a list of fields and scalars, this step will
         return a list of scalar sobol indices and field sobol indices
@@ -211,7 +213,9 @@ class NdGaussianProcessSensitivityAnalysis(object):
             else :
                 print('Unknown problem')
                 raise TypeError
-        return sensitivityAnalysisList
+        self.sensitivityResults = senstivityAnalysisWrapper(sensitivityAnalysisList, self.wrappedFunction.getInputDescription()) 
+        if returnStuff == True :
+            return sensitivityAnalysisList
 
     def setInputsFromNormalDistributionsAndNdGaussianProcesses(self, listfOfProcessesAndDistributions):
         '''Function to transform list of Process object into a dictionary, as used in the 
@@ -516,22 +520,40 @@ class senstivityAnalysisWrapper(object):
     method returns a list of objects, that can be openturns sensitivityAnalysis objects,
     or arrays of those same objects. Thus the original methods can't be directly used.
 
-    '''
-    def __init__(self, sensitivityAnalysisList):
-        self.sensitivityAnalysisList = sensitivityAnalysisList
 
+    Arguments
+    ---------
+    sensitivityAnalysisList : list
+        list of np.arrays of openturns.sensitivityAnalysis objects
+
+    _description : list of strings
+        list of all the variable names of the sensitivity analysis
+        (name of the Karhunen Loève variables and other RVs)
+    '''
+    def __init__(self, sensitivityAnalysisList, description):
+        self.sensitivityAnalysisList = sensitivityAnalysisList
+        self._description            = description
+        self._dimInput               = len(self._description)
+        self._dimOutput              = len(self.sensitivityAnalysisList)
+        self.firstOrderIndices       = None 
+   
     def getFirstOrderIndices(self):
-        '''Returns a list of the sensitivty indices (Sobol)
+        '''Returns a list of the sensitivty indices arrays (Sobol)
         '''
-        sensitivityAnalysisList = self.sensitivityAnalysisList
-        n_outputs               = len(sensitivityAnalysisList)
-        firstOrderIndicesList   = list()
-        for i in range(n_outputs):
-            sensitivityOutput = sensitivityAnalysisList[i]
-            size_output       = len(sensitivityOutput)
-            for k in range(size_output):
-                # stuffstuff
-                pass
+        firstOrderIndicesList = list()
+        for i in range(self._dimOutput):
+            sensitivityOutput = self.sensitivityAnalysisList[i]
+            assert type(sensitivityOutput) == numpy.ndarray , ""
+            shape_output      = sensitivityOutput.shape
+            flat_shape        = int(numpy.prod(shape_output))
+            flattenedOutput   = numpy.reshape(sensitivityOutput, list([flat_shape]))
+            tempIndArray      = numpy.empty(list([self._dimInput,flat_shape]))
+            for k in range(flat_shape):
+                tempIndArray[...,k] = numpy.array(flattenedOutput[k].getFirstOrderIndices())
+            reshapeIndicesArray = numpy.reshape(tempIndArray,list([self._dimInput]).extend(list(shape_output)))
+            firstOrderIndicesList.append(reshapeIndicesArray)
+        self.firstOrderIndices  = firstOrderIndicesList
+
 
 
 #######################################################################################
