@@ -199,7 +199,7 @@ class NdGaussianProcessSensitivityAnalysis(object):
                 outputDesResh        = numpy.squeeze(outputDesResh.flatten())
                 print(outputDesResh)
                 sensitivityAna = algoDict[methodOfChoice](inputDesign, numpy.expand_dims(outputDesResh,1), size)
-                sensitivityAnalysisList.append(numpy.array[sensitivityAna])
+                sensitivityAnalysisList.append(numpy.array([sensitivityAna]))
             elif shapeNew > 1 :            
                 sensitivityIdList = [algoDict[methodOfChoice](inputDesign, numpy.expand_dims(outputDesResh[...,i], 1), size) for i in range(shapeNew)]
                 sensitivityIdArr  = numpy.array(sensitivityIdList)
