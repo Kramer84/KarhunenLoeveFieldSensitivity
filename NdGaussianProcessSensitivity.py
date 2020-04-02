@@ -127,7 +127,6 @@ class NdGaussianProcessSensitivityAnalysis(object):
         if n_nans > 0:
             print('There were ',n_nans, ' errors (numpy.nan) while processing, trying to regenerate missing outputs \n')
             for i  in range(n_nans):
-                assert numpy.isnan(combinedMatrix[columnIdx[i], ...]).any() == True, "should contain nans"
                 idx2Change   = numpy.arange(dimensionInput+2)*size + columnIdx[i]%size
                 print('index to change: ',idx2Change)
                 newCombinedMatrix        = self._regenerate_missing_vals_safe()
