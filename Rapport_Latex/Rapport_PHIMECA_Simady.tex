@@ -9,6 +9,7 @@
 %\usepackage{apacite}
 \usepackage{float}
 \usepackage[section]{placeins}
+\usepackage{mwe}
 \bibliographystyle{plain}
 \usepackage{hyperref}
 
@@ -176,13 +177,43 @@ Les codes sont accessibles via \textit{\textbf{github}}: \\
 
 \begin{figure}[H]
    \centering   
-   \includegraphics[scale=0.45]{schema_postprocessing.pdf}
+   \includegraphics[scale=0.175]{schema_postprocessing.png}
       \caption{Organsiation des variables d'entrée, expliquant l'étape de postprocessing}
          \label{posprocessing}
 \end{figure}
 
 
+Une fois cette étape finie, on à accès aux indices de sobol pour chaque élément du champ. \\
+Dans le cas de la poutre en flexion, prennant initialement 5 arguments en entrée (champ du module de young et champ du diamètre, densité, position de la force et norme de la force), la décomposition des deux champs en entrée fait que le modèle est ensuite régi par 24 variables aléatoires. Bien que cela fait augmenter la dimensionalité du problème, nous avons désormais la possiblité de travailler seuelement avec des variables aléatoires gaussiennes décorrélées, et donc faire une analyse de sensibilité classique.\\
+La difficultée qui découle de cette analyse, est de trouver la manière qui permettra de relier les indices de sobol de ces variables aléatoire décorrélées, au champ stochastique d'origine. 
 
+
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[height=1\textwidth]{sensitivity_rv_KL_anno.png} % first figure itself
+        \caption{indices de sobol des V.A. de Karhunen-Loève pour la déflection maximale}
+    \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=1.35\textwidth]{sensitivity_field_KL.png} % second figure itself
+        \caption{indices de sobol des V.A. de Karhunen-Loève pour le champ des contrainte de Von Mises}
+    \end{minipage}
+\end{figure}
+
+Pour parvenir à faire ce lien, nous avions comme base différentes études sur le sujet, notamment le papier par \cite{Wei2017May}, sur l'analyse de sensibilité sur des modèles ayant des paramètres dépendants du temps. (Le variabes étant gouvernés par le temps étant générallement stochastiques, ex: température, effort etc. )
+
+\subsection{Premiers essais d'analyse de la sensibilité du modèle }
+
+
+Comme nous avions désormais accès aux différents indices de sobol de notre modèle basé sur les indices de Karhunen-Loève, le travail pouvait désormais se focaliser sur l'interprétation de ces différents indices. En effet, cette décomposition était très classique lors du travail avec des champs stochastiques, et plusieurs papiers de recherche se sont interessés à comment faire des  analyses de sensibilité de ce type de champs avec cette même décomposition. Comme mentionné précédemment, le travail de \cite{Wei2017May} offre une première approche pour l'interprétration de ces résultats, mais d'autres comme \cite{Pronzato2019Jul} ont aussi developpés des méthodes pour l'analyse de ces indices issus de l'expansion de Karhunen-Loève
+
+\subsubsection{Interprétation et essais avec le papier : "Time-variant global reliability sensitivity analysis of structures with both input random variables and stochastic processes"}
+Ce papier de recherche datant de 2017, offre une approche pour l'analyse de sensibilité de modèles définis dans le temps et leur analyse de fiabilité. En effet, de nombreuses structures mécaniques (ponts, tours etc.) sont soumis à des grandeurs variant dans le temps, et si celles se trouvent être continues dans celui ci, alors cette grandeur peut être représentée par un champ stochastique. Bien qu'il y aie une différence notable entre les grandeurs par rapport auxquelles il y a continuité (dans leur papier le temps, et nous l'espace), des analogies peuvent être faites. \\
+
+Un des exemples étudiés par eux est celui d'une poutre en flexion dont le chargement (appliqué en son centre) est déterminé par un champ stochastique dans le temps. La grande différence entre ce modèle et le notre est que chez eux c'est soit la contrainte maximale qui est étudiée, alors que nous étudions le champ des contraintes de von mises. 
 
 
 

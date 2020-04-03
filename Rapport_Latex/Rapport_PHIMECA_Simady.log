@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.12.7)  25 MAR 2020 17:21
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.12.7)  3 APR 2020 13:52
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -404,6 +404,38 @@ Package: float 2001/11/08 v1.3d Float enhancements (AL)
 (/usr/share/texlive/texmf-dist/tex/latex/placeins/placeins.sty
 Package: placeins 2005/04/18  v 2.2
 )
+(/usr/share/texlive/texmf-dist/tex/latex/mwe/mwe.sty
+Package: mwe 2017/12/10 v0.4 Package to support minimal working examples (MWE)
+
+(/usr/share/texlive/texmf-dist/tex/latex/lipsum/lipsum.sty
+Package: lipsum 2014/07/27 v1.3 150 paragraphs of Lorem Ipsum dummy text
+\c@lips@count=\count90
+)
+(/usr/share/texlive/texmf-dist/tex/latex/blindtext/blindtext.sty
+Package: blindtext 2012/01/06 V2.0 blindtext-Package
+
+(/usr/share/texlive/texmf-dist/tex/latex/tools/xspace.sty
+Package: xspace 2014/10/28 v1.13 Space after command names (DPC,MH)
+)
+\c@blindtext=\count91
+\c@Blindtext=\count92
+\c@blind@countparstart=\count93
+\blind@countxx=\count94
+\blindtext@numBlindtext=\count95
+\blind@countyy=\count96
+\c@blindlist=\count97
+\c@blindlistlevel=\count98
+\c@blindlist@level=\count99
+\blind@listitem=\count100
+\c@blind@listcount=\count101
+\c@blind@levelcount=\count102
+\blind@mathformula=\count103
+\blind@Mathformula=\count104
+\c@blind@randomcount=\count105
+\c@blind@randommax=\count106
+\c@blind@pangramcount=\count107
+\c@blind@pangrammax=\count108
+))
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
 Package: hyperref 2018/02/06 v6.86b Hypertext links for LaTeX
 
@@ -461,15 +493,15 @@ Package: auxhook 2016/05/16 v1.4 Hooks for auxiliary files (HO)
 Package: kvoptions 2016/05/16 v3.12 Key value format for package options (HO)
 )
 \@linkdim=\dimen106
-\Hy@linkcounter=\count90
-\Hy@pagecounter=\count91
+\Hy@linkcounter=\count109
+\Hy@pagecounter=\count110
 
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def
 File: pd1enc.def 2018/02/06 v6.86b Hyperref: PDFDocEncoding definition (HO)
 Now handling font encoding PD1 ...
 ... no UTF-8 mapping file for font encoding PD1
 )
-\Hy@SavedSpaceFactor=\count92
+\Hy@SavedSpaceFactor=\count111
 
 (/usr/share/texlive/texmf-dist/tex/latex/latexconfig/hyperref.cfg
 File: hyperref.cfg 2002/06/06 v1.2 hyperref configuration of TeXLive
@@ -481,7 +513,7 @@ Package hyperref Info: Plain pages OFF on input line 4524.
 Package hyperref Info: Backreferencing OFF on input line 4529.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks ON on input line 4762.
-\c@Hy@tempcnt=\count93
+\c@Hy@tempcnt=\count112
 
 (/usr/share/texlive/texmf-dist/tex/latex/url/url.sty
 \Urlmuskip=\muskip10
@@ -489,7 +521,7 @@ Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
 LaTeX Info: Redefining \url on input line 5115.
 \XeTeXLinkMargin=\dimen107
-\Fld@menulength=\count94
+\Fld@menulength=\count113
 \Field@Width=\dimen108
 \Fld@charsize=\dimen109
 Package hyperref Info: Hyper figures OFF on input line 6369.
@@ -501,16 +533,16 @@ Package hyperref Info: Link coloring with OCG OFF on input line 6394.
 Package hyperref Info: PDF/A mode OFF on input line 6399.
 LaTeX Info: Redefining \ref on input line 6439.
 LaTeX Info: Redefining \pageref on input line 6443.
-\Hy@abspage=\count95
-\c@Item=\count96
-\c@Hfootnote=\count97
+\Hy@abspage=\count114
+\c@Item=\count115
+\c@Hfootnote=\count116
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
 
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/hpdftex.def
 File: hpdftex.def 2018/02/06 v6.86b Hyperref driver for pdfTeX
-\Fld@listcount=\count98
-\c@bookmark@seq@number=\count99
+\Fld@listcount=\count117
+\c@bookmark@seq@number=\count118
 
 (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/rerunfilecheck.sty
 Package: rerunfilecheck 2016/05/16 v1.8 Rerun checks for auxiliary files (HO)
@@ -522,33 +554,33 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 (./Rapport_PHIMECA_Simady.aux)
 \openout1 = `Rapport_PHIMECA_Simady.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 16.
+LaTeX Font Info:    ... okay on input line 16.
 
 (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count100
+\scratchcounter=\count119
 \scratchdimen=\dimen110
 \scratchbox=\box28
-\nofMPsegments=\count101
-\nofMParguments=\count102
+\nofMPsegments=\count120
+\nofMParguments=\count121
 \everyMPshowfont=\toks19
-\MPscratchCnt=\count103
+\MPscratchCnt=\count122
 \MPscratchDim=\dimen111
-\MPnumerator=\count104
-\makeMPintoPDFobject=\count105
+\MPnumerator=\count123
+\makeMPintoPDFobject=\count124
 \everyMPtoPDFconversion=\toks20
 ) (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
@@ -568,7 +600,7 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 \AtBeginShipoutBox=\box29
-Package hyperref Info: Link coloring OFF on input line 15.
+Package hyperref Info: Link coloring OFF on input line 16.
 
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
@@ -576,22 +608,22 @@ Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
 (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
 Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
-\c@section@level=\count106
+\c@section@level=\count125
 )
-LaTeX Info: Redefining \ref on input line 15.
-LaTeX Info: Redefining \pageref on input line 15.
-LaTeX Info: Redefining \nameref on input line 15.
+LaTeX Info: Redefining \ref on input line 16.
+LaTeX Info: Redefining \pageref on input line 16.
+LaTeX Info: Redefining \nameref on input line 16.
 
 (./Rapport_PHIMECA_Simady.out) (./Rapport_PHIMECA_Simady.out)
 \@outlinefile=\write3
 \openout3 = `Rapport_PHIMECA_Simady.out'.
 
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 24.
+(Font)              <12> on input line 25.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 24.
+(Font)              <8> on input line 25.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 24.
+(Font)              <6> on input line 25.
 
 (./Rapport_PHIMECA_Simady.toc
 LaTeX Font Info:    External font `cmex10' loaded for size
@@ -611,178 +643,201 @@ mps
  [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-Overfull \hbox (24.08922pt too wide) in paragraph at lines 64--65
+Overfull \hbox (24.08922pt too wide) in paragraph at lines 65--66
 \T1/cmr/m/n/10 clas-sique-ment en se bas-ant sur la bib-lio-thèque \T1/cmr/m/it
 /10 open-TURNS \T1/cmr/m/n/10 développé par PHIMECA,
  []
 
 [2]
-Underfull \hbox (badness 10000) in paragraph at lines 68--70
+Underfull \hbox (badness 10000) in paragraph at lines 69--71
 
  []
 
 
-Overfull \hbox (7.38617pt too wide) in paragraph at lines 74--77
+Overfull \hbox (7.38617pt too wide) in paragraph at lines 75--78
 \T1/cmr/m/n/10 Plus spé-ci-fique-ment, cette méthodolo-gie était à ap-pli-quer 
 à un mod-èle d'échangeur
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 74--77
+Underfull \hbox (badness 10000) in paragraph at lines 75--78
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 74--77
+Underfull \hbox (badness 10000) in paragraph at lines 75--78
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 80--82
+Underfull \hbox (badness 10000) in paragraph at lines 81--83
 
  []
 
 [3] [4]
-<stochastic_process2d.png, id=116, 1139.00531pt x 426.84468pt>
+<stochastic_process2d.png, id=128, 1139.00531pt x 426.84468pt>
 File: stochastic_process2d.png Graphic file (type png)
 <use stochastic_process2d.png>
-Package pdftex.def Info: stochastic_process2d.png  used on input line 86.
+Package pdftex.def Info: stochastic_process2d.png  used on input line 87.
 (pdftex.def)             Requested size: 284.75063pt x 106.7109pt.
 
-Overfull \hbox (8.11374pt too wide) in paragraph at lines 98--100
+Overfull \hbox (8.11374pt too wide) in paragraph at lines 99--101
 \T1/cmr/m/n/10 Une autre fonc-tion de co-vari-ance, celle de \T1/cmr/m/it/10 Ma
 térn\T1/cmr/m/n/10 , est aussi très util-isée, puisqu'elle
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 103--104
+Underfull \hbox (badness 10000) in paragraph at lines 104--105
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 119--120
+Underfull \hbox (badness 10000) in paragraph at lines 120--121
 
  []
 
 [5 <./stochastic_process2d.png (PNG copy)>]
-Overfull \hbox (3.55743pt too wide) in paragraph at lines 121--122
+Overfull \hbox (3.55743pt too wide) in paragraph at lines 122--123
 []\T1/cmr/m/n/10 Cette dé-com-po-si-tion per-met de représen-ter l'ensemble de 
 vari-abil-ité du champ
  []
 
-<beam_structure.png, id=134, 1165.7151pt x 694.5147pt>
+<beam_structure.png, id=146, 1165.7151pt x 694.5147pt>
 File: beam_structure.png Graphic file (type png)
 <use beam_structure.png>
-Package pdftex.def Info: beam_structure.png  used on input line 138.
+Package pdftex.def Info: beam_structure.png  used on input line 139.
 (pdftex.def)             Requested size: 233.13889pt x 138.90047pt.
 
-Overfull \hbox (0.61005pt too wide) in paragraph at lines 134--141
+Overfull \hbox (0.61005pt too wide) in paragraph at lines 135--142
 \T1/cmr/m/n/10 et avoir un mod-èle sim-ple et rapide à exé-cuter, un ex-em-ple 
 sim-ple a été développé
  []
 
 
-Overfull \hbox (3.02612pt too wide) in paragraph at lines 143--145
+Overfull \hbox (3.02612pt too wide) in paragraph at lines 144--146
 \T1/cmr/m/n/10 En plus de ces deux grandeurs gou-vernées par des champs, la den
 -sité du matériau,
  []
 
 [6 <./beam_structure.png>]
-<beam_experience.png, id=143, 1165.7151pt x 694.5147pt>
+<beam_experience.png, id=155, 1165.7151pt x 694.5147pt>
 File: beam_experience.png Graphic file (type png)
 <use beam_experience.png>
-Package pdftex.def Info: beam_experience.png  used on input line 148.
+Package pdftex.def Info: beam_experience.png  used on input line 149.
 (pdftex.def)             Requested size: 384.68718pt x 229.19055pt.
 
-Overfull \hbox (39.68718pt too wide) in paragraph at lines 148--149
+Overfull \hbox (39.68718pt too wide) in paragraph at lines 149--150
  [][] 
  []
 
 
-Overfull \hbox (7.5528pt too wide) in paragraph at lines 155--156
+Overfull \hbox (7.5528pt too wide) in paragraph at lines 156--157
 \T1/cmr/m/n/10 somme finie de vari-ables aléa-toires nor-males grâce à la dé-co
 m-po-si-tion de karhunen-
  []
 
 [7 <./beam_experience.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 168--169
+Underfull \hbox (badness 10000) in paragraph at lines 169--170
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 170--171
+Underfull \hbox (badness 10000) in paragraph at lines 171--172
 
  []
 
-LaTeX Font Info:    Try loading font information for T1+cmtt on input line 174.
+LaTeX Font Info:    Try loading font information for T1+cmtt on input line 176.
 
 (/usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-Overfull \hbox (35.68848pt too wide) in paragraph at lines 174--175
-[]\T1/cmr/m/n/10 Les codes sont ac-ces-si-bles via github: []$\T1/cmtt/m/n/10 h
-ttps : / / github . com / Kramer84 / stochastic _
+<schema_postprocessing.png, id=165, 2048.65375pt x 1652.1725pt>
+File: schema_postprocessing.png Graphic file (type png)
+<use schema_postprocessing.png>
+Package pdftex.def Info: schema_postprocessing.png  used on input line 180.
+(pdftex.def)             Requested size: 358.51978pt x 289.13452pt.
+
+Overfull \hbox (13.51978pt too wide) in paragraph at lines 180--181
+ [][] 
  []
 
-<schema_postprocessing.pdf, id=152, 597.47943pt x 845.01837pt>
-File: schema_postprocessing.pdf Graphic file (type pdf)
-<use schema_postprocessing.pdf>
-Package pdftex.def Info: schema_postprocessing.pdf  used on input line 178.
-(pdftex.def)             Requested size: 268.86325pt x 380.25476pt.
-[8] [9 <./schema_postprocessing.pdf>]
-Overfull \hbox (38.15643pt too wide) in paragraph at lines 268--268
+[8]
+<sensitivity_rv_KL_anno.png, id=172, 319.1925pt x 643.40375pt>
+File: sensitivity_rv_KL_anno.png Graphic file (type png)
+<use sensitivity_rv_KL_anno.png>
+Package pdftex.def Info: sensitivity_rv_KL_anno.png  used on input line 196.
+(pdftex.def)             Requested size: 77.01688pt x 155.24895pt.
+<sensitivity_field_KL.png, id=173, 1371.1225pt x 322.20375pt>
+File: sensitivity_field_KL.png Graphic file (type png)
+<use sensitivity_field_KL.png>
+Package pdftex.def Info: sensitivity_field_KL.png  used on input line 201.
+(pdftex.def)             Requested size: 209.58702pt x 49.24785pt.
+
+Overfull \hbox (54.33807pt too wide) in paragraph at lines 201--202
+ [][] 
+ []
+
+[9 <./schema_postprocessing.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 214--215
+
+ []
+
+[10 <./sensitivity_rv_KL_anno.png> <./sensitivity_field_KL.png>]
+Overfull \hbox (38.15643pt too wide) in paragraph at lines 302--302
 []        \T1/cmtt/m/n/10 PRINT *,'Enter the values for the base and height of 
 a triangle.'[] 
  []
 
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 285.
+[11]
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 319.
 
-(/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
+ (/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 285.
- [10]
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 319.
+ [12]
 (./Rapport_PHIMECA_Simady.bbl)
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 329.
- [11]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 329.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 363.
+ [13]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 363.
  (./Rapport_PHIMECA_Simady.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 329.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 329.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 363.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 363.
 Package rerunfilecheck Info: File `Rapport_PHIMECA_Simady.out' has not changed.
 
-(rerunfilecheck)             Checksum: 22810269CCBE5D8148F4C44B9E671FA7;1054.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 329.
+(rerunfilecheck)             Checksum: E31C2132A81CDB9D0E5AA553CFDFA04F;1395.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 363.
  ) 
 Here is how much of TeX's memory you used:
- 6219 strings out of 494880
- 88882 string characters out of 6179601
- 177078 words of memory out of 5000000
- 9412 multiletter control sequences out of 15000+600000
- 13533 words of font info for 33 fonts, out of 8000000 for 9000
+ 6609 strings out of 494880
+ 94594 string characters out of 6179601
+ 292159 words of memory out of 5000000
+ 9777 multiletter control sequences out of 15000+600000
+ 14234 words of font info for 34 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 28i,11n,28p,798b,337s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 28i,11n,30p,810b,411s stack positions out of 5000i,500n,10000p,200000b,80000s
  </home/kramer84/.texlive2017/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm0700.
 600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt1
 000.600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/ljfour/jknappen/ec/e
-cti1000.600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/ljfour/jknappen/
-ec/ecbx1200.600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/ljfour/jknap
-pen/ec/ecrm1000.600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/ljfour/j
-knappen/ec/ecbx1000.600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/ljfo
-ur/jknappen/ec/ecbx1440.600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/
-ljfour/jknappen/ec/ecrm1200.600pk> </home/kramer84/.texlive2017/texmf-var/fonts
-/pk/ljfour/jknappen/ec/ecrm1728.600pk></usr/share/texlive/texmf-dist/fonts/type
-1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
-ic/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/c
-m/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.
-pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></
-usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb>
-Output written on Rapport_PHIMECA_Simady.pdf (11 pages, 511005 bytes).
+cbi1000.600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/ljfour/jknappen/
+ec/ecti1000.600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/ljfour/jknap
+pen/ec/ecbx1200.600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/ljfour/j
+knappen/ec/ecrm1000.600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/ljfo
+ur/jknappen/ec/ecbx1000.600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/
+ljfour/jknappen/ec/ecbx1440.600pk> </home/kramer84/.texlive2017/texmf-var/fonts
+/pk/ljfour/jknappen/ec/ecrm1200.600pk> </home/kramer84/.texlive2017/texmf-var/f
+onts/pk/ljfour/jknappen/ec/ecrm1728.600pk></usr/share/texlive/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/
+public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfon
+ts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
+mr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pf
+b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb>
+Output written on Rapport_PHIMECA_Simady.pdf (13 pages, 635252 bytes).
 PDF statistics:
- 622 PDF objects out of 1000 (max. 8388607)
- 233 compressed objects within 3 object streams
- 52 named destinations out of 1000 (max. 500000)
- 141 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 655 PDF objects out of 1000 (max. 8388607)
+ 247 compressed objects within 3 object streams
+ 58 named destinations out of 1000 (max. 500000)
+ 167 words of extra memory for PDF output out of 10000 (max. 10000000)
 

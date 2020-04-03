@@ -414,6 +414,7 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
 
     def getOutputVariablesName(self): 
         sortedKeys = sorted(self.outputDict , key = lambda x : self.outputDict[x]['position'])
+        self.outputVarNames = list()
         for key in sortedKeys :
             try : 
                 nameOutput = self.outputDict[key]['name']
