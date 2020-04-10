@@ -208,14 +208,21 @@ Pour parvenir à faire ce lien, nous avions comme base différentes études sur 
 
 \subsection{Premiers essais d'analyse de la sensibilité du modèle }
 
-Comme nous avions désormais accès aux différents indices de sobol de notre modèle basé sur les indices de Karhunen-Loève, le travail pouvait désormais se focaliser sur l'interprétation de ces différents indices. En effet, cette décomposition était très classique lors du travail avec des champs stochastiques, et plusieurs papiers de recherche se sont interessés à comment faire des  analyses de sensibilité de ce type de champs avec cette même décomposition. Comme mentionné précédemment, le travail de \cite{Wei2017May} offre une première approche pour l'interprétration de ces résultats, mais d'autres comme \cite{Pronzato2019Jul} ont aussi developpés des méthodes pour l'analyse de ces indices issus de l'expansion de Karhunen-Loève
+Comme nous avions désormais accès aux différents indices de sobol de notre modèle basé sur les indices de Karhunen-Loève, le travail pouvait désormais se focaliser sur l'interprétation de ces différents indices. En effet, cette décomposition était très classique lors du travail avec des champs stochastiques, et plusieurs papiers de recherche se sont interessés à comment faire des  analyses de sensibilité de ce type de champs avec cette même décomposition. Comme mentionné précédemment, le travail de \cite{Wei2017May} offre une première approche pour l'interprétration de ces résultats, mais d'autres comme \cite{Pronzato2019Jul} ont aussi developpés des méthodes pour l'analyse de ces indices issus de l'expansion de Karhunen-Loève. 
+Dans le travail de \citep{shang_stochastic_2013}, il est rapporté d'une méthodologie pour lier un modèle en élément finis d'Abaqus avec des champs stochastiques genérés avec MATLAB et pour l'analyse probabiliste de ce modèle. L'utilisation de l'expansion de KL y est aussi mentionné, et ce travail offre une analyse intéressante sur la capacité de cette méthode à reproduire le champs stochastique, en fonction de l'élément à partir duquel on tronque cette expansion. 
+
+%\subsubsection{Essais sur la réponse du champs stochastique à la variation individuelle des variables auxilliaires issues de l'expansion de Karhunen-Loève}
+%Comme dans les différentes méthodes proposées on génère le champ stochastique à partir d'une réalisation de variables auxilliaires et que l'on retrouve la corréspondance grâce aux vecteurs et valeurs propres de la matrice de covariance, il convient d'observer empiriquement sur un champ stochastique classique sa réaction face aux changement dans les différentes variables auxilliaires. Dans les notations adoptées précédemment, cela vient à vérifier l'amplitude et la nature du changement dans le champ stochastique $Y_{i}$, lors de changement dans les variables $\left(\xi_{i1}, \ldots, \xi_{iM_{i}}\right)$. \\
+
+%Soit $Y_{i}$ un champ stochastique ayant comme modèle de covariance celui de Matern, et des  
+
 
 \subsubsection{Interprétation et essais avec le papier : "Time-variant global reliability sensitivity analysis of structures with both input random variables and stochastic processes"}
 Ce papier de recherche datant de 2017, offre une approche pour l'analyse de sensibilité de modèles définis dans le temps et leur analyse de fiabilité. En effet, de nombreuses structures mécaniques (ponts, tours etc.) sont soumis à des grandeurs variant dans le temps, et si celles se trouvent être continues dans celui ci, alors cette grandeur peut être représentée par un champ stochastique. Bien qu'il y aie une différence notable entre les grandeurs par rapport auxquelles il y a continuité (dans leur papier le temps, et nous l'espace), des analogies peuvent être faites. \\
 
 L'approche se base sur la décomposition de Karhunen-Loève du champ stochastique, permettant de considérer le problème comme uniquement dépendant de variables aléatoire gaussiennes décorrélées, et de déduire la sensibilité du modèle au champ stochastique à partir de la sensibilité de chaque composant de la décomposition du champ. \\ 
 
-La décomposition de KL est particulièrement utile pour le calcul de fonction d'enveloppe et les calculs fiabilistes. Si seulement les experiences de monte carlo sont considerées, il suffirait de considérer une réalisation d'un champ comme une variable aléatoire et faire les permutations directement sur ces derniers. \\
+La décomposition de KL est particulièrement utile pour le calcul de fonction d'enveloppe et les calculs fiabilistes. Dans ce papier, l'utilisation de l'experience de Monte-Carlo est essentiellement utilisée pour être comparée aux autres méthodes développées (\textbf{FOEF} : First Order Envelope Function et \textbf{AK-MCS} Active learning Kriging based Monte Carlo Simulation).\\
 
 L'utilité de cette approche est de pouvoir identifier les sources principales d'incertitude ayant le plus d'influence sur la fiabilité du modèle. Enfin, elle permet de classer les variables selon leur ordre d'influence. \\
 
@@ -262,6 +269,13 @@ Y_{i}(t) & = & \mu_{Y_{i}}(t) +  \sum_{k=1}^{M}\sqrt{\lambda_{ik}}\xi_{ik}\varph
    \end{eqnarray}\\
 
 D'où chaque champ gaussien peut être exprimé à partir d'un ensemble de variables aléatoire gaussiennes décorélées $\xi_{i}=(\xi_{i1},\ldots,\xi_{iM_{i}})$ et l'ensemble des champs est représenté par le vecteur $\xi=(\xi_{1},\ldots,\xi_{m})$.
+
+
+
+
+
+
+
 
 \subsection{Example of verbatim text}
 
