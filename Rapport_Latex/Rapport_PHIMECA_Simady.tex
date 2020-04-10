@@ -280,10 +280,15 @@ Grâce à la propriété de décomposition de la variance, on a :
 \end{figure}
 
 Ici, c'est la variance de la fonction en sortie qui est traitée, mais ceci est faisable pour tout modèle dépendant d'un ensemble de variables aléatoire. Il est à remarquer ici que : 
-$V_{X_{i}} = V\left[E\left(I_{S}|X_{i}\right)\right]$ qui est la variance conditionelle de la sortie $I_{S}$ lorsque la variable aléatoire $X_{i}$ est connue. \\ \\
+$V_{X_{i}} = V\left[E\left(I_{S}|X_{i}\right)\right]$ qui est la variance conditionelle de la sortie $I_{S}$ lorsque la variable aléatoire $X_{i}$ est connue. \\ 
+\\
 Néanmoins, dans le cas du vecteur $\xi_{i} = (\xi_{i_{1}},\ldots,\xi_{i_{M_{i}}})$ on a: \\
-$V_{\xi_{i}} = V\left[E\left(I_{S}|\xi_{i}\right)\right] = V\left[E\left(I_{S}|(\xi_{i_{1}},\ldots,\xi_{i_{M_{i}}})\right)\right] - \sum_{p=1}^{M_{i}}V_{\xi_{i_{p}}}$ qui est la variance conditionelle de la sortie lorsque le vecteur aléatoire $\xi_{i}$ représentatif du champ stochastique $Y_{i}$ est connu.\\  
-
+\begin{eqnarray}
+V_{\xi_{i}} = V\left[E\left(I_{S}|\xi_{i}\right)\right] = V\left[E\left(I_{S}|(\xi_{i_{1}},\ldots,\xi_{i_{M_{i}}})\right)\right] - \sum_{p=1}^{M_{i}}V_{\xi_{i_{p}}}
+\end{eqnarray}
+qui est la variance conditionelle de la sortie lorsque le vecteur aléatoire $\xi_{i}$ représentatif du champ stochastique $Y_{i}$ est connu.\\
+\\  
+Pour le calcul du vecteur des variances $V\left[E\left(I_{S}|(\xi_{i_{1}},\ldots,\xi_{i_{M_{i}}})\right)\right]$, dans le cadre d'une experience de Monte-Carlo, ceci pourrait se faire en rajoutant dans le plan d'experience, toutes les permutations associées à ces variables annexes aux champs stochastiques.
 
 
 
