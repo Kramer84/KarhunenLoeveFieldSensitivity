@@ -1,34 +1,39 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{}
 
-\bibitem{Lilburne2009Feb}
-Linda Lilburne and Stefano Tarantola.
+\bibitem[Lilburne and Tarantola, 2009]{Lilburne2009Feb}
+Lilburne, L. and Tarantola, S. (2009).
 \newblock {Sensitivity analysis of spatial models}.
 \newblock {\em International Journal of Geographical Information Science},
-  23(2):151--168, Feb 2009.
+  23(2):151--168.
 
-\bibitem{OpenTURNS}
-Bertrand~Iooss Michaël~Baudin, Anne~Dutfoy and Anne-Laure Popelin.
+\bibitem[Michaël~Baudin and Popelin, 2015]{OpenTURNS}
+Michaël~Baudin, Anne~Dutfoy, B.~I. and Popelin, A.-L. (2015).
 \newblock Openturns: An industrial software for uncertainty quantification in
   simulation.
-\newblock 2015.
 
-\bibitem{Pronzato2019Jul}
-Luc Pronzato.
+\bibitem[Pronzato, 2019]{Pronzato2019Jul}
+Pronzato, L. (2019).
 \newblock {Sensitivity analysis via
   Karhunen{\textendash}Lo{\ifmmode\grave{e}\else\`{e}\fi}ve expansion of a
   random field model: Estimation of Sobol{'} indices and experimental design}.
-\newblock {\em Reliab. Eng. Syst. Saf.}, 187:93--109, Jul 2019.
+\newblock {\em Reliab. Eng. Syst. Saf.}, 187:93--109.
 
-\bibitem{Sudret2000Jan}
-Bruno Sudret and Armen~Der Kiureghian.
+\bibitem[Shang and Yun, 2013]{shangStochastic2013}
+Shang, S. and Yun, G.~J. (2013).
+\newblock Stochastic finite element with material uncertainties:
+  {Implementation} in a general purpose simulation program.
+\newblock {\em Finite Elements in Analysis and Design}, 64:65--78.
+
+\bibitem[Sudret and Kiureghian, 2000]{Sudret2000Jan}
+Sudret, B. and Kiureghian, A.~D. (2000).
 \newblock {Stochastic Finite Element Methods and Reliability A State-of-the-Art
   Report}.
-\newblock {\em ResearchGate}, Jan 2000.
+\newblock {\em ResearchGate}.
 
-\bibitem{Wei2017May}
-Pengfei Wei, Yanyan Wang, and Chenghu Tang.
+\bibitem[Wei et~al., 2017]{Wei2017May}
+Wei, P., Wang, Y., and Tang, C. (2017).
 \newblock {Time-variant global reliability sensitivity analysis of structures
   with both input random variables and stochastic processes}.
-\newblock {\em Struct. Multidiscip. Optim.}, 55(5):1883--1898, May 2017.
+\newblock {\em Struct. Multidiscip. Optim.}, 55(5):1883--1898.
 
 \end{thebibliography}
