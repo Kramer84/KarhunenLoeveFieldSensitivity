@@ -268,7 +268,21 @@ Comme explicité lors de la définition de la décomposition de Karhunen-Loève,
 Y_{i}(t) & = & \mu_{Y_{i}}(t) +  \sum_{k=1}^{M}\sqrt{\lambda_{ik}}\xi_{ik}\varphi_{ik}(t);
    \end{eqnarray}\\
 
-D'où chaque champ gaussien peut être exprimé à partir d'un ensemble de variables aléatoire gaussiennes décorélées $\xi_{i}=(\xi_{i1},\ldots,\xi_{iM_{i}})$ et l'ensemble des champs est représenté par le vecteur $\xi=(\xi_{1},\ldots,\xi_{m})$.
+D'où chaque champ gaussien peut être exprimé à partir d'un ensemble de variables aléatoire gaussiennes décorélées $\xi_{i}=(\xi_{i1},\ldots,\xi_{iM_{i}})$ et l'ensemble des champs est représenté par le vecteur $\xi=(\xi_{1},\ldots,\xi_{m})$. $\xi_{i}$ étant la représentation par des variables auxilliaires du champ $Y_{i}$. 
+
+Grâce à la propriété de décomposition de la variance, on a :
+
+\begin{figure}[H]
+   \centering   
+   \includegraphics[scale=0.175]{DecompositionVariance.png}
+      \caption{Decomposition de la variance de la fonction indicatrice}
+         \label{VarDecompo}
+\end{figure}
+
+Ici, c'est la variance de la fonction en sortie qui est traitée, mais ceci est faisable pour tout modèle dépendant d'un ensemble de variables aléatoire. Il est à remarquer ici que : 
+$V_{X_{i}} = V\left[E\left(I_{S}|X_{i}\right)\right]$ qui est la variance conditionelle de la sortie $I_{S}$ lorsque la variable aléatoire $X_{i}$ est connue. \\ \\
+Néanmoins, dans le cas du vecteur $\xi_{i} = (\xi_{i_{1}},\ldots,\xi_{i_{M_{i}}})$ on a: \\
+$V_{\xi_{i}} = V\left[E\left(I_{S}|\xi_{i}\right)\right] = V\left[E\left(I_{S}|(\xi_{i_{1}},\ldots,\xi_{i_{M_{i}}})\right)\right] - \sum_{p=1}^{M_{i}}V_{\xi_{i_{p}}}$ qui est la variance conditionelle de la sortie lorsque le vecteur aléatoire $\xi_{i}$ représentatif du champ stochastique $Y_{i}$ est connu.\\  
 
 
 
