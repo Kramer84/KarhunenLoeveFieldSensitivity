@@ -279,7 +279,7 @@ Grâce à la propriété de décomposition de la variance, on a :
          \label{VarDecompo}
 \end{figure}
 
-Ici, c'est la variance de la fonction en sortie qui est traitée, mais ceci est faisable pour tout modèle dépendant d'un ensemble de variables aléatoire. Il est à remarquer ici que : 
+Ici, c'est la variance de la fonction indicatrice $I_{s}$ en sortie qui est traitée, mais ceci est faisable pour tout modèle dépendant d'un ensemble de variables aléatoire. Il est à remarquer ici que : 
 $V_{X_{i}} = V\left[E\left(I_{S}|X_{i}\right)\right]$ qui est la variance conditionelle de la sortie $I_{S}$ lorsque la variable aléatoire $X_{i}$ est connue. \\ 
 \\
 Néanmoins, dans le cas du vecteur $\xi_{i} = (\xi_{i_{1}},\ldots,\xi_{i_{M_{i}}})$ on a: \\
@@ -288,11 +288,37 @@ V_{\xi_{i}} = V\left[E\left(I_{S}|\xi_{i}\right)\right] = V\left[E\left(I_{S}|(\
 \end{eqnarray}
 qui est la variance conditionelle de la sortie lorsque le vecteur aléatoire $\xi_{i}$ représentatif du champ stochastique $Y_{i}$ est connu.\\
 \\  
-Pour le calcul du vecteur des variances $V\left[E\left(I_{S}|(\xi_{i_{1}},\ldots,\xi_{i_{M_{i}}})\right)\right]$, dans le cadre d'une experience de Monte-Carlo, ceci pourrait se faire en rajoutant dans le plan d'experience, toutes les permutations associées à ces variables annexes aux champs stochastiques.
+Pour le calcul du vecteur des variances $V\left[E\left(I_{S}|(\xi_{i_{1}},\ldots,\xi_{i_{M_{i}}})\right)\right]$, dans le cadre d'une experience de Monte-Carlo, ceci pourrait se faire en rajoutant dans le plan d'experience, toutes les permutations associées à ces variables annexes aux champs stochastiques. \\
+
+Avec le plan d'experience classique proposé par openTURNS, nous sommes en capacité de facilement calculer les indices de Sobol' du $1^{er}$ ordre de toutes les variables $S_{X_{i}}$ et $S_{\xi_{i_{p}}}$. Or nous cherchons $S_{\xi_{i}}$.\\
+Dans le cas d'un modèle $F$, prenant en entrée un vecteur de champs stochastiques $Y = (Y_{1},\ldots,Y_{m})$ et un vecteur de variables aléatoires $X = (X_{1},\ldots,X_{n})$ et défini comme suit:  
+\begin{align}
+\omega = F(X,Y) &\  ,\omega \in \Re^{\aleph}
+\end{align}
 
 
+On peut définir une fonction $F^{'}$, utilisant la décomposition de Karhunen-Loève et seulement dépendante d'un ensemble de variables aléatoires décorrélées: 
+\begin{align}
+\omega = F^{'}(X,\xi) \\
+\xi = (\xi_{1},\ldots,\xi_{m})\\
+\xi_{i} = (\xi_{i_{1}},\ldots,\xi_{i_{M_{i}}})
+\end{align} \\
+
+Nous savons que : 
+\begin{align}
+V_{X_{i}} = V[E[\omega|X_{i}]] \\
+S_{X_{i}} = \frac{V_{X_{i}}}{V(\omega)} \\
+V_{X_{i}X_{j}} = V[E[\omega|X_{i}X_{j}]] - V_{X_{i}} - V_{X_{j}} \\
+S_{X_{i}X_{j}} = \frac{1}{V(\omega)}V[E[\omega|X_{i}X_{j}]] - S_{X_{i}} - S_{X_{j}}
+\end{align} \\
+
+Donc :
+\begin{align}
+S_{\xi_{i}} = S_{\xi_{i_{1}},\ldots,\xi_{i_{M_{i}}}} = \frac{1}{V(\omega)}V[E[\omega|\xi_{i_{1}},\ldots,\xi_{i_{M_{i}}}]] - \sum_{p=1}^{M_{i}}S_{\xi_{i_{p}}}
+\end{align}
 
 
+Néanmoins dans le méthode présentée par \cite{Wei2017May}, on n'y fait pas mention d'une permutation de toutes les colonnes associées à un champ stochastique pour calculer l'effet d'interaction. Ceci fait supposer qu'il existe une autre manière d'arriver à trouver ces effet d'interaction, sans passer par cette permutation lors de l'experience de monte carlo. 
 
 
 
