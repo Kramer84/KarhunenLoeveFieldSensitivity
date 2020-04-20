@@ -317,8 +317,11 @@ Donc :
 S_{\xi_{i}} = S_{\xi_{i_{1}},\ldots,\xi_{i_{M_{i}}}} = \frac{1}{V(\omega)}V[E[\omega|\xi_{i_{1}},\ldots,\xi_{i_{M_{i}}}]] - \sum_{p=1}^{M_{i}}S_{\xi_{i_{p}}}
 \end{align}
 
+Néanmoins dans le méthode présentée par \cite{Wei2017May}, on n'y fait pas mention d'une permutation de toutes les colonnes associées à un champ stochastique pour calculer l'effet d'interaction. Ceci fait supposer qu'il existe une autre manière d'arriver à trouver ces effet d'interaction, sans passer par cette permutation lors de l'experience de monte carlo ou que le calcul de cette interaction semblait trop triviale pour être mentionnée dans le papier:\\
 
-Néanmoins dans le méthode présentée par \cite{Wei2017May}, on n'y fait pas mention d'une permutation de toutes les colonnes associées à un champ stochastique pour calculer l'effet d'interaction. Ceci fait supposer qu'il existe une autre manière d'arriver à trouver ces effet d'interaction, sans passer par cette permutation lors de l'experience de monte carlo. 
+\begin{quote}
+By subtracting the first order partial variance $V_{X_{i}}$ and $V_{X_{j}}$ from $V[E(I_{S}|X_{i}, X_{j})]$, the second order partial variance $V_{X_{i}X_{j}}$ quantifies the second order interaction contribution between $X_{i}$ and $X_{j}$ to R. Similarly, $V_{\xi_{i}\xi_{j}}$ quantifies the second order interaction contribution between the stochastic process $Y_{i}(t)$ and $Y_{j}(t)$ to R, and $V_{X_{i}\xi_{j}}$ measures the second order interaction effect of the random variable $X_{i}$ and the stochastic process $Y_{j}(t)$ to R. \textbf{\textit{Higher order effect indices can be similarly defined and interpreted.}}
+\end{quote}
 
 
 
