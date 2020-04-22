@@ -16,7 +16,7 @@
 \contentsline {subsection}{\numberline {2.7}Example of verbatim text}{14}{subsection.2.7}
 \contentsline {paragraph}{Note:}{14}{section*.6}
 \contentsline {subsection}{\numberline {2.8}Lists}{14}{subsection.2.8}
-\contentsline {section}{\numberline {3}Results}{14}{section.3}
-\contentsline {section}{\numberline {4}Tables and figures}{15}{section.4}
-\contentsline {section}{\numberline {5}Discussion}{15}{section.5}
-\contentsline {section}{\numberline {6}Conclusions}{15}{section.6}
+\contentsline {section}{\numberline {3}Results}{15}{section.3}
+\contentsline {section}{\numberline {4}Tables and figures}{16}{section.4}
+\contentsline {section}{\numberline {5}Discussion}{16}{section.5}
+\contentsline {section}{\numberline {6}Conclusions}{16}{section.6}

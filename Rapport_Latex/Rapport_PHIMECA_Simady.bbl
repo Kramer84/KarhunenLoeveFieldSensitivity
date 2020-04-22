@@ -1,5 +1,10 @@
 \begin{thebibliography}{}
 
+\bibitem[Dumas, 2017]{dumas2017}
+Dumas, A. (2017).
+\newblock Lois asymptotiques des estimateurs des indices de sobol.
+\newblock {\em confidentiel EDF}.
+
 \bibitem[Lilburne and Tarantola, 2009]{Lilburne2009Feb}
 Lilburne, L. and Tarantola, S. (2009).
 \newblock {Sensitivity analysis of spatial models}.
@@ -29,6 +34,11 @@ Sudret, B. and Kiureghian, A.~D. (2000).
 \newblock {Stochastic Finite Element Methods and Reliability A State-of-the-Art
   Report}.
 \newblock {\em ResearchGate}.
+
+\bibitem[Vink, 2020]{Vink2020Feb}
+Vink, R. (2020).
+\newblock {A nonlinear water accumulation analysis in Python - Ritchie Vink}.
+\newblock [Online; accessed 2. Mar. 2020].
 
 \bibitem[Wei et~al., 2017]{Wei2017May}
 Wei, P., Wang, Y., and Tang, C. (2017).

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2020.4.20)  20 APR 2020 14:40
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2020.4.20)  22 APR 2020 15:35
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -806,7 +806,7 @@ Overfull \hbox (3.02612pt too wide) in paragraph at lines 145--147
  []
 
 [6 <./beam_structure.png>]
-<beam_experience.png, id=155, 1165.7151pt x 694.5147pt>
+<beam_experience.png, id=156, 1165.7151pt x 694.5147pt>
 File: beam_experience.png Graphic file (type png)
 <use beam_experience.png>
 Package pdftex.def Info: beam_experience.png  used on input line 150.
@@ -837,7 +837,7 @@ LaTeX Font Info:    Try loading font information for T1+cmtt on input line 177.
 (/usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-<schema_postprocessing.png, id=165, 2048.65375pt x 1652.1725pt>
+<schema_postprocessing.png, id=168, 2048.65375pt x 1652.1725pt>
 File: schema_postprocessing.png Graphic file (type png)
 <use schema_postprocessing.png>
 Package pdftex.def Info: schema_postprocessing.png  used on input line 181.
@@ -852,12 +852,12 @@ Underfull \hbox (badness 10000) in paragraph at lines 187--190
 
  []
 
-<sensitivity_rv_KL_anno.png, id=172, 319.1925pt x 643.40375pt>
+<sensitivity_rv_KL_anno.png, id=174, 319.1925pt x 643.40375pt>
 File: sensitivity_rv_KL_anno.png Graphic file (type png)
 <use sensitivity_rv_KL_anno.png>
 Package pdftex.def Info: sensitivity_rv_KL_anno.png  used on input line 197.
 (pdftex.def)             Requested size: 77.01688pt x 155.24895pt.
-<sensitivity_field_KL.png, id=173, 1371.1225pt x 322.20375pt>
+<sensitivity_field_KL.png, id=175, 1371.1225pt x 322.20375pt>
 File: sensitivity_field_KL.png Graphic file (type png)
 <use sensitivity_field_KL.png>
 Package pdftex.def Info: sensitivity_field_KL.png  used on input line 202.
@@ -934,7 +934,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 269--270
 
  []
 
-<DecompositionVariance.png, id=198, 1269.74374pt x 597.23125pt>
+<DecompositionVariance.png, id=200, 1269.74374pt x 597.23125pt>
 File: DecompositionVariance.png Graphic file (type png)
 <use DecompositionVariance.png>
 Package pdftex.def Info: DecompositionVariance.png  used on input line 277.
@@ -975,44 +975,54 @@ Underfull \hbox (badness 10000) in paragraph at lines 320--321
  []
 
 [13]
-Overfull \hbox (38.15643pt too wide) in paragraph at lines 340--340
+Underfull \hbox (badness 10000) in paragraph at lines 326--327
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 328--329
+
+ []
+
+
+Overfull \hbox (38.15643pt too wide) in paragraph at lines 346--346
 []        \T1/cmtt/m/n/10 PRINT *,'Enter the values for the base and height of 
 a triangle.'[] 
  []
 
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 357.
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 363.
 
 (/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 357.
- [14]
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 363.
+ [14] [15]
 (./Rapport_PHIMECA_Simady.bbl
-Underfull \hbox (badness 1776) in paragraph at lines 28--32
+Underfull \hbox (badness 1776) in paragraph at lines 33--37
 []\T1/cmr/m/n/10 Sudret, B. and Ki-ureghian, A. D. (2000).
  []
 
 )
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 401.
- [15]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 401.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 407.
+ [16]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 407.
  (./Rapport_PHIMECA_Simady.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 401.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 401.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 407.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 407.
 Package rerunfilecheck Info: File `Rapport_PHIMECA_Simady.out' has not changed.
 
 (rerunfilecheck)             Checksum: E31C2132A81CDB9D0E5AA553CFDFA04F;1395.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 401.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 407.
  ) 
 Here is how much of TeX's memory you used:
- 7769 strings out of 494880
- 111355 string characters out of 6179601
- 314509 words of memory out of 5000000
- 10892 multiletter control sequences out of 15000+600000
+ 7774 strings out of 494880
+ 111416 string characters out of 6179601
+ 314592 words of memory out of 5000000
+ 10894 multiletter control sequences out of 15000+600000
  17688 words of font info for 42 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 33i,14n,30p,816b,398s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 33i,14n,30p,909b,402s stack positions out of 5000i,500n,10000p,200000b,80000s
  </home/motherloadubu/.texlive2017/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt
 1000.600pk> </home/motherloadubu/.texlive2017/texmf-var/fonts/pk/ljfour/jknappe
 n/ec/ecbi1000.600pk> </home/motherloadubu/.texlive2017/texmf-var/fonts/pk/ljfou
@@ -1033,10 +1043,10 @@ type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/pu
 blic/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/a
 msfonts/cm/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
 /cm/cmsy7.pfb>
-Output written on Rapport_PHIMECA_Simady.pdf (15 pages, 706477 bytes).
+Output written on Rapport_PHIMECA_Simady.pdf (16 pages, 709097 bytes).
 PDF statistics:
- 706 PDF objects out of 1000 (max. 8388607)
- 273 compressed objects within 3 object streams
- 71 named destinations out of 1000 (max. 500000)
+ 720 PDF objects out of 1000 (max. 8388607)
+ 283 compressed objects within 3 object streams
+ 74 named destinations out of 1000 (max. 500000)
  172 words of extra memory for PDF output out of 10000 (max. 10000000)
 
