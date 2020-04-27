@@ -80,7 +80,7 @@ Comme la mission confiée au sein de \textbf{PHIMECA} se rapprochait d'un travai
 \subsubsection{Prise en main d'openTURNS et de la théorie sur les champs stochastiques}
 \paragraph{Champs Stochastiques\\} 
 Un champ stochastique est un champ de variables aléatoires toutes corrélées entre elles, et dont l'intensité de la corrélation est déterminée par leur proximité dans l'espace. Par exemple la position de tout objet est corrélée à sa position aux intervalles de temps proches (continuité du temps), ou bien les températures au dessus d'un pays sont corrélés à faible distance mais l'effet aléatoire est plus présent lorsque les distances sont importantes. \\
-Ce type de modélisation des champs est couramment utilisée pour modéliser des propriétés présentant des variabilités gaussiennes mais une continuité dans leur espace de définition. \\ Lorsque la corrélation est seulement dépendante de la distance entre deux points de l'espace et non d'une position absolue, on parle d'un champ stationnaire. Lors de cette étude l'on se place dans ce cas.\\ 
+Ce type de modélisation des champs est couramment utilisée pour modéliser des propriétés présentant des variabilités gaussiennes mais une continuité dans leur espace de définition. \\ Lorsque la corrélation est seulement dépendante de la distance entre deux points de l'espace et non d'une position absolue, on parle d'un champ stationnaire. Lors de cette étude, on se place dans ce cas.\\ 
 
 \newpage
 
@@ -98,7 +98,7 @@ Mathématiquement, cette corrélation peut être définie par différents modèl
    \end{eqnarray}
    
 Avec \emph{V} étant le paramètre d'échelle et \emph{d} la norme euclidienne de la distance entre deux points de l'espace considéré.\textit{(plus le paramètre d'échelle est grand, plus le champ est lissé, tout comme le modèle quadratique est aussi plus lisse)}\\
-Une autre fonction de covariance, celle de \emph{Matérn}, est aussi très utilisée, puisqu'elle présente des comportements limites similaires aux deux fonctions exponentielles présentes plus haut. 
+Une autre fonction de covariance, celle de \emph{Matérn}, est aussi très utilisée, puisqu'elle présente des comportements limites similaires aux deux fonctions exponentielles présentes plus haut. La dérivabilité de ce modèle est réglable via le paramètre $\nu$, ainsi la régularité du champ est facilement modifiable.
 
    \begin{eqnarray}
 C_{v}(d) & = & \sigma^{2}\frac{2^{1-\nu}}{\Gamma(\nu)}\left(\sqrt{2\nu}\frac{d}{\rho}\right)^{\nu}K_{\nu}\left(\sqrt{2\nu}\frac{d}{\rho}\right);
@@ -143,7 +143,7 @@ Il s'agit d'un modèle de poutre en appui sur ses deux extrémités
 \end{figure}
 
 La particularité de ce modèle de poutre est, en plus d'être une aberration physique, le fait que le diamètre et le module de young sont gouvernés par un processus gaussien en une dimension, suivant la longueur de la barre. Pour parvenir à modéliser cette variation, le modèle est bien-sûr subdivisé en une centaine d'éléments finis, et le champ discrétisé sur un maillage de même longueur.\\
-En plus de ces deux grandeurs gouvernées par des champs, la densité du matériau, la position de la force, et la norme de la force dont représentés par des variables aléatoires Gaussiennes. Cette modélisations'est faite avec l'excellente bibliothèque \textbf{\textit{Anastruct}} de \cite{Vink2020Feb}.
+En plus de ces deux grandeurs gouvernées par des champs, la densité du matériau, la position de la force, et la norme de la force sont représentés par des variables aléatoires Gaussiennes. Cette modélisations'est faite avec l'excellente bibliothèque \textbf{\textit{Anastruct}} de \cite{Vink2020Feb}.
 
 \begin{figure}[H]
    \centering   
@@ -156,7 +156,7 @@ Les grandeurs d'étude choisies ici sont la contrainte de Von Mises, la déflect
 
 Comme chacun des processus stochastiques peut être décomposé en une somme finie de variables aléatoires normales grâce à la décomposition de karhunen-Loeve, l'on peut à l'inverse, générer des champs stochastiques à partir d'une collection de variables aléatoires, dont les paramètres sont issus de l'analyse même du champ.
 
-L'on considère donc notre modèle plus comme fonction de variables aléatoires et de processus stochastiques, mais seulement comme une fonction de variables aléatoires scalaires.
+On considère donc notre modèle plus comme fonction de variables aléatoires et de processus stochastiques, mais seulement comme une fonction de variables aléatoires scalaires.
 
 Ceci permet de faire l'analyse de sobol classique (avec l'algorithme de sensibilité de \textit{Saltelli}) sur ces nouvelles variables aléatoires.
 
@@ -165,13 +165,13 @@ La difficultée ici, est d'ensuite relier les indices de sensiblité de Sobol de
 \subsection{Choix des codes et difficultées algorithmiques}
 Au vu de choix de développer une méthode algorithmique pour l'analyse de sensiblité sur des champs stochastiques, et non pas de juste faire l'analyse de sensibilité sur une seule problématique, il y avait un besoin de robustesse supplémentaire pour l'écriture des différents codes. Ces derniers doivent pouvoir fonctionner avec tout type de fonction en python prennant en entrée des champs et variables aléatoire, et renvoyant un tuple de variables aléatoires. 
 
-Pour pouvoir tester ceci, l'exemple de la poutre en éléments fins à été codée a part, et peut être utilisée directement comme fonction, indépendamment de l'analyse de sensibilité. Cette dernière prend de même en entrée deux champs stochastiques et trois variables aléatoires, et peut renvoyer plusieurs arguments. Les tests ont été faits avec la fonction renvoyant qu'une collection de champs (contraintes de von mises) et avec la fonction renvoyant un tuple (collection de champs + vecteur déflection maximale). Ce choix augmente le nombre de vérification qu'il y a éffectuer au sein du code, mais permet l'utilisation d'un plus grand nombre de fonctions, et l'analyse de sensiblité sur l'ensemble des variables de sortie en une seule fois.
+Pour pouvoir tester ceci, l'exemple de la poutre en éléments fins à été codée à part, et peut être utilisée directement comme fonction, indépendamment de l'analyse de sensibilité. Cette dernière prend de même en entrée deux champs stochastiques et trois variables aléatoires, et peut renvoyer plusieurs arguments. Les tests ont été faits avec la fonction ne renvoyant qu'une collection de champs (contraintes de von mises) et avec la fonction renvoyant un tuple (collection de champs + vecteur déflection maximale). Ce choix augmente le nombre de vérification qu'il y a à effectuer au sein du code, mais permet l'utilisation d'un plus grand nombre de fonctions, et l'analyse de sensiblité sur l'ensemble des variables de sortie en une seule fois.
 
-Pour parvenir à bien controller les processus stochastiques, une classe a été écrite \textit{NdGaussianProcessConstructor}, qui permet de définir entièrement un processus stochastique, et possède de nombreuses méthodes pour créer des samples, faire les décompositions de Karhunen-Loeve, ou encore reconstituer un champ à partir de la dite décomposition. Enfin, comme les samples sont nécessaires pour la décomposition de Karhunen-Loeve, et que ceux-ci peuvent être de taille plutôt importante, ils sont enregistrés sous form de \textit{numpy.memmap} dans un fichier temporaire, pour relacher un peu de pression sur la mémoire vive.\\
+Pour parvenir à bien controller les processus stochastiques, une classe a été écrite \textit{NdGaussianProcessConstructor}, qui permet de définir entièrement un processus stochastique, et possède de nombreuses méthodes pour créer des échantillons, faire les décompositions de Karhunen-Loeve, ou encore reconstituer un champ à partir de la dite décomposition. Enfin, comme les échantillons sont nécessaires pour la décomposition de Karhunen-Loeve, et que ceux-ci peuvent être de taille plutôt importante, ils sont enregistrés sous form de \textit{numpy.memmap} dans un fichier temporaire, pour relacher un peu de pression sur la mémoire vive.\\
 
-En interne, le modèle fonction de champs stochastiques, passe par un wrapper qui fait qu'on peut la considerer comme seulement fonction de variables aléatoires gaussiennes. Cela permet d'utiliser les méthodes internes à openturns comme l'algorithme de saltellie pour identifier les indices de sobol. \\
+En interne, le modèle fonction de champs stochastiques, passe par un wrapper qui fait qu'on peut la considerer comme seulement fonction de variables aléatoires gaussiennes. Cela permet d'utiliser les méthodes internes à openturns comme l'algorithme de Saltelli pour estimer les indices de sobol. \\
 
-Néanmoins, pour pallier à certaines difficultées comme les fonctions qui par moment renvoient des \textbf{\textit{np.nan}} (donc lorsqu'il y a eu une erreur), on passe d'abord par une étape de correction:  l'ensemble des valeurs de sortie contenant des \textit{nan} sont regénérées, et comme les entrées de l'étude sont des combinaison de deux ensembles de variables aléatoires A et B, toutes les autres permuttations des entrées ayant entrainé des erreurs sont supprimées et remplacées. \
+Néanmoins, pour pallier certaines difficultées comme les fonctions qui par moment renvoient des \textbf{\textit{np.nan}} (donc lorsqu'il y a eu une erreur), on passe d'abord par une étape de correction:  l'ensemble des valeurs de sortie contenant des \textit{nan} sont regénérées, et comme les entrées de l'étude sont des combinaison de deux ensembles de variables aléatoires A et B, toutes les autres permuttations des entrées ayant entrainé des erreurs sont supprimées et remplacées. \
 
 Les codes sont accessibles via \textit{\textbf{github}}: \\
 \url{https://github.com/Kramer84/stochastic_process_analysis}
@@ -204,7 +204,11 @@ La difficultée qui découle de cette analyse, est de trouver la manière qui pe
     \end{minipage}
 \end{figure}
 
-Pour parvenir à faire ce lien, nous avions comme base différentes études sur le sujet, notamment le papier par \cite{Wei2017May}, sur l'analyse de sensibilité sur des modèles ayant des paramètres dépendants du temps. (Le variabes étant gouvernés par le temps étant générallement stochastiques, ex: température, effort etc. )
+Pour parvenir à faire ce lien, nous avions comme base différentes études sur le sujet, notamment le papier par \cite{Wei2017May}, sur l'analyse de sensibilité sur des modèles ayant des paramètres dépendants du temps. (Les variables étant gouvernées par le temps sont générallement stochastiques, ex: température, effort etc. ) \\
+
+Mais ayant fait une analyse préliminaire de ces indices de sobol', des incohérences dans ces indices ont pu être remarqués. En effet, la somme de l'ensemble des indices du premier ordre doit être inferieure à 1 , et il ne peut y avoir d'indices négatifs. L'apparition d'indices de Sobol' négatifs peut être expliqué par un nombre d'experiences trop faible, nombre d'experiences qui lui même est limité par la mémoire disponible dans l'ordinateur. Néanmoins, ce n'était pas la seule incohérence. Nous vous présentons ici les indices de Sobol' pour la contrainte de Von Mises dans chaque élément de la poutre, et nous essayons de voir l'influence de l'augmentation du nombre d'experiences sur le nombre d'indices de Sobol' qui sont négatifs, ou voir comment varie la somme de l'ensemble des indices de Sobol' associés à un seul élément. Nous utilisons ici $N=100 , N=500, N=1000, N=2500$
+
+
 
 \subsection{Premiers essais d'analyse de la sensibilité du modèle }
 
@@ -312,10 +316,17 @@ V_{X_{i}X_{j}} = V[E[\omega|X_{i}X_{j}]] - V_{X_{i}} - V_{X_{j}} \\
 S_{X_{i}X_{j}} = \frac{1}{V(\omega)}V[E[\omega|X_{i}X_{j}]] - S_{X_{i}} - S_{X_{j}}
 \end{align} \\
 
-Donc :
+Néanmoins, à la différence des effets d'interactions et les sensibilités qui y sont associées, dans la cas de la sensibilité du champ stochastique, il semblerait qu'on ne soustraie pas l'effet de l'interaction du premier ordre, donc on n'aurait pas :
 \begin{align}
 S_{\xi_{i}} = S_{\xi_{i_{1}},\ldots,\xi_{i_{M_{i}}}} = \frac{1}{V(\omega)}V[E[\omega|\xi_{i_{1}},\ldots,\xi_{i_{M_{i}}}]] - \sum_{p=1}^{M_{i}}S_{\xi_{i_{p}}}
 \end{align}
+
+Mais plutôt seulement : 
+\begin{align}
+S_{\xi_{i}} = \frac{1}{V(\omega)}V[E[\omega|\xi_{i_{1}},\ldots,\xi_{i_{M_{i}}}]]
+\end{align}
+
+Ceci est intéressant dans la sens ou cela diminue grandement la complexité du calcul. 
 
 Néanmoins dans le méthode présentée par \cite{Wei2017May}, on n'y fait pas mention d'une permutation de toutes les colonnes associées à un champ stochastique pour calculer l'effet d'interaction. Ceci fait supposer qu'il existe une autre manière d'arriver à trouver ces effet d'interaction, sans passer par cette permutation lors de l'experience de monte carlo ou que le calcul de cette interaction semblait trop triviale pour être mentionnée dans le papier:\\
 
