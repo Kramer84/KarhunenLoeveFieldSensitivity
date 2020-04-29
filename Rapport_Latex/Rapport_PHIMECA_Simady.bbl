@@ -1,5 +1,10 @@
 \begin{thebibliography}{}
 
+\bibitem[Deutsch and Deutsch, 2012]{Deutsch2012Mar}
+Deutsch, J.~L. and Deutsch, C.~V. (2012).
+\newblock {Latin hypercube sampling with multidimensional uniformity}.
+\newblock {\em Journal of Statistical Planning and Inference}, 142(3):763--772.
+
 \bibitem[Dumas, 2017]{dumas2017}
 Dumas, A. (2017).
 \newblock Lois asymptotiques des estimateurs des indices de sobol.
@@ -15,6 +20,11 @@ Lilburne, L. and Tarantola, S. (2009).
 Michaël~Baudin, Anne~Dutfoy, B.~I. and Popelin, A.-L. (2015).
 \newblock Openturns: An industrial software for uncertainty quantification in
   simulation.
+
+\bibitem[Moza, 2019]{Moza2019Feb}
+Moza, S. (2019).
+\newblock {sahilm89/lhsmdu: First release for this code}.
+\newblock {\em Zenodo}.
 
 \bibitem[Pronzato, 2019]{Pronzato2019Jul}
 Pronzato, L. (2019).
