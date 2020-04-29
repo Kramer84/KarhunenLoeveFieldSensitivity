@@ -326,18 +326,20 @@ Mais plutôt seulement :
 S_{\xi_{i}} = \frac{1}{V(\omega)}V[E[\omega|\xi_{i_{1}},\ldots,\xi_{i_{M_{i}}}]]
 \end{align}
 
-Ceci est intéressant dans la sens ou cela diminue grandement la complexité du calcul. 
+Ceci est intéressant dans la sens ou cela diminue grandement la complexité du calcul et qu'il ne faut plus que calculer les effets d'interaction et non plus les indices de sobol du premier ordre associés aux indices de KL des champs stochastiques. 
 
-Néanmoins dans le méthode présentée par \cite{Wei2017May}, on n'y fait pas mention d'une permutation de toutes les colonnes associées à un champ stochastique pour calculer l'effet d'interaction. Ceci fait supposer qu'il existe une autre manière d'arriver à trouver ces effet d'interaction, sans passer par cette permutation lors de l'experience de monte carlo ou que le calcul de cette interaction semblait trop triviale pour être mentionnée dans le papier:\\
+%Néanmoins dans le méthode présentée par \cite{Wei2017May}, on n'y fait pas mention d'une permutation de toutes les colonnes associées à un champ stochastique pour calculer l'effet d'interaction. Ceci fait supposer qu'il existe une autre manière d'arriver à trouver ces effet d'interaction, sans passer par cette permutation lors de l'experience de monte carlo ou que le calcul de cette interaction semblait trop triviale pour être mentionnée dans le papier:\\
 
-\begin{quote}
-\cite{Wei2017May}:\  By subtracting the first order partial variance $V_{X_{i}}$ and $V_{X_{j}}$ from $V[E(I_{S}|X_{i}, X_{j})]$, the second order partial variance $V_{X_{i}X_{j}}$ quantifies the second order interaction contribution between $X_{i}$ and $X_{j}$ to R. Similarly, $V_{\xi_{i}\xi_{j}}$ quantifies the second order interaction contribution between the stochastic process $Y_{i}(t)$ and $Y_{j}(t)$ to R, and $V_{X_{i}\xi_{j}}$ measures the second order interaction effect of the random variable $X_{i}$ and the stochastic process $Y_{j}(t)$ to R. \textbf{\textit{Higher order effect indices can be similarly defined and interpreted.}}
-\end{quote}
+%\begin{quote}
+%\cite{Wei2017May}:\  By subtracting the first order partial variance $V_{X_{i}}$ and $V_{X_{j}}$ from $V[E(I_{S}|X_{i}, X_{j})]$, the second order partial variance $V_{X_{i}X_{j}}$ quantifies the second order interaction contribution between $X_{i}$ and $X_{j}$ to R. Similarly, $V_{\xi_{i}\xi_{j}}$ quantifies the second order interaction contribution between the stochastic process $Y_{i}(t)$ and $Y_{j}(t)$ to R, and $V_{X_{i}\xi_{j}}$ measures the second order interaction effect of the random variable $X_{i}$ and the stochastic process $Y_{j}(t)$ to R. \textbf{\textit{Higher order effect indices can be similarly defined and interpreted.}}
+%\end{quote}
 
 Le calcul à posteriori de ces interactions est possible, vu que nous n'avons qu'à comparer la moyenne des variance des deux échantillons de départ (\textbf{A} et \textbf{B}) à celle lorsque tout les paramètres du champs stochastique i sont connus ($V_{\xi_{i}}$). \\
 
 Néanmoins, l'on ne peut pas inclure celles-ci dans le plan d'experience utilisé par openTURNS, vu que l'algorithme utilisé pour calculer les indices de Sobol' n'est concu que pour les calculs des indices de premier et second ordre de modèles gouvernés par un ensemble de variables aléatoires unitaires, et non des champs stochastiques. Pour parvenir à passer outre cette difficulté, un choix d'algorithme doit être fait pour le calcul de ces indices de sobol d'ordre fortement superieur. (Vu que pour les indices d'ordre 1, le choix de l'algorithme est entièrement libre.) Au vu du travail fait par PHIMECA sur l'analyse des lois asymptotiques des estimateurs des indices de Sobol \cite{dumas2017} ,l'on prendra comme estimateur celui de Martinez, mais il sera évidemment possible de rajouter à posteriori les autres estimateurs dans le workflow. \\ 
 
+D'autre part, pour parvenir à garder cette complexité faible, nous sommes obligés de revoir la manière dont est fait le plan d'experience (la manière dont on mélange les différentes colonnes de nos deux samples \textbf{A} et \textbf{B}) puisque dans le cas de l'exemple de la poutre, nous aurions jusqu'a 5 fois moins de calculs à effectuer qu'en gardant tout les indices inutiles. \\
+Comme l'utilisation des codes dans openTURNS est fortement imbriquée (L'on ne peut faire l'analyse de Sobol' lorsque les données arrivent comme cela est prévu par openTURNS), il nous faut générer les Samples différement et revoir la manière dont on génère nos samples et  comment on récupère les indices de Sobol'. 
 
 
 
