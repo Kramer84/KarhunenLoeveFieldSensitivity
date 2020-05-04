@@ -100,7 +100,7 @@ def inverseTransformSample(distribution, uniformSamples):
     newSamples = distribution.ppf(uniformSamples)
     return newSamples
     
-@numba.jit(nogil=True) 
+#@numba.jit(nogil=True) 
 def resample(matrixOfStrata):
 
     ''' Resampling function from the same strata'''
