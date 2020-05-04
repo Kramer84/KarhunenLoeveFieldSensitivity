@@ -401,6 +401,7 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
     def getInputVariablesName(self):
         sortedKeys = sorted(self.inputDict , key = lambda x : self.inputDict[x]['position'])
         self._inputVarOrdering = sortedKeys
+        self.inputVarNames.clear()
         for key in sortedKeys :
             try : 
                 nameInput      = self.inputDict[key]['nameRV']
@@ -411,16 +412,18 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
                     self.inputVarNames.append(nameInput)
                 except :
                     print('Error in your input dictionary')
+        print('Input Variables are (without Karhunen Loeve Decomposition) :\n',self.inputVarNames,'\n')
 
     def getOutputVariablesName(self): 
         sortedKeys = sorted(self.outputDict , key = lambda x : self.outputDict[x]['position'])
-        self.outputVarNames = list()
+        self.outputVarNames.clear()
         for key in sortedKeys :
             try : 
                 nameOutput = self.outputDict[key]['name']
                 self.outputVarNames.append(nameOutput)
             except KeyError :
                 print('Error in your output dictionary')
+        print('Output Variables are :\n',self.outputVarNames,'\n')
 
     def getTotalOutputDimension(self):
         outputDict = self.outputDict
