@@ -62,7 +62,7 @@ class NdGaussianProcessExperiment(object):
         if self.N is None :
             self.N = N 
         else :
-            self.N = N 
+            self.N        = N 
             self.sample_A = self.sample_B = self.experimentSample = None
 
     def setOTPyFunctionWrapper(self, OTPyFunctionWrapper):
@@ -82,35 +82,32 @@ class NdGaussianProcessExperiment(object):
         '''Here we analyse the names of the variables, to know which columns
         belong to RVs or Fields
         '''
-        n_vars = len(self.inputVarNames)
-        n_vars_KL = len(self.inputVarNamesKL)
+        n_vars              = len(self.inputVarNames)
+        n_vars_KL           = len(self.inputVarNamesKL)
         self.dataMixSamples =  list()
         for i in range(n_vars):
-            k = 0
+            k           = 0
             timesInList = 0
-            jump = NdGaussianProcessExperiment.ramp(sum(self.dataMixSamples)-i)
+            jump        = self.ramp(sum(self.dataMixSamples)-i)
             while self.inputVarNamesKL[i+k+jump].startswith(self.inputVarNames[i]):
                 timesInList += 1
-                k += 1
-                print('i=',i,'k=',k,'jump=',jump)
-                if i+k+jump == n_vars_KL:
-                    break   
+                k           += 1
+                if i+k+jump == n_vars_KL: break   
             self.dataMixSamples.append(timesInList)
 
     def getExperiment(self):
         n_vars = len(self.inputVarNames)
         N = self.N
-        self.experimentSample = numpy.tile(self.sample_A,[2+n_vars,1])
-        self.experimentSample[:N,...] = self.sample_B
-        jump = 2*N
+        self.experimentSample            = numpy.tile(self.sample_A,[2+n_vars,1])
+        self.experimentSample[N:2*N,...] = self.sample_B
+        jump    = 2*N
         jumpDim = 0
         for i in range(n_vars):
             self.experimentSample[jump+N*i:jump+N*(i+1), jumpDim:jumpDim+self.dataMixSamples[i]] = \
                     self.sample_B[...,                   jumpDim:jumpDim+self.dataMixSamples[i]]
             jumpDim += self.dataMixSamples[i]
 
-    @staticmethod
-    def ramp(X):
+    def ramp(self,X):
         if X >= 0: return X
         else:      return 0
 
@@ -173,104 +170,3 @@ class NdGaussianProcessExperiment(object):
         sample = numpy.array(sample)
         self.sample_A = sample[:self.N,:]
         self.sample_B = sample[self.N:,:]
-
-
-
-'''
-import NdGaussianProcessSensitivity as ngps
-import NdGaussianProcessConstructor as ngpc
-# Classes utilitaires
-import numpy                        as np
-import openturns                    as ot
-import matplotlib.pyplot            as plt
-from   importlib                import reload 
-
-# on importe aussi les fonctions à étudier
-import RandomBeamGenerationClass    as rbgc
-
-
-# process governing the young modulus for each element      (MPa)
-process_E = ngpc.NdGaussianProcessConstructor(dimension=1,
-                                              grid_shape=[[0,1000,100],],
-                                              covariance_model={'NameModel':'MaternModel',
-                                                                'amplitude':5000.,
-                                                                'scale':300,
-                                                                'nu':13/3},
-                                              trend_arguments=['x'],trend_function=210000)
-process_E.setName('E_')
-
-
-# process governing the diameter for each element          (mm)
-process_D = ngpc.NdGaussianProcessConstructor(dimension=1,
-                                              grid_shape=[[0,1000,100],],
-                                              covariance_model={'NameModel':'MaternModel',
-                                                                'amplitude':.3,
-                                                                'scale':250,
-                                                                'nu':7.4/3},
-                                              trend_arguments=['x'],trend_function=10)
-process_D.setName('D_')
-
-
-# random variable for the density of the material (kg/m³)
-rho         = 7850.
-sigma       = 250
-nameD       = 'Rho'
-RV_Rho = ngpc.NormalDistribution(mu = rho, sigma = sigma, name = nameD)
-
-
-# random variable for the position of the force   (mm) 
-middle       = 500
-sigma_f      = 50
-namePos     = 'FP'
-RV_Fpos = ngpc.NormalDistribution(mu = middle, sigma = sigma_f, name = namePos)
-
-
-# random variable for the norm of the force    (N)
-muForce       = 100
-sigma_Fnor    = 1.5
-nameNor       = 'FN'
-RV_Fnorm = ngpc.NormalDistribution(mu = muForce, sigma = sigma_Fnor, name = nameNor)
-
-from importlib import reload
-reload(ngps)
-outputVariables = {'out1' :
-                   {
-                         'name'     : 'VonMisesStress',
-                         'position' : 0,
-                         'shape'    : (102,)  
-                    },
-                   'out2' :
-                   {
-                        'name'      : 'maxDeflection',
-                        'position'  : 1,
-                        'shape'     : (1,)
-                   }
-                  }
-
-functionWrapper = rbgc.sampleAndSoloFunctionWrapper(process_E, process_D, RV_Rho, RV_Fpos, RV_Fnorm)
-
-inputVarList = [process_E, process_D, RV_Rho, RV_Fpos, RV_Fnorm]
-
-soloFunction   = functionWrapper.randomBeamFunctionSolo
-sampleFunction = functionWrapper.randomBeamFunctionSample
-##
-size           = 100 ## Number of samples for our sobol indicies experiment (kept low here to make things faster)
-##
-reload(ngps)
-##
-processSensitivityAnalysis = ngps.NdGaussianProcessSensitivityAnalysis(inputVarList, 
-                                                                       outputVariables,
-                                                                       sampleFunction,
-                                                                       soloFunction,
-                                                                       size)
-
-import NdGaussianProcessExperimentGeneration as ngpeg
-reload(ngpeg)
-
-test = ngpeg.NdGaussianProcessExperiment()
-
-test.setSampleSize(100)
-
-test.setGenType(2)
-test.generateSample()
-'''
