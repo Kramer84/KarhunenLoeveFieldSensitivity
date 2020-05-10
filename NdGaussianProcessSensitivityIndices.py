@@ -20,5 +20,8 @@ sensitivity index. This will allow us to scale the method to any type of input s
 '''
 
 
-class NdGaussianProcessSensitivityIndices(object):
-	
+class NdGaussianProcessSensitivityIndicesBase(object):
+	'''Basic methods to calculate unitary sensitivity indices
+	'''
+	@staticmethod
+	def SaltelliIndices(vectA, vectB, vectBAi):

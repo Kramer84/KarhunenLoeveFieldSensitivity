@@ -44,21 +44,32 @@ class NdGaussianProcessExperiment(object):
     4 : SimulatedAnnealingLHS
     '''
 
-    def __init__(self, sampleSize = None, OTPyFunctionWrapper = None):
-        self.OTPyFunctionWrapper  = OTPyFunctionWrapper
+    def __init__(self, sampleSize = None, OTPyFunctionWrapper = None, generationType = 1):
+        self.OTPyFunctionWrapper  = None
         self.composedDistribution = None
         self.inputVarNames        = list()
         self.inputVarNamesKL      = list()
-        self.N                    = sampleSize
+        self.N                    = None
         self._genType             = 1
         print('Generation types:\n1 : Random (default)\n2 : LHS\n3 : LowDiscrepancySequence\n4 : SimulatedAnnealingLHS')
+        if sampleSize is not None:          self.setSampleSize(sampleSize)
+        if OTPyFunctionWrapper is not None: self.setOTPyFunctionWrapper(OTPyFunctionWrapper)
+        if generationType is not None:      self.setGenType(generationType)
         # here we come to the samples
         self.sample_A             = None
         self.sample_B             = None
         self.dataMixSamples       = list()
         self.experimentSample     = None
 
+    def generate(self, **kwargs):
+        assert (self.OTPyFunctionWrapper is not None) and \
+               (self.sampleSize is not None) , "Please intialise sample size and PythonFunction wrapper"
+        self.generateSample(**kwargs)
+        self.getExperiment()
+        return self.experimentSample
+
     def setSampleSize(self, N):
+        assert type(N) is int, "Sample size can only be positive integer"
         if self.N is None :
             self.N = N 
         else :
@@ -70,6 +81,7 @@ class NdGaussianProcessExperiment(object):
         self.inputVarNames        = self.OTPyFunctionWrapper.inputVarNames
         self.inputVarNamesKL      = self.OTPyFunctionWrapper.inputVarNamesKL
         self.composedDistribution = self.OTPyFunctionWrapper.KLComposedDistribution
+        self.getDataFieldAndRV()
 
     def setGenType(self, arg):
         arg = int(arg)
