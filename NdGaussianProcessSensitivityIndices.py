@@ -58,7 +58,7 @@ class NdGaussianProcessSensitivityIndicesBase(object):
     def SaltelliIndices(Y_Ac, Y_Bc, Y_Ec):
         assert (Y_Ac.shape == Y_Bc.shape == Y_Ec.shape ), "samples have to have same shape"
         N = Y_Ac.shape[0]
-        Ni = 1/N
+        Ni = 1./N
         #Original version
         '''S = numpy.divide(numpy.substract(Ni*numpy.sum(numpy.multiply(Y_Bc,Y_Ec),axis=0),
                                                                  numpy.multiply(Ni*numpy.sum(Y_Bc,axis=0),
@@ -70,5 +70,6 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         S = numpy.divide(Ni*numpy.sum(numpy.multiply(Y_Bc,Y_Ec),axis=0),
                                                      Ni*numpy.sum(numpy.square(Y_Ac),axis=0)
                                                      )
-
+        S_tot = numpy.substract(1., 
+                    numpy.divide(Ni*numpy.sum(numpy.multiply()),))
         return S
