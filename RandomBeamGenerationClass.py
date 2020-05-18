@@ -383,7 +383,7 @@ class RandomBeam_anastruct(object):
     def multiprocessBatchField(self, random_young_modulus, random_diameter, random_density, random_forcePos, random_forceNorm):
         n_cpu       = cpu_count()
         var1, var2, var3, var4, var5, var6, var7 = deepcopy(random_young_modulus), deepcopy(random_diameter), deepcopy(random_density), deepcopy(random_forcePos), deepcopy(random_forceNorm), deepcopy(self.vertex_list), deepcopy(self.l_element)
-        result_list = Parallel(n_jobs=-1)(delayed(RandomBeam_anastruct.experience)(var1[i], var2[i], var3[i], var4[i], var5[i], var6, var7) for i in range(len(var5)))
+        result_list = Parallel(n_jobs=-1, verbose=10)(delayed(RandomBeam_anastruct.experience)(var1[i], var2[i], var3[i], var4[i], var5[i], var6, var7) for i in range(len(var5)))
         monteCarloResults_elem = numpy.stack(numpy.asarray(result_list)[...,0])
         monteCarloResults_node = numpy.stack(numpy.asarray(result_list)[...,1])
         monteCarloResults_glob = numpy.stack(numpy.asarray(result_list)[...,2])

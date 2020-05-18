@@ -1,5 +1,6 @@
 import openturns 
 import numpy 
+from joblib import Parallel, delayed, cpu_count
 
 '''Here we are going to rewrite a vectorized method to calculate the Sobol' Indices,
 using the different methods at our disposal : 
@@ -32,28 +33,40 @@ class NdGaussianProcessSensitivityIndicesBase(object):
     as matrices (multidimensional outputs)
     '''
     def __init__(self):
-
-    def setSamples(Y_A, Y_B):
-        self.Y_A = numpy.squeeze(numpy.array(Y_A))
-        self.Y_B = numpy.squeeze(numpy.array(Y_B))
-        assert self.Y_A.shape == self.Y_B.shape, "samples have to have same shape"
-        self.sampleShape = self.Y_A.shape
-        self.N_samples   = self.sampleShape[0]
-        #Centering of samples (hopefully rightly done)
-        self.Y_Ac = self.Y_A-self.Y_A.mean(axis=0)
-        self.Y_Bc = self.Y_B-self.Y_B.mean(axis=0)
+        pass
 
     @staticmethod
-    def checkSampleIntegretyAndCenter(Y_A, Y_B, Y_E):
-        Y_A = numpy.squeeze(Y_A)
-        Y_B = numpy.squeeze(Y_B)
-        Y_E = numpy.squeeze(Y_E)
-        Y_Ac = Y_A  - Y_A.mean(axis=0)
-        Y_Bc = Y_B  - Y_B.mean(axis=0)
-        Y_Ec = Y_E  - Y_E.mean(axis=0)
-        assert Y_A.shape == Y_B.shape == Y_E.shape ,"samples have to have same shape"
-        return Y_Ac, Y_Bc, Y_Ec
+    def centerSobolExp(SobolExperiment, N):
+        nSamps = int(SobolExperiment.shape[0]/N)
+        inputListParallel = list()
+        for i in range(nSamps):
+            #Centering
+            SobolExperiment[i*N:(i+1)*N,...] = SobolExperiment[i*N:(i+1)*N,...] - SobolExperiment[i*N:(i+1)*N,...].mean(axis=0)
+        for p in range(nSamps-2):
+            inputListParallel.append((SobolExperiment[:N,...], SobolExperiment[N:2*N,...], SobolExperiment[(2+p)*N:(3+p)*N,...]))
+        return SobolExperiment, inputListParallel
 
+    @staticmethod
+    def getSobolIndices(SobolExperiment, N, method = 'Saltelli'):
+        expShape = SobolExperiment.shape 
+        nIndices = int(expShape[0]/N) - 2
+        dim = expShape[1:]
+        if dim == (): dim = 1
+        print('There are',nIndices,'indices to get in',dim,'dimensions with',SobolExperiment[0].size,'elements')
+        SobolExperiment, inputListParallel = NdGaussianProcessSensitivityIndicesBase.centerSobolExp(SobolExperiment, N)
+        Y_Ac = SobolExperiment[0:N,...] 
+        B_Ac = SobolExperiment[N:2*N,...]
+        if method is 'Saltelli':
+            SobolIndices = Parallel(
+                            n_jobs = cpu_count())(
+                            delayed(NdGaussianProcessSensitivityIndicesBase.SaltelliIndices)(
+                            *inputListParallel[i]) for i in range(nIndices)
+                            )
+            SobolIndices, SobolIndicesTot = map(list,zip(*SobolIndices))
+            SobolIndices = numpy.stack(SobolIndices)
+            SobolIndicesTot = numpy.stack(SobolIndicesTot)
+        return SobolIndices, SobolIndicesTot
+        
     @staticmethod
     def SaltelliIndices(Y_Ac, Y_Bc, Y_Ec):
         assert (Y_Ac.shape == Y_Bc.shape == Y_Ec.shape ), "samples have to have same shape"
@@ -70,6 +83,8 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         S = numpy.divide(Ni*numpy.sum(numpy.multiply(Y_Bc,Y_Ec),axis=0),
                                                      Ni*numpy.sum(numpy.square(Y_Ac),axis=0)
                                                      )
-        S_tot = numpy.substract(1., 
-                    numpy.divide(Ni*numpy.sum(numpy.multiply()),))
-        return S
+        S_tot = numpy.subtract(1., 
+                    numpy.divide(Ni*numpy.sum(numpy.multiply(Y_Ac,Y_Ec),axis=0),
+                                                     Ni*numpy.sum(numpy.square(Y_Ac)))
+                                                     )
+        return S, S_tot

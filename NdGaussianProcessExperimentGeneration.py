@@ -63,8 +63,9 @@ class NdGaussianProcessExperiment(object):
 
     def generate(self, **kwargs):
         assert (self.OTPyFunctionWrapper is not None) and \
-               (self.sampleSize is not None) , "Please intialise sample size and PythonFunction wrapper"
+               (self.N is not None) , "Please intialise sample size and PythonFunction wrapper"
         self.generateSample(**kwargs)
+        self.getDataFieldAndRV()
         self.getExperiment()
         return self.experimentSample
 
@@ -126,6 +127,8 @@ class NdGaussianProcessExperiment(object):
     def generateSample(self, **kwargs):
         distribution = self.composedDistribution
         method       = self._genType
+        methodDict   = {1:'Random (default)', 2:'LHS', 3:'LowDiscrepancySequence', 4:'SimulatedAnnealingLHS'}
+        print('Choosen generation method is',methodDict[method])
         N2           = 2*self.N 
         if   method is 1 :
             sample = distribution.getSample(N2)

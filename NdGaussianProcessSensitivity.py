@@ -1,7 +1,8 @@
 import openturns
 import numpy
-from   copy     import deepcopy
-import NdGaussianProcessConstructor as ngpc
+from   copy                                  import deepcopy
+import NdGaussianProcessConstructor          as ngpc
+import NdGaussianProcessExperimentGeneration as ngpeg
 import atexit
 
 class NdGaussianProcessSensitivityAnalysis(object):
@@ -70,23 +71,20 @@ class NdGaussianProcessSensitivityAnalysis(object):
         self._outputDesignListNC = None 
         self._designsWErrors     = None
 
-    def makeExperiment(self):
-        self.prepareSobolIndicesExperiment()
-        self.getOutputDesignAndPostprocess()
+    def makeExperiment(self, **kwargs):
+        self.prepareSobolIndicesExperiment(**kwargs)
+        self.getOutputDesignAndPostprocess(**kwargs)
 
-    def prepareSobolIndicesExperiment(self):
-        composedDistribution    = self.wrappedFunction.KLComposedDistribution
-        size                    = self.sampleSize
-        sobolExperiment         = openturns.SobolIndicesExperiment(composedDistribution, size)
-        inputDesign             = sobolExperiment.generate()
-        inputDesign.setDescription(self.wrappedFunction.getInputDescription())
+    def prepareSobolIndicesExperiment(self, gen_type = 1,  **kwargs):
+        sobolExperiment         = ngpeg.NdGaussianProcessExperiment(self.sampleSize, self.wrappedFunction, gen_type)
+        inputDesign             = sobolExperiment.generate(**kwargs)
         sobolBatchSize          = len(inputDesign)
         print('number of samples for sobol experiment = ', sobolBatchSize, '\n')
         self.sobolBatchSize     = sobolBatchSize
         self._inputDesignNC     = inputDesign
         print('input design is: ',inputDesign)
 
-    def getOutputDesignAndPostprocess(self):
+    def getOutputDesignAndPostprocess(self, **kwargs):
         assert self._inputDesignNC is not None, ""
         assert self.functionSample is not None or self.functionSolo is not None , ""
         if self.functionSample is not None : 
@@ -101,21 +99,22 @@ class NdGaussianProcessSensitivityAnalysis(object):
         else : 
             outputDesignList     = [outputDesign]
         self._outputDesignListNC = outputDesignList
-        self._postProcessOutputDesign()
+        self._postProcessOutputDesign(**kwargs)
 
-    def _postProcessOutputDesign(self):
+    def _postProcessOutputDesign(self, **kwargs):
         '''To check if there are nan values and replace them with new realizations
            We not only have to erase the value with the nan, but all the corresponding
            permutations. 
            
         '''
-        composedDistribution = self.wrappedFunction.KLComposedDistribution
-        size                 = self.sampleSize
-        dimensionInput       = composedDistribution.getDimension()
         outputList           = deepcopy(self._outputDesignListNC)
         ## We flatten all the realisation of each sample, to check if we have np.nans
         outputMatrix         = self.wrappedFunction.outputListToMatrix(outputList)
         inputArray           = numpy.array(deepcopy(self._inputDesignNC)) 
+        composedDistribution = self.wrappedFunction.KLComposedDistribution
+        N                    = self.sampleSize
+        d_implicit           = int(inputArray.shape[0]/N)-2  #Any type of input shape being a multiple > 2 of N
+        d_inputKL            = composedDistribution.getDimension() #dimension of the karhunen loeve composed distribution
         combinedMatrix       = numpy.hstack([inputArray, outputMatrix]).copy() # of size (N_samples, inputDim*outputDim)
         combinedMatrix0      = combinedMatrix.copy()
         whereNan             = numpy.argwhere(numpy.isnan(deepcopy(combinedMatrix)))[...,0]
@@ -127,9 +126,9 @@ class NdGaussianProcessSensitivityAnalysis(object):
         if n_nans > 0:
             print('There were ',n_nans, ' errors (numpy.nan) while processing, trying to regenerate missing outputs \n')
             for i  in range(n_nans):
-                idx2Change   = numpy.arange(dimensionInput+2)*size + columnIdx[i]%size
+                idx2Change   = numpy.arange(d_implicit+2)*N + columnIdx[i]%N
                 print('index to change: ',idx2Change)
-                newCombinedMatrix        = self._regenerate_missing_vals_safe()
+                newCombinedMatrix        = self._regenerate_missing_vals_safe(**kwargs)
                 for q in range(len(idx2Change)):
                     p                      = idx2Change[q]
                     combinedMatrix[p, ...] = newCombinedMatrix[q, ...]
@@ -142,8 +141,8 @@ class NdGaussianProcessSensitivityAnalysis(object):
                 print('columns where still nan', columnIdx)
 
             print(' - Post replacement assertion passed - \n')
-            inputArray  = combinedMatrix[..., :dimensionInput]
-            outputArray = combinedMatrix[..., dimensionInput:]
+            inputArray  = combinedMatrix[..., :d_inputKL]    
+            outputArray = combinedMatrix[..., d_inputKL:]
             inputSample = openturns.Sample(inputArray)
             inputSample.setDescription(self.wrappedFunction.getInputDescription())
             self.outputDesignList = self.wrappedFunction.matrixToOutputList(outputArray)
@@ -153,13 +152,13 @@ class NdGaussianProcessSensitivityAnalysis(object):
             self.inputDesign      = self._inputDesignNC
             print('\nNo errors while processing, the function has returned no np.nan.\n')
 
-    def _regenerate_missing_vals_safe(self): 
+    def _regenerate_missing_vals_safe(self, **kwargs): 
         composedDistribution = self.wrappedFunction.KLComposedDistribution
         exit                 = 1
         tries                = 0
         while exit != 0:
-            sobolReg      = openturns.SobolIndicesExperiment(composedDistribution, 1)
-            inputDes      = sobolReg.generate()
+            sobolReg      = ngpeg.NdGaussianProcessExperiment(1,self.wrappedFunction)
+            inputDes      = sobolReg.generate(**kwargs)
             outputDes     = self.wrappedFunction(inputDes)
             inputDes      = numpy.array(inputDes).tolist()
             outputDesFlat = self.wrappedFunction.outputListToMatrix(outputDes)
