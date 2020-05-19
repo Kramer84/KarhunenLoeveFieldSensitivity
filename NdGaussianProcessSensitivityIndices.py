@@ -39,6 +39,7 @@ class NdGaussianProcessSensitivityIndicesBase(object):
     def centerSobolExp(SobolExperiment, N):
         nSamps = int(SobolExperiment.shape[0]/N)
         inputListParallel = list()
+        SobolExperiment0 = SobolExperiment
         for i in range(nSamps):
             #Centering
             SobolExperiment[i*N:(i+1)*N,...] = SobolExperiment[i*N:(i+1)*N,...] - SobolExperiment[i*N:(i+1)*N,...].mean(axis=0)
@@ -51,11 +52,14 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         expShape = SobolExperiment.shape 
         nIndices = int(expShape[0]/N) - 2
         dim = expShape[1:]
+        SobolExperiment0 = SobolExperiment
         if dim == (): dim = 1
         print('There are',nIndices,'indices to get in',dim,'dimensions with',SobolExperiment[0].size,'elements')
         SobolExperiment, inputListParallel = NdGaussianProcessSensitivityIndicesBase.centerSobolExp(SobolExperiment, N)
+        Y_A0 = SobolExperiment0[0:N,...]
+        Y_B0 = SobolExperiment0[0:N,...]
         Y_Ac = SobolExperiment[0:N,...] 
-        B_Ac = SobolExperiment[N:2*N,...]
+        Y_Bc = SobolExperiment[N:2*N,...]
         if method is 'Saltelli':
             SobolIndices = Parallel(
                             n_jobs = cpu_count())(
@@ -88,3 +92,15 @@ class NdGaussianProcessSensitivityIndicesBase(object):
                                                      Ni*numpy.sum(numpy.square(Y_Ac)))
                                                      )
         return S, S_tot
+
+
+class SobolIndicesClass(object):
+    def __init__(self, SobolExperiment, N ,method = 'Saltelli'):
+        self.method            = method
+        self.N                 = N
+        self.experiment        = SobolExperiment
+        self.firstOrderIndices = None
+
+    def getFirstOrderIndices(self):
+        self.firstOrderIndices = NdGaussianProcessSensitivityIndicesBase.getSobolIndices(self.experiment, self.N, self,method)
+

@@ -3,6 +3,7 @@ import numpy
 from   copy                                  import deepcopy
 import NdGaussianProcessConstructor          as ngpc
 import NdGaussianProcessExperimentGeneration as ngpeg
+import NdGaussianProcessSensitivityIndices   as ngpsi 
 import atexit
 
 class NdGaussianProcessSensitivityAnalysis(object):
@@ -171,17 +172,17 @@ class NdGaussianProcessSensitivityAnalysis(object):
 
         return numpy.hstack([inputDes, outputDesFlat])
 
-    def getSensitivityAnalysisResults(self, methodOfChoice = 'MartinezSensitivityAlgorithm', returnStuff = False):
+    def getSensitivityAnalysisResults(self, methodOfChoice = 'Saltelli', returnStuff = False):
         '''get sobol indices for each element of the output
         As the output should be a list of fields and scalars, this step will
         return a list of scalar sobol indices and field sobol indices
         '''
-        algoDict = {'SaltelliSensitivityAlgorithm'         : openturns.SaltelliSensitivityAlgorithm,
-                    'MartinezSensitivityAlgorithm'         : openturns.MartinezSensitivityAlgorithm,
-                    'JansenSensitivityAlgorithm'           : openturns.JansenSensitivityAlgorithm,
-                    'MauntzKucherenkoSensitivityAlgorithm' : openturns.MauntzKucherenkoSensitivityAlgorithm}
+        algoDict = {'Jansen'            : 1,
+                    'Saltelli'          : 2,
+                    'Mauntz-Kucherenko' : 3,
+                    'Martinez'          : 4}
 
-        assert methodOfChoice in algoDict, "argument has to be a string:\n['SaltelliSensitivityAlgorithm','MartinezSensitivityAlgorithm','JansenSensitivityAlgorithm','MauntzKucherenkoSensitivityAlgorithm'] "
+        assert methodOfChoice in algoDict, "argument has to be a string:\n['Jansen','Saltelli','Mauntz-Kucherenko','Martinez'] "
         size             = self.sampleSize
         inputDesign      = self.inputDesign
         dimensionInput   = int(len(inputDesign[0]))
