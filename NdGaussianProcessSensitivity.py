@@ -181,7 +181,6 @@ class NdGaussianProcessSensitivityAnalysis(object):
                     'Saltelli'          : 2,
                     'Mauntz-Kucherenko' : 3,
                     'Martinez'          : 4}
-
         assert methodOfChoice in algoDict, "argument has to be a string:\n['Jansen','Saltelli','Mauntz-Kucherenko','Martinez'] "
         size             = self.sampleSize
         inputDesign      = self.inputDesign
