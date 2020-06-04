@@ -42,11 +42,12 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         nSamps = int(SobolExperiment.shape[0]/N)
         inputListParallel = list()
         SobolExperiment0 = SobolExperiment
+        psi_fo, psi_to = NdGaussianProcessSensitivityIndicesBase.SymbolicSaltelliIndices(N)
         for i in range(nSamps):
             #Centering
             SobolExperiment[i*N:(i+1)*N,...] = SobolExperiment[i*N:(i+1)*N,...] - SobolExperiment[i*N:(i+1)*N,...].mean(axis=0)
         for p in range(nSamps-2):
-            inputListParallel.append((SobolExperiment[:N,...], SobolExperiment[N:2*N,...], SobolExperiment[(2+p)*N:(3+p)*N,...]))
+            inputListParallel.append((SobolExperiment[:N,...], SobolExperiment[N:2*N,...], SobolExperiment[(2+p)*N:(3+p)*N,...], psi_fo, psi_to))
         return SobolExperiment, inputListParallel
 
     @staticmethod
@@ -74,7 +75,7 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         return SobolIndices, SobolIndicesTot
         
     @staticmethod
-    def SaltelliIndices(Y_Ac, Y_Bc, Y_Ec):
+    def SaltelliIndices(Y_Ac, Y_Bc, Y_Ec, psi_fo, psi_to):
         assert (Y_Ac.shape == Y_Bc.shape == Y_Ec.shape ), "samples have to have same shape"
         N = Y_Ac.shape[0]
         Ni = 1./N
@@ -93,6 +94,7 @@ class NdGaussianProcessSensitivityIndicesBase(object):
                     numpy.divide(Ni*numpy.sum(numpy.multiply(Y_Ac,Y_Ec),axis=0),
                                                      Ni*numpy.sum(numpy.square(Y_Ac)))
                                                      )
+        varS, varS_tot = NdGaussianProcessSensitivityIndicesBase.computeVariance(YAc, YBc, YEc, N, psi_fo, psi_to)
         return S, S_tot
 
     @staticmethod
@@ -117,7 +119,7 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         return psi_fo, psi_to
 
     @staticmethod
-    def computeVariance(outputDim, inputDim, N, outputDesign):
+    def computeVariance(YAc, YBc, YEc, N, psi_fo, psi_to):
         """
         Compute the variance of the estimator sample
 
@@ -125,8 +127,6 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         ----------
         outputDim : int
             Dimension of the output (1 if scalar), only flat arrays
-        inputDim : int
-            dimension of the input (without KL)
         N : int
             The size of the sample.
         outputDesign : numpy.array
@@ -136,33 +136,37 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         psi_to : symbolic function
             Total order saltelli indices symbolic function
         """
-        psi_fo, psi_to = NdGaussianProcessSensitivityIndicesBase.SymbolicSaltelliIndices(N)
 
-        varianceFO, varianceTO = (ot.Point(inputDim), ot.Point(inputDim))
+        baseShape = YAc.shape
+        flatDim = np.prod(YAc.shape[1:])
+        flatShape = (N, flatDim)
+        YAc = np.reshape(YAc, flatShape)
+        YBc = np.reshape(YBc, flatShape)
+        YEc = np.reshape(YEc, flatShape)
 
-        for p in range(inputDim):
-            U_fo = ot.Sample(N, 0)
-            U_to = ot.Sample(N, 0)
-            for q in range(outputDim):
+        U_fo = ot.Sample(N, 0)
+        U_to = ot.Sample(N, 0)
+        for q in range(flatDim):
 
-                yA = ot.Sample(outputDesign[:, q], 0, N)
-                yB = ot.Sample(outputDesign[:, q], N, 2 * N)
-                yAc = (yA - yA.computeMean()[0])
-                yBc = (yB - yB.computeMean()[0])
-                yE = ot.Sample(outputDesign[:, q], (2 + p) * N, (3 + p) * N)
-                yEc = (yE - yE.computeMean()[0])
+            yAc = ot.Sample(YAc[:, q])
+            yBc = ot.Sample(YBc[:, q])
+            yEc = ot.Sample(YEc[:, q])
 
-                ## first order
-                U_fo.stack(numpy.array(yBc) * numpy.array(yEc))
-                U_fo.stack(numpy.array(yAc)**2) # centré dans tous les cas ici
+            ## first order
+            U_fo.stack(numpy.array(yBc) * numpy.array(yEc))
+            U_fo.stack(numpy.array(yAc)**2) # centré dans tous les cas ici
 
-                ## total order
-                U_to.stack(numpy.array(yAc) * numpy.array(yEc))
-                U_to.stack(numpy.array(yAc)**2) # centré dans tous les cas ici
+            ## total order
+            U_to.stack(numpy.array(yAc) * numpy.array(yEc))
+            U_to.stack(numpy.array(yAc)**2) # centré dans tous les cas ici
 
-            varianceFO[p] = NdGaussianProcessSensitivityIndicesBase.computeSobolVariance(U_fo, psi_fo, N)
-            varianceTO[p] = NdGaussianProcessSensitivityIndicesBase.computeSobolVariance(U_to, psi_to, N)
-
+        varianceFO = NdGaussianProcessSensitivityIndicesBase.computeSobolVariance(U_fo, psi_fo, N)
+        varianceTO = NdGaussianProcessSensitivityIndicesBase.computeSobolVariance(U_to, psi_to, N)
+        shape = baseShape[1:]
+        if len(baseShape)<=1:
+            shape=1
+        varianceFO = np.reshape(np.array(varianceFO),shape)
+        varianceTO = np.reshape(np.array(varianceTO),shape)
         return varianceFO, varianceTO
 
 
