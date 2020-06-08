@@ -1,12 +1,10 @@
 import openturns 
 import numpy 
-from joblib import Parallel, delayed, cpu_count
-from itertools import chain
+import matplotlib.pyplot as plt
+from   joblib    import Parallel, delayed, cpu_count
+from   itertools import chain
 
 
-
-import openturns as ot
-import numpy as np
 '''Here we are going to rewrite a vectorized method to calculate the Sobol' Indices,
 using the different methods at our disposal : 
 -Jansen
@@ -67,6 +65,7 @@ class NdGaussianProcessSensitivityIndicesBase(object):
                                                                         )'''
             SobolIndices       = [NdGaussianProcessSensitivityIndicesBase.SaltelliIndices(*inputListParallel[i]) for i in range(nIndices)]
             SobolIndices, SobolIndicesTot, VarSobolIndices, VarSobolIndicesTot = map(list,zip(*SobolIndices))
+            print('Indices successfully calculated')
             SobolIndices       = numpy.stack(SobolIndices)
             SobolIndicesTot    = numpy.stack(SobolIndicesTot)
             VarSobolIndices    = numpy.stack(VarSobolIndices)
@@ -98,8 +97,8 @@ class NdGaussianProcessSensitivityIndicesBase(object):
 
     @staticmethod
     def SymbolicSaltelliIndices(N):
-        x, y = (ot.Description.BuildDefault(N, 'X'), 
-                       ot.Description.BuildDefault(N, 'Y'))
+        x, y = (openturns.Description.BuildDefault(N, 'X'), 
+                       openturns.Description.BuildDefault(N, 'Y'))
         # in order X0, Y0, X1, Y1
         xy = list(x)
         for i, yy in enumerate(y):
@@ -113,8 +112,8 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         symbolic_num   = ''.join(symbolic_num)
         symbolic_denom   = ''.join(symbolic_denom)
         print('Type=',type(symbolic_num),type(symbolic_denom))
-        psi_fo, psi_to = (ot.SymbolicFunction(xy, ['('+symbolic_num + ')/(' + symbolic_denom + ')']), 
-                                 ot.SymbolicFunction(xy, ['1 - ' + '('+symbolic_num + ')/(' + symbolic_denom + ')']))
+        psi_fo, psi_to = (openturns.SymbolicFunction(xy, ['('+symbolic_num + ')/(' + symbolic_denom + ')']), 
+                                 openturns.SymbolicFunction(xy, ['1 - ' + '('+symbolic_num + ')/(' + symbolic_denom + ')']))
         return psi_fo, psi_to
 
     @staticmethod
@@ -136,12 +135,10 @@ class NdGaussianProcessSensitivityIndicesBase(object):
             Total order saltelli indices symbolic function
         """
         baseShape = YAc.shape
-        YAc = numpy.atleast_2d(YAc).T
-        YBc = numpy.atleast_2d(YBc).T
-        YEc = numpy.atleast_2d(YEc).T
-        flatDim   = numpy.prod(baseShape[1:])
-        flatShape = (N, flatDim)
-        print('flatDim is ',flatDim)
+        print('basic output shape is:', baseShape)
+        flatDim   = int(numpy.prod(baseShape[1:]))
+        flatShape = [N, flatDim]
+        print('dimension of output flattened to matrix (dim<=2) ',flatDim)
         YAc = numpy.reshape(YAc, flatShape)
         YBc = numpy.reshape(YBc, flatShape)
         YEc = numpy.reshape(YEc, flatShape)
@@ -151,17 +148,17 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         X_fo = numpy.multiply(YBc,YEc)
         Y_fo = numpy.square(YAc)
 
+        #total order
         X_to = numpy.multiply(YAc,YEc)
         Y_to = numpy.square(YAc)  
 
-        print('Prepared')
+        print('data for variance calculus prepared \n X_fo shape is', X_fo.shape, 'Y_fo shape is', Y_fo.shape)
         varianceFO = NdGaussianProcessSensitivityIndicesBase.computeSobolVariance(X_fo, Y_fo, psi_fo, N)
         varianceTO = NdGaussianProcessSensitivityIndicesBase.computeSobolVariance(X_to, Y_to, psi_to, N)
-        shape = baseShape[1:]
-        if len(baseShape)<=1:
-            shape=(1,)
-        varianceFO = numpy.reshape(numpy.squeeze(numpy.array(varianceFO)),shape)
-        varianceTO = numpy.reshape(numpy.squeeze(numpy.array(varianceTO)),shape)
+        shape      = baseShape[1:]
+        if len(baseShape)<=1 : shape=(1,)
+        varianceFO = numpy.reshape(varianceFO,shape)
+        varianceTO = numpy.reshape(varianceTO,shape)
         return varianceFO, varianceTO
 
 
@@ -171,7 +168,7 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         Compute the variance of the estimators
 
         Parameters
-        ----------
+        ---------- 
         U : sample
             The sample of yA, yB, yE or combination of them, defined according the
             sobol estimators
@@ -180,12 +177,10 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         N : int
             The size of the sample.
         """
-        if len(X.shape) > 1 :
-            rge = X.shape[1]
-        else:
-            rge = 1
-        U        = np.concatenate(list(zip(X, Y)))
-        covar    = numpy.stack([numpy.cov(U,rowvar=True) for i in range(rge)])
+        dims     = numpy.prod(X.shape[1:])
+        U        = numpy.concatenate(list(zip(X, Y)))
+        covar    = numpy.stack([numpy.cov(U,rowvar=True) for i in range(dims)])
+        print('Size of combined U vector:', U.shape)
         print('covariance shape:',covar.shape)
         mean_psi = numpy.squeeze(numpy.asarray(psi.gradient(U.mean(axis=1)))) # * ot.Point(1, 1) # to transform into a Point
         print('mean_psi shape ', mean_psi.shape)
@@ -214,25 +209,21 @@ class SobolIndicesClass(object):
 
 
 
-
-
-
-
-
+"""
 def computeSobolVariance(U, psi, size):
-    """
+    
     Compute the variance of the estimators
 
-    Parameters
-    ----------
-    U : sample
-        The sample of yA, yB, yE or combination of them, defined according the
-        sobol estimators
-    psi : Function
-        The function that computes the sobol estimates.
-    size : int
-        The size of the sample.
-    """
+    '''Parameters
+                ----------
+                U : sample
+                    The sample of yA, yB, yE or combination of them, defined according the
+                    sobol estimators
+                psi : Function
+                    The function that computes the sobol estimates.
+                size : int
+                    The size of the sample.'''
+    
     mean_psi = psi.gradient(U.computeMean()) * ot.Point(1, 1) # to transform into a Point
     variance = ot.dot(mean_psi, U.computeCovariance() * mean_psi) / size
     return variance
@@ -342,4 +333,4 @@ class SaltelliSensitivityAlgorithm(ot.SaltelliSensitivityAlgorithm):
 
         FOindices = ot.Point(VarianceI / sumVariance)
         return FOindices
-
+"""
