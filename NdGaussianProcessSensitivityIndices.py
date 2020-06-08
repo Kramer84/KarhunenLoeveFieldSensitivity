@@ -154,9 +154,6 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         X_to = numpy.multiply(YAc,YEc)
         Y_to = numpy.square(YAc)  
 
-        U_fo = np.concatenate(list(zip(X_fo, Y_fo)))
-        U_to = np.concatenate(list(zip(X_to, Y_to)))
-
         print('Prepared')
         varianceFO = NdGaussianProcessSensitivityIndicesBase.computeSobolVariance(X_fo, Y_fo, psi_fo, N)
         varianceTO = NdGaussianProcessSensitivityIndicesBase.computeSobolVariance(X_to, Y_to, psi_to, N)
