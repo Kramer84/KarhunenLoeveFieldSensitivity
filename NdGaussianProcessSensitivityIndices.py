@@ -40,7 +40,8 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         nSamps = int(SobolExperiment.shape[0]/N)
         inputListParallel = list()
         SobolExperiment0 = SobolExperiment
-        psi_fo, psi_to = NdGaussianProcessSensitivityIndicesBase.SymbolicSaltelliIndices(N)
+        dim = 1
+        psi_fo, psi_to = NdGaussianProcessSensitivityIndicesBase.SymbolicSaltelliIndices(1)
         for i in range(nSamps):
             #Centering
             SobolExperiment[i*N:(i+1)*N,...] = SobolExperiment[i*N:(i+1)*N,...] - SobolExperiment[i*N:(i+1)*N,...].mean(axis=0)
@@ -111,7 +112,6 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         (symbolic_num.pop(), symbolic_denom.pop())
         symbolic_num   = ''.join(symbolic_num)
         symbolic_denom   = ''.join(symbolic_denom)
-        print('Type=',type(symbolic_num),type(symbolic_denom))
         psi_fo, psi_to = (openturns.SymbolicFunction(xy, ['('+symbolic_num + ')/(' + symbolic_denom + ')']), 
                                  openturns.SymbolicFunction(xy, ['1 - ' + '('+symbolic_num + ')/(' + symbolic_denom + ')']))
         return psi_fo, psi_to
@@ -179,10 +179,15 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         """
         dims     = numpy.prod(X.shape[1:])
         U        = numpy.concatenate(list(zip(X, Y)))
-        covar    = numpy.stack([numpy.cov(U,rowvar=True) for i in range(dims)])
+        U2       = numpy.concatenate(list(zip(X.mean(axis=0),Y.mean(axis=0))))
+        U2       = numpy.reshape(U2, [2,dims])
+        print(U2)
+        print('There are ',dims,'output dims')
+        covar    = numpy.squeeze(numpy.stack([numpy.cov((X[...,i],Y[...,i]),rowvar=True) for i in range(dims)]))
         print('Size of combined U vector:', U.shape)
+        print('Size of new combined U2 vector:', U2.shape)
         print('covariance shape:',covar.shape)
-        mean_psi = numpy.squeeze(numpy.asarray(psi.gradient(U.mean(axis=1)))) # * ot.Point(1, 1) # to transform into a Point
+        mean_psi = numpy.squeeze(numpy.asarray(psi.gradient(U2))) # * ot.Point(1, 1) # to transform into a Point
         print('mean_psi shape ', mean_psi.shape)
         print('U.shape = ', U.shape, 'N = ',N)
         #P        = numpy.cov(U,rowvar=False)*mean_psi
