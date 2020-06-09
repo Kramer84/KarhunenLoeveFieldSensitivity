@@ -34,6 +34,8 @@ class NdGaussianProcessSensitivityIndicesBase(object):
 
     This class can accept vectors (unidimensional outputs) as well
     as matrices (multidimensional outputs)
+
+    The agregated Sobol indices are not calculated yet 
     '''
     @staticmethod
     def centerSobolExp(SobolExperiment, N):
@@ -71,7 +73,7 @@ class NdGaussianProcessSensitivityIndicesBase(object):
             SobolIndicesTot    = numpy.stack(SobolIndicesTot)
             VarSobolIndices    = numpy.stack(VarSobolIndices)
             VarSobolIndicesTot = numpy.stack(VarSobolIndicesTot)
-        return SobolIndices, SobolIndicesTot,VarSobolIndices ,VarSobolIndicesTot
+        return SobolIndices, SobolIndicesTot, VarSobolIndices ,VarSobolIndicesTot
         
     @staticmethod
     def SaltelliIndices(Y_Ac, Y_Bc, Y_Ec, psi_fo, psi_to):
@@ -177,6 +179,7 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         N : int
             The size of the sample.
         """
+
         dims       = numpy.prod(X.shape[1:])  #1 if output has only one dimension, as numpy.prod(())=1
         covariance = numpy.squeeze(numpy.stack([numpy.cov((X[...,i],Y[...,i]),rowvar=True) for i in range(dims)]))
         print('The output has', dims, 'dimensions, so the covariance is of dimension',covariance.shape)
@@ -189,7 +192,6 @@ class NdGaussianProcessSensitivityIndicesBase(object):
             mean_psi_temp = numpy.stack([mean_psi.T, mean_psi.T]).T.transpose((0,2,1))
             print('temporary shape after tiling', mean_psi_temp.shape)
             P2            = numpy.sum(numpy.multiply(mean_psi_temp, covariance), axis = 1)  ## This line is similar to a dot product
-            #P2            = numpy.squeeze(numpy.dot(covar, mean_psi))
             variance      = numpy.divide(numpy.sum(numpy.multiply(mean_psi,P2),axis=1),N)
             print('Variance is:', variance)
 
@@ -197,12 +199,12 @@ class NdGaussianProcessSensitivityIndicesBase(object):
             print('Covariance is:', covariance)
             mean_samp = numpy.array([X.mean(), Y.mean()]).tolist()
             print('Sample mean is:', mean_samp)
-            meanPsi   = numpy.squeeze(numpy.array(psi.gradient(mean_samp)))
+            meanPsi   = numpy.squeeze(psi.gradient(mean_samp))
             print('Psi mean is:', meanPsi)
-            variance  = numpy.matmul(meanPsi,numpy.dot(covariance, meanPsi))
+            variance  = numpy.dot(meanPsi,numpy.dot(covariance, meanPsi))
+            variance = variance/N
             print('variance is:', variance)
         return variance
-
 
 
 class SobolIndicesClass(object):
@@ -220,128 +222,7 @@ class SobolIndicesClass(object):
 
 
 
-"""
-def computeSobolVariance(U, psi, size):
-    
-    Compute the variance of the estimators
-
-    '''Parameters
-                ----------
-                U : sample
-                    The sample of yA, yB, yE or combination of them, defined according the
-                    sobol estimators
-                psi : Function
-                    The function that computes the sobol estimates.
-                size : int
-                    The size of the sample.'''
-    
-    mean_psi = psi.gradient(U.computeMean()) * ot.Point(1, 1) # to transform into a Point
-    variance = ot.dot(mean_psi, U.computeCovariance() * mean_psi) / size
-    return variance
 
 
-
-
-class SaltelliSensitivityAlgorithm(ot.SaltelliSensitivityAlgorithm):
-
-    def __init__(self, inputDesign, outputDesign, N):
-        super(SaltelliSensitivityAlgorithm, self).__init__(inputDesign,
-                                                           outputDesign,
-                                                           N)
-        self.inputDesign  = inputDesign
-        self.input_dim    = inputDesign.getDimension()
-        self.output_dim   = outputDesign.getDimension()
-        self.size         = N
-        # centrage de l'échantillon de sortie
-        self.outputDesign = outputDesign # - outputDesign.computeMean()[0]
-
-    def computeVariance(self):
-
-        x = ot.Description.BuildDefault(self.output_dim, 'X')
-        y = ot.Description.BuildDefault(self.output_dim, 'Y')
-        # in order X0, Y0, X1, Y1, ...
-        xy = list(x)
-        for i, yy in enumerate(y):
-            xy.insert(2*i+1, yy)
-        # psi  = (x1 + x2 + ...) / (y1 + y2 + ...). 
-        symbolic_num   = ''
-        symbolic_denom = ''
-        for i in range(self.output_dim):
-            symbolic_num   += x[i]
-            symbolic_denom += y[i]
-            if i<self.output_dim-1:
-                symbolic_num   += '+'
-                symbolic_denom += '+'
-        psi_fo = ot.SymbolicFunction(xy, ['('+symbolic_num + ')/(' + symbolic_denom + ')'])
-        psi_to = ot.SymbolicFunction(xy, ['1 - ' + '('+symbolic_num + ')/(' + symbolic_denom + ')'])
-
-        varianceFO = ot.Point(self.input_dim)
-        varianceTO = ot.Point(self.input_dim)
-        for p in range(self.input_dim):
-            U_fo = ot.Sample(self.size, 0)
-            U_to = ot.Sample(self.size, 0)
-            for q in range(self.output_dim):
-
-                yA  = ot.Sample(self.outputDesign[:, q], 0, self.size)
-                yB  = ot.Sample(self.outputDesign[:, q], self.size, 2 * self.size)
-                yAc = (yA - yA.computeMean()[0])
-                yBc = (yB - yB.computeMean()[0])
-                yE  = ot.Sample(self.outputDesign[:, q], (2 + p) * self.size, (3 + p) * self.size)
-                yEc = (yE - yE.computeMean()[0])
-
-                ## first order
-                U_fo.stack(np.array(yBc) * np.array(yEc))
-                U_fo.stack(np.array(yAc)**2) # centré dans tous les cas ici
-
-                ## total order
-                U_to.stack(np.array(yAc) * np.array(yEc))
-                U_to.stack(np.array(yAc)**2) # centré dans tous les cas ici
-
-            varianceFO[p] = computeSobolVariance(U_fo, psi_fo, self.size)
-            varianceTO[p] = computeSobolVariance(U_to, psi_to, self.size)
-
-        return varianceFO, varianceTO
-
-    def getFirstOrderAsymptoticDistribution(self):
-        indicesFO = self.getAggregatedFirstOrderIndices()
-        varianceFO, varianceTO = self.computeVariance()
-        foDist = ot.DistributionCollection(self.input_dim)
-        for p in range(self.input_dim):
-                foDist[p] = ot.Normal(indicesFO[p], np.sqrt(varianceFO[p]))
-        return foDist
-
-    def getTotalOrderAsymptoticDistribution(self):
-        indicesTO = self.getAggregatedTotalOrderIndices()
-        varianceFO, varianceTO = self.computeVariance()
-        toDist = ot.DistributionCollection(self.input_dim)
-        for p in range(self.input_dim):
-            toDist[p] = ot.Normal(indicesTO[p], np.sqrt(varianceTO[p]))
-        return toDist
-
-    def getAggregatedFirstOrderIndices(self):
-
-        sumVariance = 0
-        VarianceI = ot.Point(self.input_dim)
-        for q in range(self.output_dim):
-            yA = ot.Sample(self.outputDesign[:, q], 0, self.size)
-            yAc = yA - yA.computeMean()[0]
-            yB = ot.Sample(self.outputDesign[:, q], self.size, 2 * self.size)
-            yBc = yB - yB.computeMean()[0]
-            sumVariance += yA.computeVariance()[0]
-
-            # FOindices = ot.Point(self.input_dim)
-            for p in range(self.input_dim):
-                yE = ot.Sample(self.outputDesign[:, q], (2 + p) * self.size, (3 + p) * self.size )
-                yEc = yE - yE.computeMean()[0]
-
-                x = np.array(yB) * np.array(yE)
-                xc = np.array(yBc) * np.array(yEc)
-                mean_yz = yB.computeMean()[0] * yA.computeMean()[0]
-                yz = np.array(yB) * np.array(yA)
-                # FOindices[p] = (np.mean(x) - np.mean(yA)**2) / yA.computeVariance()[0]
-                # FOindices[p] = (np.mean(xc) - np.mean(yAc) * np.mean(yBc)) / yA.computeVariance()[0]
-                VarianceI[p] += (np.mean(xc) - np.mean(yAc) * np.mean(yBc))
-
-        FOindices = ot.Point(VarianceI / sumVariance)
-        return FOindices
-"""
+def plotSobolIndicesWithErr(S, errS, varNames, n_dims):
+    assert len(varNames)==n_dims,"Error in the number of dimensions or variable names"
