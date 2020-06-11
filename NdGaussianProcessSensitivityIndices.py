@@ -39,15 +39,18 @@ class NdGaussianProcessSensitivityIndicesBase(object):
     '''
     @staticmethod
     def centerSobolExp(SobolExperiment, N):
-        nSamps = int(SobolExperiment.shape[0]/N)
+        nSamps            = int(SobolExperiment.shape[0]/N)
         inputListParallel = list()
-        SobolExperiment0 = SobolExperiment
-        dim = 1
-        psi_fo, psi_to = NdGaussianProcessSensitivityIndicesBase.SymbolicSaltelliIndices(1)
+        SobolExperiment0  = SobolExperiment
+        dim               = 1
+        psi_fo, psi_to    = NdGaussianProcessSensitivityIndicesBase.SymbolicSaltelliIndices(1)
         for i in range(nSamps):
             #Centering
-            SobolExperiment[i*N:(i+1)*N,...] = SobolExperiment[i*N:(i+1)*N,...] - SobolExperiment[i*N:(i+1)*N,...].mean(axis=0)
+            SobolExperiment[i*N:(i+1)*N,...] = numpy.subtract(SobolExperiment[i*N:(i+1)*N,...],
+                                                              SobolExperiment[i*N:(i+1)*N,...].mean(axis=0))
+            print('After centering, mean=',SobolExperiment.mean(axis=0), '\nstd= ', SobolExperiment.std(axis=0))
         for p in range(nSamps-2):
+                                     # Here is Y_Ac             # Here is Y_Bc             # here is Y_Ec
             inputListParallel.append((SobolExperiment[:N,...], SobolExperiment[N:2*N,...], SobolExperiment[(2+p)*N:(3+p)*N,...], psi_fo, psi_to))
         return SobolExperiment, inputListParallel
 
@@ -181,6 +184,7 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         """
 
         dims       = numpy.prod(X.shape[1:])  #1 if output has only one dimension, as numpy.prod(())=1
+        #here we get the covariance matrix for each output
         covariance = numpy.squeeze(numpy.stack([numpy.cov((X[...,i],Y[...,i]),rowvar=True) for i in range(dims)]))
         print('The output has', dims, 'dimensions, so the covariance is of dimension',covariance.shape)
         if dims > 1:
@@ -189,10 +193,10 @@ class NdGaussianProcessSensitivityIndicesBase(object):
             mean_samp_list = mean_samp.tolist()
             mean_psi       = numpy.stack([numpy.squeeze(numpy.asarray(psi.gradient(mean_samp_list[i])) )for i in range(len(mean_samp_list))])
             print('The shape of the mean value for psi is: ', mean_psi.shape)
-            mean_psi_temp = numpy.stack([mean_psi.T, mean_psi.T]).T.transpose((0,2,1))
+            mean_psi_temp = numpy.stack([mean_psi.T, mean_psi.T]).T.transpose((0, 2, 1))
             print('temporary shape after tiling', mean_psi_temp.shape)
             P2            = numpy.sum(numpy.multiply(mean_psi_temp, covariance), axis = 1)  ## This line is similar to a dot product
-            variance      = numpy.divide(numpy.sum(numpy.multiply(mean_psi,P2),axis=1),N)
+            variance      = numpy.divide(numpy.sum(numpy.multiply(mean_psi,P2),  axis = 1),1)
             print('Variance is:', variance)
 
         else : 
@@ -201,8 +205,8 @@ class NdGaussianProcessSensitivityIndicesBase(object):
             print('Sample mean is:', mean_samp)
             meanPsi   = numpy.squeeze(psi.gradient(mean_samp))
             print('Psi mean is:', meanPsi)
-            variance  = numpy.dot(meanPsi,numpy.dot(covariance, meanPsi))
-            variance = variance/N
+            variance = numpy.matmul(meanPsi,numpy.matmul(covariance, meanPsi))
+            variance = variance
             print('variance is:', variance)
         return variance
 
