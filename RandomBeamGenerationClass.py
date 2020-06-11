@@ -208,15 +208,19 @@ class RandomBeam_anastruct(object):
         '''Function that is used for multiprocessing the beam experience
         There are a lot of tests to make sure the codes don't crash
         '''
-        youngModu     = numpy.squeeze(youngModu)
-        diam          = numpy.squeeze(diam)
+        youngModu     = numpy.squeeze(youngModu).astype(float)
+        diam          = numpy.squeeze(diam).astype(float)
         n0_elems      = len(diam)
         density       = float(density)
         forcePosition = float(forcePosition)
         forceNorm     = float(forceNorm)
         BeamObj_MP, youngModu, diam, density, forcePosition, forceNorm = RandomBeam_anastruct.instantiateRandomBeam_MP(youngModu, diam, density, forcePosition, forceNorm, vertex_list, l_element)
         try :
-            solution                  = BeamObj_MP.solve(force_linear=False, max_iter=400, geometrical_non_linear = False)
+            solution                  = BeamObj_MP.solve(force_linear           = False,
+                                                         verbosity              = 0,
+                                                         max_iter               = 300, 
+                                                         geometrical_non_linear = False,
+                                                         naked                  = False)
             points_range              = numpy.asarray(BeamObj_MP.nodes_range('x'))
             elem_length_range         = points_range[1:]-(points_range[1]-points_range[0])/2
             deflection, shear, moment = RandomBeam_anastruct.postprecess_beam_MP(BeamObj_MP)
@@ -226,7 +230,7 @@ class RandomBeam_anastruct(object):
             return element_results, node_results, global_beamParams
 
         except Exception as e:
-            print('there was an error in the stiffness matrix, filling gaps with numpy.nan values\n\n')
+            print('there was an error in the stiffness matrix.\n','Error =',str(e),'\n filling gaps with numpy.nan values\n\n')
             #self.modelsWithErrors.append(BeamObj_MP)
             points_range        = numpy.asarray(BeamObj_MP.nodes_range('x'))
             elem_length_range   = points_range[1:]-(points_range[1]-points_range[0])/2
@@ -271,7 +275,7 @@ class RandomBeam_anastruct(object):
         
         nodeID, system, random_diameter, random_young_modulus = RandomBeam_anastruct.nodeChecksAndVertsInsertion_MP(system, forcePosition, diam, youngModu, vertex_list, l_element)
         system.point_load(nodeID, Fy = -forceNorm)   # in kN
-        system.add_support_hinged(node_id=1)
+        system.add_support_hinged(node_id=min(system.node_map.keys()))
         system.add_support_roll(node_id=system.id_last_node , direction='x')
         return system, random_young_modulus, random_diameter
 
@@ -488,14 +492,14 @@ class RandomBeam_anastruct(object):
         fig = pyplot.figure(figsize=(20,10))
 
         # graphs on grid
-        graph1 = pyplot.subplot2grid((6,7),(0,0),colspan = 3 ,rowspan =  2 ,fig = fig) 
-        graph2 = pyplot.subplot2grid((6,7),(2,0),colspan = 3 ,rowspan =  2 ,fig = fig)
-        graph3 = pyplot.subplot2grid((6,7),(0,3),colspan = 3 ,rowspan =  2 ,fig = fig)
-        graph4 = pyplot.subplot2grid((6,7),(2,3),colspan = 3 ,rowspan =  2 ,fig = fig)
-        graph5 = pyplot.subplot2grid((6,7),(4,3),colspan = 3 ,rowspan =  2 ,fig = fig)
-        graph6 = pyplot.subplot2grid((6,7),(4,0),colspan = 3 ,rowspan =  2 ,fig = fig)
-        graph7 = pyplot.subplot2grid((6,7),(0,6),colspan = 1 ,rowspan =  3 ,fig = fig)
-        graph8 = pyplot.subplot2grid((6,7),(3,6),colspan = 1 ,rowspan =  3 ,fig = fig)
+        graph1 = pyplot.subplot2grid((6,7),(0,0),colspan = 3 ,rowspan = 2 ,fig = fig) 
+        graph2 = pyplot.subplot2grid((6,7),(2,0),colspan = 3 ,rowspan = 2 ,fig = fig)
+        graph3 = pyplot.subplot2grid((6,7),(0,3),colspan = 3 ,rowspan = 2 ,fig = fig)
+        graph4 = pyplot.subplot2grid((6,7),(2,3),colspan = 3 ,rowspan = 2 ,fig = fig)
+        graph5 = pyplot.subplot2grid((6,7),(4,3),colspan = 3 ,rowspan = 2 ,fig = fig)
+        graph6 = pyplot.subplot2grid((6,7),(4,0),colspan = 3 ,rowspan = 2 ,fig = fig)
+        graph7 = pyplot.subplot2grid((6,7),(0,6),colspan = 1 ,rowspan = 3 ,fig = fig)
+        graph8 = pyplot.subplot2grid((6,7),(3,6),colspan = 1 ,rowspan = 3 ,fig = fig)
 
         # define titles
         graph1.set_title('Young Modulus (MPa)'    , fontsize = 10)

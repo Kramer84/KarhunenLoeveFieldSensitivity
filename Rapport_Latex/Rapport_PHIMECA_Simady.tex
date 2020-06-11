@@ -349,7 +349,8 @@ D'autre part, pour parvenir à garder cette complexité faible, nous sommes obli
 Les échantillons sont mélangés comme montré en figure \ref{expGenStoField}. 
 Pour générer les samples de manière plus efficace, et être sur de couvrir l'ensemble du domaine de variance des lois d'entrée, est inclu dans le code la possibilité de générer l'échantillon en utlisant soit l'échantillonage LHS (Latin Hypercube Sampling), soit les séries à faible divergence (Low discrepancy series), soit une version optimisée du LHS (Simulated Annealing LHS). Bien sûr une génération entièrement aléatoire reste l'option de base.\\
 
-Pour le calcul formel de l'estimateur de Sobol', nous allons utilisons la méthode par Saltelli, détaillée dans le papier par \cite{dumas2017}. Ce papier détail aussi la manière de calculer l'erreur dans le calcul de l'estimateur, paramètre important pour connaître la pertinence de l'estimateur. 
+\newpage
+Pour le calcul formel de l'estimateur de Sobol', nous allons utilisons la méthode par Saltelli, détaillée dans le papier par \cite{dumas2017}. Ce papier détail aussi la manière de calculer l'erreur dans le calcul de l'estimateur, valeur importante pour connaître la pertinence de l'estimateur. 
 
 \begin{figure}[H]
    \centering   
@@ -357,6 +358,12 @@ Pour le calcul formel de l'estimateur de Sobol', nous allons utilisons la métho
       \caption{Formule pour le calcul de l'estimateur de Sobol, dans le cas d'une experience de monte carlo. }
          \label{saltelliSensitivity}
 \end{figure}
+
+Avec l'échantillonnage présenté précédemment, le calcul de l'estimateur de Sobol se fait très directemement avec la formule de Saltelli, même lorsque la dimension de sortie est plus grande que 1.
+
+Pour le calcul de la variance, c'est l'utilisation de la méthode delta qui est préconisé. 
+
+
 
 \subsection{Example of verbatim text}
 

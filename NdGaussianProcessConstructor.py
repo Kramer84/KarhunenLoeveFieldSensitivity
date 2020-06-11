@@ -488,23 +488,47 @@ class RandomNormalVector(openturns.PythonRandomVector):
 class NormalDistribution(openturns.dist_bundle2.Normal):
     '''class defining the normal distribution
     '''
-    def __init__(self,mu : float, sigma : float, name = None):
+    def __init__(self,mu : float, sigma : float, name = None, seed = None):
         super(NormalDistribution, self).__init__(mu, sigma)
         self.variance   = sigma
         self.mean       = mu
         self.sample     = None
+        self.seed       = seed
         self.setName(name)
 
     def getRealization(self):
-        numpy.random.seed()
+        numpy.random.seed(self.seed)
         X=numpy.random.normal(self.mean,self.variance)
         return float(X)
 
     def getSample(self, size):
-        numpy.random.seed()
+        numpy.random.seed(self.seed)
         X=numpy.random.normal(self.mean,self.variance, size)
         self.sample = X
         return X.tolist()  
+
+class UniformDistribution(openturns.dist_bundle3.Uniform):
+    '''class defining the normal distribution
+    '''
+    def __init__(self, lower : float, upper : float, name = None, seed = None):
+        super(UniformDistribution, self).__init__(lower, upper)
+        self.lower      = lower
+        self.upper      = upper
+        self.sample     = None
+        self.seed       = seed
+        self.setName(name)
+
+    def getRealization(self):
+        numpy.random.seed(self.seed)
+        X=numpy.random.uniform(self.lower,self.upper)
+        return float(X)
+
+    def getSample(self, size):
+        numpy.random.seed(self.seed)
+        X=numpy.random.uniform(self.lower,self.upper, size)
+        self.sample = X
+        return X.tolist()  
+
 
 ## To store the samples as a temporary memmap, thus avoiding to over-fill RAM
 ###################################################################################################

@@ -61,12 +61,12 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         print('There are',nIndices,'indices to get in',dim,'dimensions with',SobolExperiment[0].size,'elements')
         SobolExperiment, inputListParallel = NdGaussianProcessSensitivityIndicesBase.centerSobolExp(SobolExperiment, N)
         if method is 'Saltelli':
-            '''SobolIndices = Parallel(
+            SobolIndices = Parallel(
                                                                         n_jobs = cpu_count())(
                                                                         delayed(NdGaussianProcessSensitivityIndicesBase.SaltelliIndices)(
                                                                         *inputListParallel[i]) for i in range(nIndices)
-                                                                        )'''
-            SobolIndices       = [NdGaussianProcessSensitivityIndicesBase.SaltelliIndices(*inputListParallel[i]) for i in range(nIndices)]
+                                                                        )
+            #SobolIndices       = [NdGaussianProcessSensitivityIndicesBase.SaltelliIndices(*inputListParallel[i]) for i in range(nIndices)]
             SobolIndices, SobolIndicesTot, VarSobolIndices, VarSobolIndicesTot = map(list,zip(*SobolIndices))
             print('Indices successfully calculated')
             SobolIndices       = numpy.stack(SobolIndices)
@@ -207,6 +207,9 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         return variance
 
 
+
+
+
 class SobolIndicesClass(object):
     def __init__(self, SobolExperiment, N ,method = 'Saltelli'):
         self.method            = method
@@ -222,7 +225,113 @@ class SobolIndicesClass(object):
 
 
 
+from matplotlib.lines import Line2D
+import matplotlib.patches as mpatches
 
+def plotSobolIndicesWithErr(S, errS, varNames, n_dims, Stot=None, errStot=None):
+    plt.style.use('classic')
+    S, errS = numpy.squeeze(S), numpy.squeeze(errS)
+    if Stot is not None and errStot is not None:
+        Stot, errStot = numpy.squeeze(Stot), numpy.squeeze(errStot)
+    assert len(varNames)==n_dims, "Error in the number of dimensions or variable names"
+    assert S.shape == errS.shape, "There have to be as much confidence intervals as indices"
+    if len(S.shape) == 1 :
+        print('The output is scalar')
+        print('The sensitivity is measured accordingly to the',n_dims,'input variables, namely:\n',' and '.join(varNames))
 
-def plotSobolIndicesWithErr(S, errS, varNames, n_dims):
-    assert len(varNames)==n_dims,"Error in the number of dimensions or variable names"
+        lgd_elems = [mpatches.Circle((0,0),
+                            radius = 7,
+                            color  ='r', 
+                            label  ='first order indices'),
+                    mpatches.Circle((0,0),
+                            radius = 7,
+                            color  ='b', 
+                            label  ='total order indices')]
+
+        x = numpy.arange(n_dims)
+        y = S
+        yerr = errS*4 #to have 95% 
+
+        fig, ax = plt.subplots()
+        ax.errorbar(x, y, yerr=yerr, fmt='s', color='r', ecolor ='b')
+        if Stot is not None and errStot is not None:
+            y2    = numpy.squeeze(Stot)
+            y2err = numpy.squeeze(errStot)*4
+            ax.errorbar(x-0.05, y2, yerr=y2err, fmt='o', color='b', ecolor ='r')
+        else:
+            lgd_elems.pop()
+        ax.legend(handles=lgd_elems, loc='upper right')
+        ax.set_xticks(ticks = x)
+        ax.set_xticklabels(labels=varNames) 
+        ax.axis(xmin=-0.5, xmax=x.max()+0.5, ymin=-0.1, ymax=1.1)
+        plt.show()
+
+    if len(S.shape) == 2:
+        print('The output is a vector')
+        plt.ion()
+        fig = plt.figure(figsize=(20,10))
+        #Here we dinamically build our grid according to the number of input dims
+        if n_dims <= 5:
+            n_cols = case = 1
+        elif n_dims > 5 and n_dims <= 10 :
+            n_cols = case = 2
+        else :
+            case = 3
+            raise NotImplementedError
+
+        graphList = list()
+        if case is 1:
+            colspan = 5
+            rowspan = 2
+            colTot  = 5
+            rowTot  = 2*n_dims
+            for i in range(n_dims):
+                graphList.append(
+                    plt.subplot2grid((rowTot,colTot),
+                                     (i*rowspan, 0),
+                                     colspan = colspan,
+                                     rowspan = rowspan,
+                                     fig = fig))
+                graphList[i].set_title(varNames[i], fontsize=10)
+
+                dimOut = S.shape[1]
+                x      = numpy.arange(dimOut)
+                y      = S[i,...]
+                yerr   = errS[i,...]*4.
+
+                graphList[i].errorbar(x,y,yerr, color='r', ecolor ='b')
+                graphList[i].axis(xmin=-0.5, xmax=x.max()+0.5, ymin=y.min()-0.01, ymax=y.max()+0.01)
+            fig.subplots_adjust(hspace=0.25,wspace=0.25)
+            plt.tight_layout()
+            fig.canvas.draw()
+            plt.show()
+
+        if case is 2:
+            colspan = 5
+            rowspan = 2
+            colTot  = 5*2
+            rowTot  = 5         #(cause we fill up at least the full left side)
+            for i in range(n_dims):
+                col = 0
+                if i > 5 : col = 1
+                graphList.append(
+                    plt.subplot2grid((rowTot,colTot),
+                                     (i*rowspan, col*5),
+                                     colspan = colspan,
+                                     rowspan = rowspan,
+                                     fig     = fig))
+                graphList[i].set_title(varNames[i], fontsize=10)
+
+                dimOut = S.shape[1]
+                x      = numpy.arange(dimOut)
+                y      = S[i,...]
+                yerr   = errS[i,...]*4.
+
+                graphList[i].errorbar(x,y,yerr, color='r', ecolor ='b')
+                graphList[i].axis(xmin=-0.5, xmax=x.max()+0.5, ymin=y.min()-0.01, ymax=y.max()+0.01)
+            fig.subplots_adjust(hspace=0.25,wspace=0.25)
+            plt.tight_layout()
+            fig.canvas.draw()
+            plt.show()
+
+    plt.style.use('default')

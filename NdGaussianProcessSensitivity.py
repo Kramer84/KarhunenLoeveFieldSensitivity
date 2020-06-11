@@ -96,9 +96,9 @@ class NdGaussianProcessSensitivityAnalysis(object):
             raise NotImplementedError
         n_outputs = len(self.outputVariables.keys())
         if n_outputs >1 :
-            outputDesignList     = [outputDesign[i] for i in range(n_outputs)]
+            outputDesignList     = [numpy.array(outputDesign[i]) for i in range(n_outputs)]
         else : 
-            outputDesignList     = [outputDesign]
+            outputDesignList     = [numpy.array(outputDesign)]
         self._outputDesignListNC = outputDesignList
         self._postProcessOutputDesign(**kwargs)
 
@@ -218,6 +218,9 @@ class NdGaussianProcessSensitivityAnalysis(object):
     def setInputsFromNormalDistributionsAndNdGaussianProcesses(self, listfOfProcessesAndDistributions):
         '''Function to transform list of Process object into a dictionary, as used in the 
         OpenturnsPythonFunctionWrapper class
+
+        #### Each tiùe we want to use a new functoin as an input, we will have to add it here !!!!!!!!!!
+        #### ONLY STOCHASTIC PROCESSES, NORMAL AND UNIFORM DISTRIBBUTIONS
         '''
         dictOfInputs        = dict()
         n_inputRvsProcesses = len(listfOfProcessesAndDistributions)
@@ -238,12 +241,25 @@ class NdGaussianProcessSensitivityAnalysis(object):
                           }
                 varName               = 'var' + str(i)
                 dictOfInputs[varName] = varDict
+
+
             elif type(listfOfProcessesAndDistributions[i]) == ngpc.NormalDistribution :
                 randomVar             = listfOfProcessesAndDistributions[i]
                 varDict               = dict({
                                          'nameRV'     : randomVar.getName(),
                                          'position'   : i,
                                          'meanAndStd' : [randomVar.mean, randomVar.variance]
+                                        })
+                varName               = 'var' + str(i)
+                dictOfInputs[varName] = varDict
+
+
+            elif type(listfOfProcessesAndDistributions[i]) == ngpc.UniformDistribution :
+                randomVar             = listfOfProcessesAndDistributions[i]
+                varDict               = dict({
+                                         'nameRV'     : randomVar.getName(),
+                                         'position'   : i,
+                                         'lowerUpper' : [randomVar.lower, randomVar.upper]
                                         })
                 varName               = 'var' + str(i)
                 dictOfInputs[varName] = varDict
@@ -319,6 +335,10 @@ class NdGaussianProcessSensitivityAnalysis(object):
 #######################################################################################
 #######################################################################################
 
+#######################################################################################
+#######################################################################################
+#######################################################################################
+
 class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
     def __init__(self, functionSample = None, 
                        functionSolo   = None,  
@@ -371,6 +391,9 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         return listInputVars
 
     def getListKLDecompoOrRVFromProcessDict(self, processDict, nSamples=5000):
+        '''IF NEW DISTRIBUTIONS ARE USED THERE ARE TO DEFINE HERE!!!!!!
+        ONLY UNIFORM, NORMAL, AND STOCHASTIC PROCESSES POSSIBLE FOR NOW
+        '''
         if 'covarianceModel' in processDict :
             nameProcess     = processDict['nameProcess']     
             position        = processDict['position']         
@@ -396,6 +419,13 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
                                                          sigma = sigma,
                                                          name  = processDict['nameRV'])
             return  [NormalDistribution]
+
+        elif 'lowerUpper' in processDict:
+            lower, upper       = processDict['lowerUpper']
+            UniformDistribution = ngpc.UniformDistribution(lower = lower,
+                                                           upper = upper,
+                                                           name  = processDict['nameRV'])
+            return [UniformDistribution]
 
     def getInputVariablesName(self):
         sortedKeys = sorted(self.inputDict , key = lambda x : self.inputDict[x]['position'])
