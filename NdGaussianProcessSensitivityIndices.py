@@ -40,6 +40,7 @@ class NdGaussianProcessSensitivityIndicesBase(object):
     @staticmethod
     def centerSobolExp(SobolExperiment, N):
         nSamps            = int(SobolExperiment.shape[0]/N)
+        N=int(N)
         inputListParallel = list()
         SobolExperiment0  = SobolExperiment
         dim               = 1
@@ -150,12 +151,12 @@ class NdGaussianProcessSensitivityIndicesBase(object):
 
         #some intermediary calculus
         #first order:
-        X_fo = numpy.multiply(YBc,YEc)
-        Y_fo = numpy.square(YAc)
+        X_fo = numpy.squeeze(numpy.multiply(YBc,YEc))
+        Y_fo = numpy.squeeze(numpy.square(YAc))
 
         #total order
-        X_to = numpy.multiply(YAc,YEc)
-        Y_to = numpy.square(YAc)  
+        X_to = numpy.squeeze(numpy.multiply(YAc,YEc))
+        Y_to = numpy.squeeze(numpy.square(YAc))  
 
         print('data for variance calculus prepared \n X_fo shape is', X_fo.shape, 'Y_fo shape is', Y_fo.shape)
         varianceFO = NdGaussianProcessSensitivityIndicesBase.computeSobolVariance(X_fo, Y_fo, psi_fo, N)
@@ -183,30 +184,31 @@ class NdGaussianProcessSensitivityIndicesBase(object):
             The size of the sample.
         """
 
-        dims       = numpy.prod(X.shape[1:])  #1 if output has only one dimension, as numpy.prod(())=1
+        dims = int(numpy.prod(X.shape[1:]))  #1 if output has only one dimension, as numpy.prod(())=1
         #here we get the covariance matrix for each output
-        covariance = numpy.squeeze(numpy.stack([numpy.cov((X[...,i],Y[...,i]),rowvar=True) for i in range(dims)]))
-        print('The output has', dims, 'dimensions, so the covariance is of dimension',covariance.shape)
         if dims > 1:
-            mean_samp      = numpy.stack(numpy.asarray(list(zip(X.mean(axis=0),Y.mean(axis=0)))).T).transpose()
-            print('The shape of the means is:', mean_samp.shape)
-            mean_samp_list = mean_samp.tolist()
+            covariance = numpy.squeeze(numpy.stack([numpy.cov(X[...,i],Y[...,i],rowvar=True) for i in range(dims)]))
+            #mean_samp = numpy.stack(numpy.asarray(list(zip(X.mean(axis=0),Y.mean(axis=0)))).T).transpose()
+            mean_samp  = list(zip(X.mean(axis=0),Y.mean(axis=0)))
+            print('The shape of the means is:','[',len(mean_samp),len(mean_samp[0],']'))
+            mean_samp_list = mean_samp
             mean_psi       = numpy.stack([numpy.squeeze(numpy.asarray(psi.gradient(mean_samp_list[i])) )for i in range(len(mean_samp_list))])
             print('The shape of the mean value for psi is: ', mean_psi.shape)
-            mean_psi_temp = numpy.stack([mean_psi.T, mean_psi.T]).T.transpose((0, 2, 1))
+            mean_psi_temp  = numpy.stack([mean_psi.T, mean_psi.T]).T.transpose((0, 2, 1))
             print('temporary shape after tiling', mean_psi_temp.shape)
-            P2            = numpy.sum(numpy.multiply(mean_psi_temp, covariance), axis = 1)  ## This line is similar to a dot product
-            variance      = numpy.divide(numpy.sum(numpy.multiply(mean_psi,P2),  axis = 1),1)
+            P2             = numpy.sum(numpy.multiply(mean_psi_temp, covariance), axis = 1)  ## This line is similar to a dot product
+            variance       = numpy.divide(numpy.sum(numpy.multiply(mean_psi,P2),  axis = 1),N)
             print('Variance is:', variance)
 
         else : 
+            covariance = numpy.cov([X,Y])
             print('Covariance is:', covariance)
-            mean_samp = numpy.array([X.mean(), Y.mean()]).tolist()
+            mean_samp  = [X.mean(), Y.mean()]
             print('Sample mean is:', mean_samp)
-            meanPsi   = numpy.squeeze(psi.gradient(mean_samp))
+            meanPsi    = numpy.squeeze(psi.gradient(mean_samp))
             print('Psi mean is:', meanPsi)
-            variance = numpy.matmul(meanPsi,numpy.matmul(covariance, meanPsi))
-            variance = variance
+            variance   = numpy.matmul(meanPsi,numpy.matmul(covariance, meanPsi))
+            variance   = variance/N
             print('variance is:', variance)
         return variance
 
