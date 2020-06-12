@@ -30,7 +30,6 @@ conda env create -f  sensitivityEnv.yml
 * [openTURNS](https://github.com/openturns/openturns) - Codes and methods for efficient sensitivity analysis
 * [anaStruct](https://github.com/ritchie46/anaStruct) - 2D efficient finite element analysis in Python
 * [Numba](https://numba.pydata.org/)                  - Easy code acceleration 
-* [LHSMDU](https://github.com/sahilm89/lhsmdu)        - SciPy/NumPy implementation of the LHSMDU paper (Latin Hypercube Sampling with multidimensional uniformity)
 
 ## Contributing
 
