@@ -260,11 +260,11 @@ def plotSobolIndicesWithErr(S, errS, varNames, n_dims, Stot=None, errStot=None):
         yerr = errS*4 #to have 95% 
 
         fig, ax = plt.subplots()
-        ax.errorbar(x, y, yerr=yerr, fmt='s', color='r', ecolor ='b')
+        ax.errorbar(x, y, yerr=yerr, fmt='s', color='r', ecolor ='r')
         if Stot is not None and errStot is not None:
             y2    = numpy.squeeze(Stot)
             y2err = numpy.squeeze(errStot)*4
-            ax.errorbar(x-0.05, y2, yerr=y2err, fmt='o', color='b', ecolor ='r')
+            ax.errorbar(x-0.05, y2, yerr=y2err, fmt='o', color='b', ecolor ='b')
         else:
             lgd_elems.pop()
         ax.legend(handles=lgd_elems, loc='upper right')
@@ -340,6 +340,10 @@ def plotSobolIndicesWithErr(S, errS, varNames, n_dims, Stot=None, errStot=None):
             plt.tight_layout()
             fig.canvas.draw()
             plt.show()
+
+    if len(S.shape) == 3:
+        print('The output is a 2D field')
+        
 
     plt.style.use('default')
 

@@ -507,8 +507,13 @@ class NormalDistribution(openturns.dist_bundle2.Normal):
         self.sample = X
         return X.tolist()  
 
+## Redifinition of the uniform distribution, random number generation with numpy seems more optimal
+###################################################################################################
+###################################################################################################
+###################################################################################################
+
 class UniformDistribution(openturns.dist_bundle3.Uniform):
-    '''class defining the normal distribution
+    '''class defining the uniform distribution
     '''
     def __init__(self, lower : float, upper : float, name = None, seed = None):
         super(UniformDistribution, self).__init__(lower, upper)

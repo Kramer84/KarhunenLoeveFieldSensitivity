@@ -5,28 +5,29 @@ import  io
 import  os
 import  traceback
 import  logging
-from    time                            import  time
-from    copy                            import  deepcopy 
-from    PIL                             import  Image
-from    anastruct.fem.system            import  SystemElements, Vertex
-from    anastruct.basic                 import  FEMException
-import  matplotlib.pyplot               as      pyplot
-from    joblib                          import  Parallel, delayed, cpu_count
-from    joblib.externals.loky           import  set_loky_pickler
-from    joblib                          import  parallel_backend
-from    joblib                          import  wrap_non_picklable_objects
-import  NdGaussianProcessConstructor    as      ngpc
-import  customWraps                     as      cw
+from    time                         import  time
+from    copy                         import  deepcopy 
+from    PIL                          import  Image
+from    anastruct.fem.system         import  SystemElements, Vertex
+from    anastruct.basic              import  FEMException
+import  matplotlib.pyplot            as      pyplot
+from    joblib                       import  Parallel, delayed, cpu_count
+from    joblib.externals.loky        import  set_loky_pickler
+from    joblib                       import  parallel_backend
+from    joblib                       import  wrap_non_picklable_objects
+import  NdGaussianProcessConstructor as      ngpc
+import  customWraps                  as      cw
 
 ########################################################################################################################################################################################
 ########################################################################################################################################################################################
 ########################################################################################################################################################################################
+
 #ssh simady@neo-l64
 #
 #definition of the random processes :
 #the nodes of the random processes are the elements of the beam !!
 
-
+'''
 # process governing the young modulus for each element      (MPa)
 process_E = ngpc.NdGaussianProcessConstructor(dimension=1,grid_shape=[[0,1000,100],],covariance_model={'NameModel':'MaternModel','amplitude':5000.,'scale':300,'nu':13/3},trend_arguments=['x'],trend_function=210000)
 process_E.setName('E_')
@@ -60,6 +61,7 @@ muForce       = 100
 sigma_Fnor    = 15
 nameNor       = 'FN'
 process_Fnorm = ngpc.NormalDistribution(mu = muForce, sigma = sigma_Fnor, name = nameNor)
+'''
 
 ########################################################################################################################################################################################
 ########################################################################################################################################################################################
@@ -86,11 +88,11 @@ class RandomBeam_anastruct(object):
     Ritchie Vink is the author of anastruct.
     '''
 
-    def __init__(self, process_E     = process_E, 
-                       process_D     = process_D, 
-                       process_Rho   = process_Rho,      ## rho en kg/m³
-                       process_Fpos  = process_Fpos,
-                       process_Fnorm = process_Fnorm):   ## fpos en mm
+    def __init__(self, process_E     = None, 
+                       process_D     = None, 
+                       process_Rho   = None,      ## rho en kg/m³
+                       process_Fpos  = None,
+                       process_Fnorm = None):   ## fpos en mm
     
         assert (process_E.getDimension() == 1 and process_D.getMesh() == process_E.getMesh()) , "Only pass one dimensional gaussian process"
         self.process_young           = process_E     # MPa  Stochastic Process

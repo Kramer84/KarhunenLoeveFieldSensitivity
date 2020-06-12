@@ -13,6 +13,7 @@
 \usepackage{mwe}
 \bibliographystyle{apalike}
 \usepackage{hyperref}
+\usepackage{amsmath}
 \usepackage{mathtools}
 
 \begin{document}
@@ -352,6 +353,25 @@ Pour générer les samples de manière plus efficace, et être sur de couvrir l'
 \newpage
 Pour le calcul formel de l'estimateur de Sobol', nous allons utilisons la méthode par Saltelli, détaillée dans le papier par \cite{dumas2017}. Ce papier détail aussi la manière de calculer l'erreur dans le calcul de l'estimateur, valeur importante pour connaître la pertinence de l'estimateur. 
 
+Détail du calcul de l'indice de Sobol' :
+
+   \[
+      \begin{array}{lp{0.8\linewidth}}
+        \prescript{c}{}{\mathbf{Y}}^{A}   & : Sortie du modèle associé à l'echantillon A du plan d'experience \\
+        \prescript{c}{}{\mathbf{Y}}^{B}   & : Sortie du modèle associé à l'echantillon B du plan d'experience \\
+        \prescript{c}{}{\mathbf{Y}}^{E}   & : Sortie du modèle associé à l'echantillon issu de A ou l'on a inseré une partie de B \\
+         \mathbf{S} 					  & : Indice de Sobol' \\
+      \end{array}
+   \]\\
+\* Les échantillons centrées sont annotés du prescript c \*
+
+   \begin{gather}   
+S = \frac{Cov\left[\prescript{c}{}{Y}^{B},\prescript{c}{}{Y}^{E}\right]}{Var\left[\prescript{c}{}{Y}^{A}\right]} \\
+
+   \end{gather}\\
+
+
+
 \begin{figure}[H]
    \centering   
    \includegraphics[scale=0.45]{saltelliSensitivityFormula.png}
@@ -363,6 +383,12 @@ Avec l'échantillonnage présenté précédemment, le calcul de l'estimateur de 
 
 Pour pouvoir justifier de la pertinence de l'estimateur, on calcule l'intervalle de confiance à 0.975, qui permet de montrer la précision de l'estimateur et de nuancer son analyse. Pour le calcul de cet intervalle de confiance, on utilise la méthode Delta, méthode utilisée par Jansen \textit{et al} (2014) ou de même par \cite{dumas2017}. Le détail de cette méthode est donné ci dessous:
 
+\begin{align}
+V_{X_{i}} = V[E[\omega|X_{i}]] \\
+S_{X_{i}} = \frac{V_{X_{i}}}{V(\omega)} \\
+V_{X_{i}X_{j}} = V[E[\omega|X_{i}X_{j}]] - V_{X_{i}} - V_{X_{j}} \\
+S_{X_{i}X_{j}} = \frac{1}{V(\omega)}V[E[\omega|X_{i}X_{j}]] - S_{X_{i}} - S_{X_{j}}
+\end{align} \\
 
 
 
