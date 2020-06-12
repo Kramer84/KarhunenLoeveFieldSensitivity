@@ -532,12 +532,12 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         return outputList
 
     def _exec(self, X):
-        X = deepcopy(X)
+        #X = deepcopy(X)
         inputProcessNRVs = self.liftKLComposedDistributionAsFieldAndRvs(X)
         return self.PythonFunction(*inputProcessNRVs)
 
     def _exec_sample(self, X):
-        X = deepcopy(X)
+        #X = deepcopy(X)
         inputProcessNRVs = self.liftKLComposedDistributionAsFieldAndRvs(X)
         return self.PythonFunctionSample(*inputProcessNRVs)
 

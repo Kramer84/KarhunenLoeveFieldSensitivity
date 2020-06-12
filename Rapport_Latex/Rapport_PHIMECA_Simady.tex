@@ -359,9 +359,16 @@ Pour le calcul formel de l'estimateur de Sobol', nous allons utilisons la métho
          \label{saltelliSensitivity}
 \end{figure}
 
-Avec l'échantillonnage présenté précédemment, le calcul de l'estimateur de Sobol se fait très directemement avec la formule de Saltelli, même lorsque la dimension de sortie est plus grande que 1.
+Avec l'échantillonnage présenté précédemment, le calcul de l'estimateur de Sobol se fait très directemement avec la formule de Saltelli, même lorsque la dimension de la sortie est plus grande que 1.
 
-Pour le calcul de la variance, c'est l'utilisation de la méthode delta qui est préconisé. 
+Pour pouvoir justifier de la pertinence de l'estimateur, on calcule l'intervalle de confiance à 0.975, qui permet de montrer la précision de l'estimateur et de nuancer son analyse. Pour le calcul de cet intervalle de confiance, on utilise la méthode Delta, méthode utilisée par Jansen \textit{et al} (2014) ou de même par \cite{dumas2017}. Le détail de cette méthode est donné ci dessous:
+
+
+
+
+
+
+
 
 
 

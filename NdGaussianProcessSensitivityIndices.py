@@ -77,7 +77,9 @@ class NdGaussianProcessSensitivityIndicesBase(object):
             SobolIndicesTot    = numpy.stack(SobolIndicesTot)
             VarSobolIndices    = numpy.stack(VarSobolIndices)
             VarSobolIndicesTot = numpy.stack(VarSobolIndicesTot)
-        return SobolIndices, SobolIndicesTot, VarSobolIndices ,VarSobolIndicesTot
+            halfConfinterSFO   = numpy.sqrt(VarSobolIndices) * openturns.Normal().computeQuantile(0.975)[0]
+            halfConfinterSTO   = numpy.sqrt(VarSobolIndicesTot) * openturns.Normal().computeQuantile(0.975)[0]  #Confidence interval (half)
+        return SobolIndices, SobolIndicesTot, halfConfinterSFO ,halfConfinterSTO
         
     @staticmethod
     def SaltelliIndices(Y_Ac, Y_Bc, Y_Ec, psi_fo, psi_to):
@@ -99,7 +101,7 @@ class NdGaussianProcessSensitivityIndicesBase(object):
                     numpy.divide(Ni*numpy.sum(numpy.multiply(Y_Ac,Y_Ec),axis=0),
                                                      Ni*numpy.sum(numpy.square(Y_Ac)))
                                                      )
-        varS, varS_tot = NdGaussianProcessSensitivityIndicesBase.computeVariance(Y_Ac, Y_Bc, Y_Ec, N, psi_fo, psi_to, S, S_tot)
+        varS, varS_tot = NdGaussianProcessSensitivityIndicesBase.computeVariance(Y_Ac, Y_Bc, Y_Ec, N, psi_fo, psi_to)
         return S, S_tot, varS, varS_tot
 
     @staticmethod
@@ -120,7 +122,7 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         return psi_fo, psi_to
 
     @staticmethod
-    def computeVariance(YAc, YBc, YEc, N, psi_fo, psi_to, *args):
+    def computeVariance(YAc, YBc, YEc, N, psi_fo, psi_to):
         """
         Compute the variance of the estimator sample
 
@@ -158,8 +160,8 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         Y_to = numpy.squeeze(numpy.square(YAc))  
 
         print('data for variance calculus prepared \n X_fo shape is', X_fo.shape, 'Y_fo shape is', Y_fo.shape, '\n')
-        varianceFO = NdGaussianProcessSensitivityIndicesBase.computeSobolVariance(X_fo, Y_fo, psi_fo, N, args[0],YAc.std(axis=0))
-        varianceTO = NdGaussianProcessSensitivityIndicesBase.computeSobolVariance(X_to, Y_to, psi_to, N, args[1],YAc.std(axis=0))
+        varianceFO = NdGaussianProcessSensitivityIndicesBase.computeSobolVariance(X_fo, Y_fo, psi_fo, N)
+        varianceTO = NdGaussianProcessSensitivityIndicesBase.computeSobolVariance(X_to, Y_to, psi_to, N)
 
         shape      = baseShape[1:]
         if len(baseShape)<=1 : shape=(1,)
@@ -169,7 +171,7 @@ class NdGaussianProcessSensitivityIndicesBase(object):
 
 
     @staticmethod
-    def computeSobolVariance(X, Y, psi, N, *args):
+    def computeSobolVariance(X, Y, psi, N):
         """
         Compute the variance of the estimators (NON agregated)
 
@@ -184,9 +186,6 @@ class NdGaussianProcessSensitivityIndicesBase(object):
         N : int
             The size of the sample.
         """
-        S = args[0]
-        varA = args[1]
-        g = [1/varA, -S/varA]
 
         dims = int(numpy.prod(X.shape[1:]))  #1 if output has only one dimension, as numpy.prod(())=1
         #here we get the covariance matrix for each output
@@ -196,7 +195,7 @@ class NdGaussianProcessSensitivityIndicesBase(object):
             covariance = numpy.squeeze(numpy.stack([numpy.cov(X[...,i],Y[...,i],rowvar=True) for i in range(dims)]))
             #mean_samp = numpy.stack(numpy.asarray(list(zip(X.mean(axis=0),Y.mean(axis=0)))).T).transpose()
             mean_samp  = list(zip(X.mean(axis=0),Y.mean(axis=0)))
-            print('The shape of the means is:','[',len(mean_samp),len(mean_samp[0],']'))
+            print('The shape of the means is:','[',len(mean_samp),len(mean_samp[0]),']')
             mean_samp_list = mean_samp
             mean_psi       = numpy.stack([numpy.squeeze(numpy.asarray(psi.gradient(mean_samp_list[i])) )for i in range(len(mean_samp_list))])
             print('The shape of the mean value for psi is: ', mean_psi.shape)
@@ -208,7 +207,7 @@ class NdGaussianProcessSensitivityIndicesBase(object):
 
 
         ####  lorsqu'il y a une dimension de sortie
-        ####  Ces formules sont utilisées pour ishigami 
+        ####  Ces formules sont utilisées par exemple pour ishigami 
         else : 
             covariance = numpy.cov([X,Y])
             print('Covariance is:', covariance)
@@ -308,7 +307,7 @@ def plotSobolIndicesWithErr(S, errS, varNames, n_dims, Stot=None, errStot=None):
                 yerr   = errS[i,...]*4.
 
                 graphList[i].errorbar(x,y,yerr, color='r', ecolor ='b')
-                graphList[i].axis(xmin=-0.5, xmax=x.max()+0.5, ymin=y.min()-0.01, ymax=y.max()+0.01)
+                graphList[i].axis(xmin=-0.5, xmax=x.max()+0.5, ymin=y.min()-0.1, ymax=y.max()+0.1)
             fig.subplots_adjust(hspace=0.25,wspace=0.25)
             plt.tight_layout()
             fig.canvas.draw()
