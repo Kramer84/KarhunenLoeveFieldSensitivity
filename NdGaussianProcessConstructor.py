@@ -5,7 +5,6 @@ import gc
 import tempfile     #for storing the samples as temporary memmaps
 import shutil
 from   joblib       import  Parallel, delayed, cpu_count
-import customWraps  as      cw
 
 class NdGaussianProcessConstructor(openturns.Process):
     '''Class to create up to 4-dimensional gaussian processes.
@@ -43,7 +42,7 @@ class NdGaussianProcessConstructor(openturns.Process):
         The dimension of the gaussian process
     covarianceModel         : openturns.statistics.{modelName}
         openturns model of the covariance
-    mesh           : openturns.geom.Mesh
+    mesh                    : openturns.geom.Mesh
         grid on which the process is built
     trendFunction           : openturns.func.TrendTransform
         function to define a trend on the process. If constant
@@ -67,22 +66,21 @@ class NdGaussianProcessConstructor(openturns.Process):
     P_1D = BuildNdGaussianProcess(
                         dimension           = 1, 
                         grid_shape          = [[0,10,100],],
-                        covariance_model    = {'NameModel':'MaternModel', 
+                        covariance_model    = {'Model':'MaternModel', 
                                             'amplitude':10000.,
                                             'scale':1.5, 'nu':5/2})
                         trend_arguments     = ['x'],
-                        trend_function      = 210000,
-                        verbosity           = 1
+                        trend_function      = 210000
                                 )
 
     => through the constructor methods
-    P_1D = BuildNdGaussianProcess(verbosity=1)
+    P_1D = BuildNdGaussianProcess()
     P_1D.setDimension(1)
     P_1D.setGrid([[0,10,100],])
-    P_1D.setCovarianceModel({'NameModel':'MaternModel',
+    P_1D.setCovarianceModel({'Model':'MaternModel',
                             'amplitude':10000.,
                             'scale':1.5,'nu':5/2})
-    P_1D.setTrendFunction(['x'],210000)   #Constant trend <=> Mean process
+    P_1D.setTrend(['x'],210000)   #Constant trend <=> Mean process
     P_1D.setGaussianProcess()
     ##########################################################################
     '''
@@ -100,7 +98,7 @@ class NdGaussianProcessConstructor(openturns.Process):
         self._trendFunc                     = trend_function
         self.trendFunction                  = None
         self.GaussianProcess                = None
-        self.resultsKarhunenLoeve           = None
+        self.KarhunenLoeveResult           = None
         self.sample_map                     = None 
         self.fieldSampleEigenmodeProjection = None
         self.decompositionAsRandomVector    = None
@@ -114,7 +112,7 @@ class NdGaussianProcessConstructor(openturns.Process):
         if self._covarianceModelDict    is not None and self.dimension is not None:
             self.setCovarianceModel(self._covarianceModelDict)
         if self.mesh           is not None and self.dimension is not None and self._trendArgs is not None and self._trendFunc is not None:
-            self.setTrendFunction(self._trendArgs, self._trendFunc)
+            self.setTrend(self._trendArgs, self._trendFunc)
         if self.mesh           is not None and self.covarianceModel is not None:
             self.setGaussianProcess()
         
@@ -148,7 +146,7 @@ class NdGaussianProcessConstructor(openturns.Process):
     def __del__(self):
         del(self.GaussianProcess)
         del(self.sample_map)
-        del(self.resultsKarhunenLoeve)
+        del(self.KarhunenLoeveResult)
         del(self.fieldSampleEigenmodeProjection)
         del(self.decompositionAsRandomVector)
         del(self)
@@ -186,43 +184,77 @@ class NdGaussianProcessConstructor(openturns.Process):
         self.setMesh(mesh)
 
     def setMesh(self, mesh):
-        '''Set the openturns mesh.
+        '''Sets the openturns mesh.
         '''
         self.mesh = mesh 
 
-    def setCovarianceModel(self, model_args : dict):
-        '''Function to set the covariance model of the stochastic process.
+    def setCovarianceModel(self, covarianceModelDict : dict = None, covarianceModel = None):
+        '''Function to set the covariance model of the stochastic process. Two possible constructors,
+        one with a dictionary of keys representing the model and its parameters, or directly one of openTURNS models
         
         Arguments
         ---------
-        model_args : dict
+        covarianceModelDict : dict
             Dictionary containing the name of the process and the parameters:
-            {'NameModel' : str, ,'amplitude':float, 'scale':float, 'nu':float}
+            {'Model' : str, ,'amplitude':float, 'scale':float, 'nu':float}
+        covarianceModel : openturns.statistics.CovarianceModels*
+            openTURNS covariance model object, already constructed
         '''
-        self._covarianceModelDict = model_args
-        modelDict = {'AbsoluteExponential' : openturns.AbsoluteExponential,
-                    'SquaredExponential'   : openturns.SquaredExponential,
-                    'MaternModel'          : openturns.MaternModel,
-                    'ExponentialModel'     : openturns.ExponentialModel}
+        OTCovarModels = {'AbsoluteExponential'            : (openturns.AbsoluteExponential,           ['spatialDim','scale','amplitude'], [1, 2, 23]),          
+                         'SquaredExponential'             : (openturns.SquaredExponential,            ['spatialDim','scale','amplitude'],[1, 2, 23] ),    
+                         'MaternModel'                    : (openturns.MaternModel,                   ['spatialDim','scale','amplitude' ,'nu'], [1, 24, 234]),
+                         'ExponentialModel'               : (openturns.ExponentialModel,              ['spatialDim','scale','amplitude' ,'spatialCorrelation' ,'spatialCovariance'], [1, 23, 234, 235]),
+                         'DiracCovarianceModel'           : (openturns.DiracCovarianceModel,          ['spatialDim','amplitude' ,'spatialCorrelation' ,'spatialCovariance'], [1, 12, 123, 14]),
+                         'ExponentiallyDampedCosineModel' : (openturns.ExponentiallyDampedCosineModel,['spatialDim','scale' ,'amplitude' ,'f' ], [1, 234]),     
+                         'FractionalBrownianMotionModel'  : (openturns.FractionalBrownianMotionModel, ['scale' ,'amplitude' ,'exponent' ,'eta' ,'rho'], [123, 12345]),
+                         'GeneralizedExponential'         : (openturns.GeneralizedExponential,        ['spatialDim', 'scale', 'amplitude', 'p'], [1, 24, 234 ]),        
+                         'ProductCovarianceModel'         : (openturns.ProductCovarianceModel,        ['coll'], [1]),
+                         'RankMCovarianceModel'           : (openturns.RankMCovarianceModel,          ['inputDimension','variance','basis','covariance'], [1, 23, 42]),
+                         'SphericalModel'                 : (openturns.SphericalModel,                ['spatialDim','scale','amplitude','radius'], [1, 23, 234]),            
+                         'TensorizedCovarianceModel'      : (openturns.TensorizedCovarianceModel,     ['coll'], [1]),
+                         'UserDefinedCovarianceModel'     : (openturns.UserDefinedCovarianceModel,    ['mesh','matrix'], [12])
+                         }
 
-        assert self.dimension is not None, 'first set dimension with self.setDimension method'
-        assert(model_args['NameModel'] in modelDict), "check the self.printHelp method to check possible covariance models"
-        assert("amplitude" in model_args and "scale" in model_args), "check the self.printHelp method"
-        assert(model_args['amplitude'] > 0 and model_args['scale'] > 0), "scale and amplitude have to be both positive"
-        
-        scale       = [model_args['scale']]*self.dimension
-        amplitude   = [model_args['amplitude']]
-        if  model_args['NameModel'] == 'MaternModel':
-            assert("nu" in model_args), 'include the "nu" factor when using the MaternModel'
-            assert(model_args['nu'] > 0), "nu factor has to be positive"
-            nu = model_args['nu']
-            covarianceModel = modelDict[model_args['NameModel']](scale, amplitude, nu)
+        if covarianceModel is not None :
+            assert type(covarianceModel) in list(zip(*OTCovarModels.values()))[0], str(covarianceModel) + " is not implemented in openturns yet" 
+            self.covarianceModel = covarianceModel
+
         else : 
-            covarianceModel = modelDict[model_args['NameModel']](scale, amplitude)
-        covarianceModel.setName(model_args['NameModel'])
-        self.covarianceModel = covarianceModel
+            self._covarianceModelDict = covarianceModelDict
+            assert self.dimension is not None,                     "first set dimension with self.setDimension method"
+            assert(covarianceModelDict['Model'] in OTCovarModels), "only use the same model names than those existing in openTURNS"
+            print("Assessing the right constructor choice from input dictionary for",covarianceModelDict['Model'])
+            dictValues = OTCovarModels[covarianceModelDict['Model']]  #Here we choose the values of one of the keys in OTCovarModels
+            constructorPossible = [False]*len(dictValues[2]) #Here we check all the possible constructors
+            for i in range(len(dictValues[2])):
+                numStr = str(dictValues[2][i])
+                for j in range(len(numStr)) :
+                    digit = int(numStr[j])-1
+                    try : 
+                        assert dictValues[1][digit] in covarianceModelDict,""
+                        if j == int(len(numStr)-1) :
+                            constructorPossible[i] = True
+                            break
+                    except AssertionError :
+                        break
+            if any(constructorPossible) == False : #So no constructor is available :
+                print('The parameters for the',covarianceModelDict['Model'],'model, only allows these: (check your syntax!)\n'," ".join(dictValues[1]))
+            else :
+                choice = None
+                for k,p in reversed(list(enumerate(constructorPossible))):
+                    if p is True :
+                        choice = k
+                        break 
+            constructor = [covarianceModelDict[dictValues[1][int(i)-1]] for i in str(dictValues[2][choice])]
+            print('Choosen constructor is: (',", ".join([dictValues[1][int(digit)-1] for digit in str(dictValues[2][choice])]),') => ',constructor)
+            try:
+                covarianceModel = OTCovarModels[covarianceModelDict['Model']][0](*constructor)
+            except:
+                print('Please check your input parameters with the openTURNS documentation, as some values have to be points rather than numbers: \n 5 --> [5]  ""brackets!!"" ')
+            covarianceModel.setName(covarianceModelDict['Model'])
+            self.covarianceModel = covarianceModel
 
-    def setTrendFunction(self, arguments : list, funcOrConst):
+    def setTrend(self, arguments : list, funcOrConst):
         '''Function to set the trend transform of the process
 
         Note
@@ -278,8 +310,9 @@ class NdGaussianProcessConstructor(openturns.Process):
 ## Everything concerning Karhunen Loève
 ###################################################################################################
 
-    def getMetamodelProcessKarhunenLoeve(self, threshold = 0.0001, getResult = False):
-        '''Function to get the Karhunen Loève decomposition of the gaussian process.
+    def getMetamodelProcessKarhunenLoeve(self, threshold = 1e-4, getResult = False):
+        '''Function to get the Karhunen Loève decomposition of the gaussian process, using 
+        the P1 approximation
 
         Note
         ----
@@ -293,21 +326,21 @@ class NdGaussianProcessConstructor(openturns.Process):
         KL_algorithm.setName('Karhunen Loeve Metamodel')
         KL_algorithm.run()
         KL_algo_results             = KL_algorithm.getResult()
-        self.resultsKarhunenLoeve   = KL_algo_results
+        self.KarhunenLoeveResult   = KL_algo_results
         if getResult == True :
             return KL_algo_results
 
     def getFieldProjectionOnEigenmodes(self, ProcessSample=None):
         ''' for each element of a field sample get the corresponding set of random variables
         '''
-        if self.resultsKarhunenLoeve is None:
+        if self.KarhunenLoeveResult is None:
             self.getMetamodelProcessKarhunenLoeve()    
         assert(self.sample_map is not None or ProcessSample is not None), ""
         if ProcessSample is None : 
             ProcessSample       = self.ndarray2ProcessSample(self.sample_map)
         if type(ProcessSample) == numpy.ndarray :
             ProcessSample = self.ndarray2ProcessSample(ProcessSample)
-        KL_eigenmodes           = self.resultsKarhunenLoeve.project(ProcessSample)
+        KL_eigenmodes           = self.KarhunenLoeveResult.project(ProcessSample)
         self.fieldSampleEigenmodeProjection = numpy.array(KL_eigenmodes)
 
     def getDecompositionAsRandomVector(self, optName = None):
@@ -329,15 +362,15 @@ class NdGaussianProcessConstructor(openturns.Process):
         '''transforms a randomVector or collection of random vectors into gaussian fields
         '''
         try : 
-            assert self.resultsKarhunenLoeve is not None, "first run self.getMetamodelProcessKarhunenLoeve()"
+            assert self.KarhunenLoeveResult is not None, "first run self.getMetamodelProcessKarhunenLoeve()"
         except :
             self.getMetamodelProcessKarhunenLoeve()
         if type(randomVector[0]) == float : # if it is only one realisation
-            field = self.resultsKarhunenLoeve.liftAsField(randomVector)
+            field = self.KarhunenLoeveResult.liftAsField(randomVector)
             return field 
         elif type(randomVector[0]) == list: # if it is a collection of realisations
             dimension = len(randomVector)
-            field_list = [self.resultsKarhunenLoeve.liftAsField(randomVector[i]) for i in range(dimension)]
+            field_list = [self.KarhunenLoeveResult.liftAsField(randomVector[i]) for i in range(dimension)]
             process_sample = openturns.ProcessSample(self.mesh, 0, dimension)
             [process_sample.add(field_list[i]) for i in range(len(field_list))]
             return process_sample
@@ -423,7 +456,8 @@ class NdGaussianProcessConstructor(openturns.Process):
 ###################################################################################################
 
 class RandomNormalVector(openturns.PythonRandomVector):
-    '''class to create a random vector that will mimic the gaussian field
+    '''class holding a random normal vector, used to get relaizations that can later be transformed
+    in random fields
     '''
     def __init__(self, n_modes : int, optName = None):
         super(RandomNormalVector, self).__init__(n_modes)
@@ -535,10 +569,12 @@ class UniformDistribution(openturns.dist_bundle3.Uniform):
         return X.tolist()  
 
 
-## To store the samples as a temporary memmap, thus avoiding to over-fill RAM
-###################################################################################################
-###################################################################################################
-###################################################################################################
+#######################################################################################
+#######################################################################################
+#######################################################################################
+######
+###                To store the samples as a temporary memmap, thus avoiding to 
+#                  over-fill RAM - SOON DEPRECIATED
 
 class tempmap(numpy.memmap):
     """
@@ -565,34 +601,13 @@ class tempmap(numpy.memmap):
         except :
             gc.collect()
 
-
 def np_as_tmp_map(nparray):
     tmpmap      = tempmap(dtype=nparray.dtype, mode='w+', shape=nparray.shape)
     tmpmap[...] = nparray
     return tmpmap
-
-
-
-'''
-### example :
-
-import NdGaussianProcessConstructor as ngpc
-from importlib import reload
-
-process_1D = ngpc.NdGaussianProcessConstructor()
-process_1D.setDimension(1)
-process_1D.setGrid([[0,10,100],])
-process_1D.setCovarianceModel({'NameModel':'MaternModel','amplitude':10000.,'scale':1.5,'nu':5/2})
-process_1D.setTrendFunction(['x'],210000)
-process_1D.setGaussianProcess()
-
-
-import NdGaussianProcessConstructor as ngpc
-from importlib import reload
-process_1D = ngpc.NdGaussianProcessConstructor(dimension=1,grid_shape=[[0,10,100],],covariance_model={'NameModel':'MaternModel','amplitude':10000.,'scale':1.5,'nu':5/2},trend_arguments=['x'],trend_function=210000)
-process_1D.setName('myprocess_')
-_=process_1D.getSample(50000)
-process_1D.getFieldProjectionOnEigenmodes()
-process_1D.getDecompositionAsRandomVector
-
-'''
+#                  
+###
+#####
+#######################################################################################
+#######################################################################################
+#######################################################################################
