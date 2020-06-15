@@ -367,34 +367,82 @@ Détail du calcul de l'indice de Sobol' :
 
    \begin{gather}   
 S = \frac{Cov\left[\prescript{c}{}{Y}^{B},\prescript{c}{}{Y}^{E}\right]}{Var\left[\prescript{c}{}{Y}^{A}\right]} \\
-
+= \frac{\frac{1}{n}\Sigma_{k=0}^{n}\prescript{c}{}{Y}^{B}\prescript{c}{}{Y}^{E} - \left(\frac{1}{n}\Sigma_{k=1}^{n}\prescript{c}{}{Y}^{B}\right)\left(\frac{1}{n}\Sigma_{k=1}^{n}\prescript{c}{}{Y}^{A}\right)}{\frac{1}{n}\Sigma_{k=0}^{n}(\prescript{c}{}{Y}^{B})^{2}-(\frac{1}{n}\Sigma_{k=0}^{n}\prescript{c}{}{Y}^{B})^{2}}
    \end{gather}\\
+   
+Comme les échantillons sont centrées par rapport à leurs moyennes respectives, le numérateur et le dénominateur se simplifient et on obtient l’estimateur suivant :
+
+	\begin{equation}
+		S = \frac{\frac{1}{n}\Sigma_{k=0}^{n}\prescript{c}{}{Y}^{B}\prescript{c}{}{Y}^{E}}{\frac{1}{n}\Sigma_{k=0}^{n}\left(\prescript{c}{}{Y}^{A}\right)^{2}}
+	\end{equation}
+
+
+Avec l'échantillonnage présenté précédemment, le calcul de l'estimateur de Sobol se fait très directemement avec la formule de Saltelli, même lorsque la dimension de la sortie est plus grande que 1.
+
+Pour pouvoir justifier de la pertinence de l'estimateur, on calcule l'intervalle de confiance à 0.975, qui permet de montrer la précision de l'estimateur et de nuancer son analyse. Pour le calcul de cet intervalle de confiance, on utilise la méthode Delta, méthode utilisée par Jansen \textit{et al} (2014) ou de même par \cite{dumas2017}. Le détail de cette méthode est donné ci dessous.
+
+On pose suite à l’équation simplifiée précédente :
+
+\begin{equation}
+U_{i} = \left(\prescript{c}{}{Y}^{B}\prescript{c}{}{Y}^{E},\left(\prescript{c}{}{Y}^{A}\right)^{2}\right)^{T} \\
+\end{equation} \\
+  
+Ensuite l'on défini :
+\begin{equation}
+\Psi_{S}(x,y) = \frac{x}{y} \\
+\end{equation} \\
+
+Ceci implique :
+\begin{equation}
+S_{N} = \Psi_{S}\left(\overline{U}_{N}\right)
+\end{equation} \\
+
+Grâce au théorème central limite:
+\begin{equation}
+\sqrt[]{N}\left(\overline{U}_{N}-\mu\right)\xrightarrow[N\to\infty]{\mathcal{L}}\mathcal{N}_{2}\left(0,\Gamma\right) 
+\end{equation}\\
+
+Ou $\Gamma$ est la matrice de covariance de $U_{1}$ et :
+\begin{equation}
+\mu=
+\begin{cases}
+	Cov\left[Y^{B},Y^{E}\right] \\
+	Var\left[Y^{A}\right]       \\
+\end{cases}\\
+\end{equation}
+
+De l'utilisation de la méthode delta : 
+\begin{equation}
+\sqrt[•]{N}\left(S_{N}-S\right)\xrightarrow[N\to\infty]{\mathcal{L}}\mathcal{N}_{1}\left(0,g^{T}\Gamma g\right)
+\end{equation}
+ou $g=\nabla\Psi_{S}(\mu)$.\\ 
+
+Finalement, pour tout x,y tel que $y \neq 0$ :
+\begin{equation}
+\nabla\Psi_{S}(x,y)=\left(\frac{1}{y},\frac{-x}{y^{2}}\right)^{T}
+\end{equation}
+
+La matrice de covariance $\Gamma$, tout comme le vecteur $g$ se calculent bien analytiquement dans le cas de l'indicateur de Saltelli', néanmoins le calcul du gradient peut très bien se faire informatiquement, notamment dans le cas d'estimateurs plus complexes.
+
+Pour recupérer l'intervalle de confiance de l'estimateur nous utilisons le quantile de la loi normale centrée réduite à 97.5\%, multiplié par la racine de la variance calculée précédemment. 
+
+Finalement, l'on récupère les indices de Sobol' pour les différents élements de la poutre tout comme leur intervalle de confiance: 
 
 
 
 \begin{figure}[H]
    \centering   
-   \includegraphics[scale=0.45]{saltelliSensitivityFormula.png}
-      \caption{Formule pour le calcul de l'estimateur de Sobol, dans le cas d'une experience de monte carlo. }
-         \label{saltelliSensitivity}
+   \includegraphics[scale=0.195]{sensibiliteDeflection10K.png}
+      \caption{Sensibilité de la déflection maximale aux champs et variables d'entrée.}
+         \label{MaxDeflec}
 \end{figure}
 
-Avec l'échantillonnage présenté précédemment, le calcul de l'estimateur de Sobol se fait très directemement avec la formule de Saltelli, même lorsque la dimension de la sortie est plus grande que 1.
-
-Pour pouvoir justifier de la pertinence de l'estimateur, on calcule l'intervalle de confiance à 0.975, qui permet de montrer la précision de l'estimateur et de nuancer son analyse. Pour le calcul de cet intervalle de confiance, on utilise la méthode Delta, méthode utilisée par Jansen \textit{et al} (2014) ou de même par \cite{dumas2017}. Le détail de cette méthode est donné ci dessous:
-
-\begin{align}
-V_{X_{i}} = V[E[\omega|X_{i}]] \\
-S_{X_{i}} = \frac{V_{X_{i}}}{V(\omega)} \\
-V_{X_{i}X_{j}} = V[E[\omega|X_{i}X_{j}]] - V_{X_{i}} - V_{X_{j}} \\
-S_{X_{i}X_{j}} = \frac{1}{V(\omega)}V[E[\omega|X_{i}X_{j}]] - S_{X_{i}} - S_{X_{j}}
-\end{align} \\
-
-
-
-
-
-
+\begin{figure}[H]
+   \centering   
+   \includegraphics[scale=0.255]{sensibiliteVonMises10K.png}
+      \caption{Sensibilité de la contrainte de Von-Mises aux champs (Module d'Young, diamètre) et variables d'entrée.(densité, position, Norme de la force)}
+         \label{MaxDeflec}
+\end{figure}
 
 
 
