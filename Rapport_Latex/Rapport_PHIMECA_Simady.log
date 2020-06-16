@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2020.3.3)  15 JUN 2020 10:59
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2020.3.3)  16 JUN 2020 11:51
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1063,7 +1063,7 @@ File: sensibiliteVonMises10K.png Graphic file (type png)
 Package pdftex.def Info: sensibiliteVonMises10K.png  used on input line 442.
 (pdftex.def)             Requested size: 284.6281pt x 141.03424pt.
 [17 <./sensibiliteDeflection10K.png>]
-Overfull \hbox (38.15643pt too wide) in paragraph at lines 461--461
+Overfull \hbox (38.15643pt too wide) in paragraph at lines 462--462
 []        \T1/cmtt/m/n/10 PRINT *,'Enter the values for the base and height of 
 a triangle.'[] 
  []
@@ -1074,12 +1074,12 @@ Underfull \hbox (badness 1776) in paragraph at lines 33--37
  []
 
 )
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 522.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 523.
  [19]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 522.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 523.
  (./Rapport_PHIMECA_Simady.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 522.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 522.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 523.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 523.
 Package rerunfilecheck Info: File `Rapport_PHIMECA_Simady.out' has not changed.
 
 (rerunfilecheck)             Checksum: E31C2132A81CDB9D0E5AA553CFDFA04F;1395.
@@ -1087,7 +1087,7 @@ Package rerunfilecheck Info: File `Rapport_PHIMECA_Simady.out' has not changed.
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 522.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 523.
  ) 
 Here is how much of TeX's memory you used:
  7814 strings out of 494226
@@ -1117,7 +1117,7 @@ ist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/font
 s/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type
 1/public/amsfonts/cm/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
 c/amsfonts/cm/cmsy7.pfb>
-Output written on Rapport_PHIMECA_Simady.pdf (19 pages, 862288 bytes).
+Output written on Rapport_PHIMECA_Simady.pdf (19 pages, 862284 bytes).
 PDF statistics:
  772 PDF objects out of 1000 (max. 8388607)
  325 compressed objects within 4 object streams

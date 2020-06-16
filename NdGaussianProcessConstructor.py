@@ -44,7 +44,7 @@ class NdGaussianProcessConstructor(openturns.Process):
         openturns model of the covariance
     mesh                    : openturns.geom.Mesh
         grid on which the process is built
-    trendFunction           : openturns.func.TrendTransform
+    TrendTransform           : openturns.func.TrendTransform
         function to define a trend on the process. If constant
         it is the mean of the process
     GaussianProcess         : openturns.model_process.GaussianProcess
@@ -85,9 +85,10 @@ class NdGaussianProcessConstructor(openturns.Process):
     ##########################################################################
     '''
 
-    def __init__(self, dimension  = None, covariance_model = None,     
-                grid_shape        = None, trend_arguments  = None, 
-                trend_function    = None):
+    def __init__(self, 
+                dimension:int      = None, covariance_model:str = None,     
+                grid_shape:list    = None, trend_arguments:list = None, 
+                trend_function:str = None):
         super().__init__()
         self.dimension                      = dimension
         self._covarianceModelDict           = covariance_model
@@ -96,9 +97,9 @@ class NdGaussianProcessConstructor(openturns.Process):
         self.mesh                           = None
         self._trendArgs                     = trend_arguments
         self._trendFunc                     = trend_function
-        self.trendFunction                  = None
+        self.TrendTransform                 = None
         self.GaussianProcess                = None
-        self.KarhunenLoeveResult           = None
+        self.KarhunenLoeveResult            = None
         self.sample_map                     = None 
         self.fieldSampleEigenmodeProjection = None
         self.decompositionAsRandomVector    = None
@@ -254,7 +255,7 @@ class NdGaussianProcessConstructor(openturns.Process):
             covarianceModel.setName(covarianceModelDict['Model'])
             self.covarianceModel = covarianceModel
 
-    def setTrend(self, arguments : list, funcOrConst):
+    def setTrend(self, arguments : list, funcOrConst = 0):
         '''Function to set the trend transform of the process
 
         Note
@@ -290,8 +291,8 @@ class NdGaussianProcessConstructor(openturns.Process):
         print('trend function args: ',self._trendArgs,' trend function: ', self._trendFunc,'\n')
         print('Please be aware that the number of elements in the argument list has to be the same as the dimension of the process: ', self.dimension)
         symbolicFunction   = openturns.SymbolicFunction(self._trendArgs, [self._trendFunc])
-        trendFunction      = openturns.TrendTransform(symbolicFunction, self.mesh)
-        self.trendFunction = trendFunction
+        TrendTransform      = openturns.TrendTransform(symbolicFunction, self.mesh)
+        self.TrendTransform = TrendTransform
 
     def setGaussianProcess(self):
         '''Function to set the Gaussian Process
@@ -301,8 +302,8 @@ class NdGaussianProcessConstructor(openturns.Process):
         The grid and the covariance model have to be already defined
         '''
         assert(self.mesh is not None and self.covarianceModel is not None), "first instantiate grid and covariance model"
-        if self.trendFunction is not None :
-            self.GaussianProcess = openturns.GaussianProcess(self.trendFunction, self.covarianceModel, self.mesh)
+        if self.TrendTransform is not None :
+            self.GaussianProcess = openturns.GaussianProcess(self.TrendTransform, self.covarianceModel, self.mesh)
         else :
             self.GaussianProcess = openturns.GaussianProcess(self.covarianceModel, self.mesh)
         self.GaussianProcess.setName(str(self.dimension)+'D_Gaussian_Process')
@@ -310,7 +311,7 @@ class NdGaussianProcessConstructor(openturns.Process):
 ## Everything concerning Karhunen Loève
 ###################################################################################################
 
-    def getMetamodelProcessKarhunenLoeve(self, threshold = 1e-4, getResult = False):
+    def getKarhunenLoeveDecomposition(self, method = 'P1Algorithm',  threshold = 1e-4, getResult = False, **kwargs):
         '''Function to get the Karhunen Loève decomposition of the gaussian process, using 
         the P1 approximation
 
@@ -319,13 +320,31 @@ class NdGaussianProcessConstructor(openturns.Process):
         Based on the openturns example : Metamodel of a field function
         '''
         assert(self.GaussianProcess is not None and self.mesh is not None), "First create process"
-        KL_algorithm        = openturns.KarhunenLoeveP1Algorithm(self.mesh,
-                                                                 self.getCovarianceModel(),
-                                                                 threshold)
+        assert method in ['P1Algorithm', 'QuadratureAlgorithm'], "Methods available : 'P1Algorithm', 'QuadratureAlgorithm'"
+        if method is 'P1Algorithm' :
+            KarhunenLoeveAlgorithm = openturns.KarhunenLoeveP1Algorithm(self.mesh,
+                                                                    self.getCovarianceModel(),
+                                                                    threshold)
 
-        KL_algorithm.setName('Karhunen Loeve Metamodel')
-        KL_algorithm.run()
-        KL_algo_results             = KL_algorithm.getResult()
+        if method is 'QuadratureAlgorithm' :
+            domain = openturns.MeshDomain(self.mesh)
+            bounds = openturns.Interval(list(zip(*list(zip(*self.grid_shape))[:-1])))
+            covariance = self.getCovarianceModel()
+            if 'marginalDegree' in kwargs :
+                marginalDegree = kwargs['marginalDegree']
+            else :
+                marginalDegree = 20 #arbitrary number
+                print('Missing kwarg marginalDegree, default fixed at 20')
+            print('threshold is :',threshold)
+            KarhunenLoeveAlgorithm = openturns.KarhunenLoeveQuadratureAlgorithm(domain,
+                                                                            bounds,
+                                                                            covariance,
+                                                                            marginalDegree,
+                                                                            threshold)
+
+        KarhunenLoeveAlgorithm.setName('Karhunen Loeve Metamodel')
+        KarhunenLoeveAlgorithm.run()
+        KL_algo_results             = KarhunenLoeveAlgorithm.getResult()
         self.KarhunenLoeveResult   = KL_algo_results
         if getResult == True :
             return KL_algo_results
@@ -334,12 +353,12 @@ class NdGaussianProcessConstructor(openturns.Process):
         ''' for each element of a field sample get the corresponding set of random variables
         '''
         if self.KarhunenLoeveResult is None:
-            self.getMetamodelProcessKarhunenLoeve()    
+            self.getKarhunenLoeveDecomposition()    
         assert(self.sample_map is not None or ProcessSample is not None), ""
         if ProcessSample is None : 
-            ProcessSample       = self.ndarray2ProcessSample(self.sample_map)
+            ProcessSample       = self.getProcessSampleFromNumpyArray(self.sample_map)
         if type(ProcessSample) == numpy.ndarray :
-            ProcessSample = self.ndarray2ProcessSample(ProcessSample)
+            ProcessSample = self.getProcessSampleFromNumpyArray(ProcessSample)
         KL_eigenmodes           = self.KarhunenLoeveResult.project(ProcessSample)
         self.fieldSampleEigenmodeProjection = numpy.array(KL_eigenmodes)
 
@@ -351,20 +370,21 @@ class NdGaussianProcessConstructor(openturns.Process):
         assert self.fieldSampleEigenmodeProjection is not None ,""
         if type(self.getName()) == str :
             optName = self.getName()
-        meanDistri = self.fieldSampleEigenmodeProjection.mean(axis=0)
-        stdDistri  = self.fieldSampleEigenmodeProjection.std(axis=0)
+        meanDistri  = self.fieldSampleEigenmodeProjection.mean(axis=0)
+        stdDistri   = self.fieldSampleEigenmodeProjection.std(axis=0)
         eigenmodesDistribution = RandomNormalVector(len(meanDistri), optName)
         eigenmodesDistribution.setMean(meanDistri)
         eigenmodesDistribution.setStd(stdDistri)
         self.decompositionAsRandomVector = eigenmodesDistribution
+        cleanAtExit() #to remove temporary arrays
 
     def liftDistributionToField(self, randomVector):
         '''transforms a randomVector or collection of random vectors into gaussian fields
         '''
         try : 
-            assert self.KarhunenLoeveResult is not None, "first run self.getMetamodelProcessKarhunenLoeve()"
+            assert self.KarhunenLoeveResult is not None, "first run self.getKarhunenLoeveDecomposition()"
         except :
-            self.getMetamodelProcessKarhunenLoeve()
+            self.getKarhunenLoeveDecomposition()
         if type(randomVector[0]) == float : # if it is only one realisation
             field = self.KarhunenLoeveResult.liftAsField(randomVector)
             return field 
@@ -375,10 +395,9 @@ class NdGaussianProcessConstructor(openturns.Process):
             [process_sample.add(field_list[i]) for i in range(len(field_list))]
             return process_sample
 
-
 ## Generic over-loaded methods
 ###################################################################################################
-    def ndarray2ProcessSample(self, ndarray):
+    def getProcessSampleFromNumpyArray(self, ndarray:numpy.ndarray=None)->openturns.ProcessSample:
         '''Transform an numpy array containing samples into openturns ProcessSample
         ''' 
         arr_shape = list(ndarray[0,...].shape)
@@ -435,7 +454,7 @@ class NdGaussianProcessConstructor(openturns.Process):
     def getTrend(self):
         '''Accessor to the trend.
         '''
-        return self.trendFunction
+        return self.TrendTransform
 
     def getMesh(self):
         '''Get the mesh.
@@ -568,6 +587,14 @@ class UniformDistribution(openturns.dist_bundle3.Uniform):
         self.sample = X
         return X.tolist()  
 
+def cleanAtExit() :
+    dirName = './tempNpArrayMaps'
+    try :
+        if os.path.isdir(dirName) == True:
+            shutil.rmtree(dirName, ignore_errors=True)
+        gc.collect()
+    except :
+        gc.collect()
 
 #######################################################################################
 #######################################################################################

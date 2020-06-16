@@ -1,10 +1,13 @@
 import openturns
+import uuid 
 import numpy
+from   typing                                import Callable, List, Tuple, Optional, Any, Union
 from   copy                                  import deepcopy
-import NdGaussianProcessConstructor          as ngpc
-import NdGaussianProcessExperimentGeneration as ngpeg
-import NdGaussianProcessSensitivityIndices   as ngpsi 
+import NdGaussianProcessConstructor          as     ngpc
+import NdGaussianProcessExperimentGeneration as     ngpeg
+import NdGaussianProcessSensitivityIndices   as     ngpsi 
 import atexit
+import gc
 
 class NdGaussianProcessSensitivityAnalysis(object):
     '''Custom class to do sensitivity analysis on complex models
@@ -26,9 +29,9 @@ class NdGaussianProcessSensitivityAnalysis(object):
 
         Attributes:
 
-            listfOfProcessesAndDistributions    : list
-                list of NdGaussianProcessConstructor.NdGaussianProcessConstructor and 
-                NdGaussianProcessConstructor.NormalDistribution objects
+            inputProcessesDistributions    : list
+                list of NdGaussianProcessConstructor.NdGaussianProcessConstructor and scalar
+                probabilistic openturns distributions
 
             outputVariables   : nested dict
                 dictionary containg the parameters for the output processes
@@ -50,26 +53,29 @@ class NdGaussianProcessSensitivityAnalysis(object):
             sampleSize         : int
                 size of the sample for the sensitivity analysis
     '''
-    def __init__(self, listfOfProcessesAndDistributions : list, 
-                outputVariables : dict, funcSample, funcSolo, sampleSize : int):
-        self.listfOfProcessesAndDistributions = listfOfProcessesAndDistributions
-        self.outputVariables  = outputVariables
-        self.functionSample   = funcSample
-        self.functionSolo     = funcSolo
-        self.inputDictionary  = self.setInputsFromNormalDistributionsAndNdGaussianProcesses(self.listfOfProcessesAndDistributions)
-        self.wrappedFunction  = OpenturnsPythonFunctionWrapper(self.functionSample,
-                                                               self.functionSolo, 
-                                                               self.inputDictionary,
-                                                               self.outputVariables)
+    def __init__(self, inputProcessesDistributions : Optional[list]     = None , ###  
+                       outputVariables             : Optional[dict]     = None , ##  While being optional in the init method
+                       funcSample                  : Optional[Callable] = None , ##  it is still necessary to set the variables 
+                       funcSolo                    : Optional[Callable] = None , ##  through the .set* methods
+                       sampleSize                  : Optional[int]      = None): ##
+
+        self.inputProcessesDistributions = inputProcessesDistributions
+        self.outputVariables             = outputVariables
+        self.functionSample              = funcSample
+        self.functionSolo                = funcSolo
+        self.wrappedFunction = OpenturnsPythonFunctionWrapper(functionSample              = self.functionSample,
+                                                              functionSolo                = self.functionSolo, 
+                                                              inputProcessesDistributions = self.inputProcessesDistributions,
+                                                              outputDict                  = self.outputVariables)
         self.sampleSize          = sampleSize
-        self.errorWNans          = 0
         self.sobolBatchSize      = None
         self.inputDesign         = None
         self.outputDesignList    = None 
         self.sensitivityResults  = None 
 
-        self._inputDesignNC      = None
-        self._outputDesignListNC = None 
+        self._errorWNans         = 0
+        self._inputDesignNC      = None   #non corrected designs => the functions are expected to malfunction sometimes and to return nan values 
+        self._outputDesignListNC = None   #non corrected designs  
         self._designsWErrors     = None
 
     def makeExperiment(self, **kwargs):
@@ -122,7 +128,7 @@ class NdGaussianProcessSensitivityAnalysis(object):
         columnIdx            = numpy.atleast_1d(numpy.squeeze(numpy.unique(whereNan)))
         print('Columns where nan : ', columnIdx,'\n')
         n_nans               = len(columnIdx)
-        self.errorWNans      += n_nans
+        self._errorWNans      += n_nans
         self._designsWErrors = inputArray[columnIdx, ...]
         if n_nans > 0:
             print('There were ',n_nans, ' errors (numpy.nan) while processing, trying to regenerate missing outputs \n')
@@ -215,104 +221,42 @@ class NdGaussianProcessSensitivityAnalysis(object):
         if returnStuff == True :
             return sensitivityAnalysisList
 
-    def setInputsFromNormalDistributionsAndNdGaussianProcesses(self, listfOfProcessesAndDistributions):
-        '''Function to transform list of Process object into a dictionary, as used in the 
-        OpenturnsPythonFunctionWrapper class
-
-        #### Each tiùe we want to use a new functoin as an input, we will have to add it here !!!!!!!!!!
-        #### ONLY STOCHASTIC PROCESSES, NORMAL AND UNIFORM DISTRIBBUTIONS
-        '''
-        dictOfInputs        = dict()
-        n_inputRvsProcesses = len(listfOfProcessesAndDistributions)
-        for i in range(n_inputRvsProcesses):
-            if type(listfOfProcessesAndDistributions[i]) == ngpc.NdGaussianProcessConstructor :
-                process = listfOfProcessesAndDistributions[i]
-                varDict = {
-                           'nameProcess'     : process.getName(), 
-                             #name to identify variable after analysis
-                           'position' : i ,
-                             #position of argument in function
-                           'shapeGrid'       : process._grid_shape ,
-                             #shape of discrete grid the field is defined on
-                           'covarianceModel' : process._covarianceModelDict,
-                             #dictionary as in NdGaussianProcessConstructor
-                           'trendFunction'   : [process._trendArgs, process._trendFunc] 
-                             # [['var1', ...],'symbolicFunctionOrConstant']  
-                          }
-                varName               = 'var' + str(i)
-                dictOfInputs[varName] = varDict
-
-
-            elif type(listfOfProcessesAndDistributions[i]) == ngpc.NormalDistribution :
-                randomVar             = listfOfProcessesAndDistributions[i]
-                varDict               = dict({
-                                         'nameRV'     : randomVar.getName(),
-                                         'position'   : i,
-                                         'meanAndStd' : [randomVar.mean, randomVar.variance]
-                                        })
-                varName               = 'var' + str(i)
-                dictOfInputs[varName] = varDict
-
-
-            elif type(listfOfProcessesAndDistributions[i]) == ngpc.UniformDistribution :
-                randomVar             = listfOfProcessesAndDistributions[i]
-                varDict               = dict({
-                                         'nameRV'     : randomVar.getName(),
-                                         'position'   : i,
-                                         'lowerUpper' : [randomVar.lower, randomVar.upper]
-                                        })
-                varName               = 'var' + str(i)
-                dictOfInputs[varName] = varDict
-
-            else :
-                print('''
-                      Make sure that the input processes and RVs are in the right order and are from \n 
-                      type NdGaussianProcessConstructor.NdGaussianProcessConstructor or \n   
-                      type NdGaussianProcessConstructor.NormalDistribution
-                      ''')
-                raise TypeError 
-        return dictOfInputs
-
-
-
     def setFunctionSample(self, wrapFunction):
-        '''Python function taking RVs and Processes as samples
+        '''Python function taking as an input random variables and fields
 
         Note
-        ----funcModel
+        ----
         the function's arguments order is the one defined in
         self.InputProcesses and self.InputRVs
         '''
         self.funcModel = wrapFunction
 
-    def KarhunenLoeveSVDAlgorithm(self, numpy_array, process_sample=None, nbModes=15, threshold = 0.0001, centeredFlag = False):
+    def KarhunenLoeveSVDAlgorithm(self, ndarray : numpy.ndarray, process_sample = None, threshold = 0.0001, centeredFlag = False):
         '''Function to get Kahrunen Loeve decomposition from samples stored in array
         '''
         if process_sample is None :
-            process_sample = self.processSampleFromNpArray(numpy_array)
+            process_sample = self.getProcessSampleFromNumpyArray(ndarray)
         FL_SVD = openturns.KarhunenLoeveSVDAlgorithm(process_sample, threshold, centeredFlag)
         #FL_SVD.setNbModes(nbModes)
         FL_SVD.run()
         return FL_SVD
 
-    def processSampleFromNpArray(self, numpy_array):
+    def getProcessSampleFromNumpyArray(self, ndarray : numpy.array) -> openturns.ProcessSample :
         '''Function to get a field out of a numpy array representing a sample
-        
         As it is a sample we will have a collection of fields
         ''' 
-        #first build mesh of same size than array, given that each [i,:] is a sample
-        arr_shape = list(numpy_array[0,...].shape)
+        arr_shape = list(ndarray[0,...].shape) #first build mesh of same size than array, given that each [i,:] is a sample
         dimension = len(arr_shape)
-        assert(len(arr_shape)<5), "dimension can not be greater than 4 \n=> NotImplementedError"
-        #we build a unit grid
+        if len(arr_shape)<5 : raise NotImplementedError # Maximum 4 dimensions
+        # We build a unit grid
         grid_shape = [[0, arr_shape[i], arr_shape[i]] for i in range(dimension)]
-        otMesh      = self.buildMesh(grid_shape, dimension)
-        field_list = [openturns.Field(otMesh,numpy.expand_dims(numpy_array[i,...].flatten(order='C'), axis=1).tolist()) for i in range(numpy_array.shape[0])]
+        otMesh      = self.getMesh(grid_shape, dimension)
+        field_list = [openturns.Field(otMesh,numpy.expand_dims(ndarray[i,...].flatten(order='C'), axis=1).tolist()) for i in range(numpy_array.shape[0])]
         process_sample = openturns.ProcessSample(otMesh, 0, dimension)
         [process_sample.add(field_list[i]) for i in range(len(field_list))]
         return process_sample
 
-    def buildMesh(self, grid_shape : list, dimension : int):
+    def getMesh(self, grid_shape : List[Tuple[float,float,int],], dimension : Optional[int] = None) -> openturns.Mesh :
         '''Function to set the grid on which the process will be defined
         
         Arguments
@@ -321,15 +265,20 @@ class NdGaussianProcessSensitivityAnalysis(object):
             List containing the lower bound, the length and the number of elements
             for each dimension. Ex: [[x0 , Lx , Nx], **]
         '''
-        n_intervals     = [grid_shape[i][2]-1               for i in range(dimension)]
-        low_bounds      = [grid_shape[i][0]                 for i in range(dimension)]
-        lengths         = [grid_shape[i][1]-1               for i in range(dimension)]
-        high_bounds     = [low_bounds[i] + lengths[i]       for i in range(dimension)]
+        n_intervals     = [grid_shape[i][2]-1         for i in range(dimension)]
+        low_bounds      = [grid_shape[i][0]           for i in range(dimension)]
+        lengths         = [grid_shape[i][1]-1         for i in range(dimension)]
+        high_bounds     = [low_bounds[i] + lengths[i] for i in range(dimension)]
         mesherObj       = openturns.IntervalMesher(n_intervals)
         grid_interval   = openturns.Interval(low_bounds, high_bounds)
         mesh            = mesherObj.build(grid_interval)
         mesh.setName(str(dimension)+'D_Grid')
         return mesh
+
+
+
+
+
 
 #######################################################################################
 #######################################################################################
@@ -345,37 +294,117 @@ class NdGaussianProcessSensitivityAnalysis(object):
 #######################################################################################
 
 class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
-    def __init__(self, functionSample = None, 
-                       functionSolo   = None,  
-                       inputDict      = None, 
-                       outputDict     = None):
-        self.inputDict              = inputDict
+    '''Wrapper for python functions that take as an argument stochastic fields,
+    as well as scalar probabilistic distributions. The wrapper creates an interface
+    to a new function, that only takes in scalar values, by decomposing the 
+    stochastic processes using Karhunen-Loeve
+
+    Note
+    ----
+    This class is used internaly by the NdGaussianProcessSensitivityAnalysis class,
+    so the order of decomposition of the Processes hs not to be known and all is 
+    tracked internaly relatively robustly. 
+
+    Arguments
+    ---------
+    functionSample : python function
+        function taking as an input random fields and scalars, specialy optimized 
+        for batch processing
+    functionSolo : python function
+        same function than above, but only working with one sample at once 
+    inputProcessesDistributions : list 
+        list of distributions and processes (processes are defined with the 
+        NdGaussianProcessConstructor)
+    outputDict : dict
+        dictionary containing data about the outputs of the function. The 
+        dimension as well as the output position has to be indicated
+
+    Attributes
+    ----------
+
+
+    '''
+    def __init__(self, functionSample          : Optional[Callable] = None, 
+                       functionSolo            : Optional[Callable] = None,
+                       inputProcessesDistributions : Optional[list] = None , 
+                       outputDict                  : Optional[dict] = None):
+        self.inputProcessesDistributions = inputProcessesDistributions
         self.outputDict             = outputDict
         self.PythonFunctionSample   = functionSample
         self.PythonFunction         = functionSolo
         self.NdGaussianProcessList  = list()
         self.inputVarNames          = list()
         self.outputVarNames         = list()
-        self._inputVarOrdering      = None
         self.getInputVariablesName()
         self.getOutputVariablesName()
         self.inputDim               = len(self.inputVarNames)
         self.outputDim              = len(self.outputVarNames)
-        self.KLComposedDistribution = self.get_KL_decompositionAndRvs()
+        self.KLComposedDistribution = self.composeFromProcessAndDistribution(self.inputProcessesDistributions)
         self.inputVarNamesKL        = self.getKLDecompositionVarNames()
         self.inputDimKL             = len(self.inputVarNamesKL)
         super(OpenturnsPythonFunctionWrapper, self).__init__(self.inputDimKL, self.outputDim)
         self.setInputDescription(self.inputVarNamesKL)
         self.setOutputDescription(self.outputVarNames)
 
-    def get_KL_decompositionAndRvs(self):
-        listOfRandomVars     = list()
-        for variable in self._inputVarOrdering :
-            listOfRandomVars.extend(self.getListKLDecompoOrRVFromProcessDict(self.inputDict[variable]))
-        composedDistribution = openturns.ComposedDistribution(listOfRandomVars)
+    def composeFromProcessAndDistribution(self, inputProcessesDistributions : list, ntemp : int = 1750):
+        '''Using a list of ordered openturns distributions and custom defined Process
+        with the NdGaussianProcessConstructor class we construct a vector of scalar 
+        distributions, according to the distributions and the Karhunen-Loeve decomposition
+        of the processes.
+
+        Arguments
+        ---------
+        inputProcessesDistributions : list
+            list of probabilistic distributions as well as Processes 
+
+        Returns
+        -------
+        composedDistribution : openturns.ComposedDistribution
+            random vector of various probabilistic distributions, in the order 
+            of the input list and with Processes decomposed as random variables
+        '''
+        listNames = list()
+        listProbabilisticDistributions = list()
+        inputList = inputProcessesDistributions
+        for i, inp in enumerate(inputList) :
+            if isinstance(inp, openturns.DistributionImplementation):
+                name = inp.getName()
+                assert name is not 'Unnamed', "Please give a name to your distributions through the setName() method..."
+                if name in listNames:
+                    print('Possible duplicata of 2 variable names...')
+                    newName = name+str(i)+'_'+str(uuid.uuid4())
+                    print('New random name assigned:\n',name,'-->',newName)
+                    name = newName
+                    inp.setName(name)
+                listNames.append(name)
+                listProbabilisticDistributions.extend([inp])
+
+
+            if isinstance(inp, openturns.Process) :
+                name = inp.getName()
+                assert name is not 'Unnamed', "Please give a name to your Processes through the setName() method..."
+                if name in listNames:
+                    print('Possible duplicata of 2 variable names...')
+                    newName = name+str(i)+'_'+str(uuid.uuid4())
+                    print('New random name assigned:\n',name,'-->',newName)
+                    name = newName
+                    inp.setName(name)
+                listNames.append(name)
+                try :
+                    inp.getFieldProjectionOnEigenmodes()
+                    inp.getDecompositionAsRandomVector()
+                except :
+                    _ = inp.getSample(ntemp)
+                    inp.getFieldProjectionOnEigenmodes()
+                    inp.getDecompositionAsRandomVector()
+                processAsRandVect = inp.decompositionAsRandomVector.getRandVectorAsOtNormalsList()
+                self.NdGaussianProcessList.append([i, inp]) #so we mkeep in memory the position in the function arguments
+                listProbabilisticDistributions.extend(processAsRandVect)
+        print('Composed distribution built with processes and distributions:',' '.join(listNames))
+        composedDistribution = openturns.ComposedDistribution(listProbabilisticDistributions)
         return composedDistribution
 
-    def liftKLComposedDistributionAsFieldAndRvs(self, KLComposedDistribution):
+    def liftFieldFromKLDistribution(self, KLComposedDistribution):
         fieldPositions     = [self.NdGaussianProcessList[i][0] for i in range(len(self.NdGaussianProcessList))]
         numberModesFields  = [int(self.NdGaussianProcessList[i][1].decompositionAsRandomVector.n_modes) for i in range(len(self.NdGaussianProcessList))]
         fieldNames         = [self.NdGaussianProcessList[i][1].getName() for i in range(len(self.NdGaussianProcessList))]
@@ -395,58 +424,11 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
                 listInputVars.append(tempCompo[...,k+idxStp])
         return listInputVars
 
-    def getListKLDecompoOrRVFromProcessDict(self, processDict, nSamples=5000):
-        '''IF NEW DISTRIBUTIONS ARE USED THERE ARE TO DEFINE HERE!!!!!!
-        ONLY UNIFORM, NORMAL, AND STOCHASTIC PROCESSES POSSIBLE FOR NOW
-        '''
-        if 'covarianceModel' in processDict :
-            nameProcess     = processDict['nameProcess']     
-            position        = processDict['position']         
-            shapeGrid       = processDict['shapeGrid']   
-            covarianceModel = processDict['covarianceModel']         
-            trendFunction   = processDict['trendFunction']       
-            process = ngpc.NdGaussianProcessConstructor(dimension        = len(shapeGrid),
-                                                        grid_shape       = shapeGrid,
-                                                        covariance_model = covarianceModel,
-                                                        trend_arguments  = trendFunction[0],
-                                                        trend_function   = trendFunction[1])
-            process.setName(nameProcess)
-            _ = process.getSample(int(nSamples))
-            process.getFieldProjectionOnEigenmodes()
-            process.getDecompositionAsRandomVector()
-            processAsRandVect = process.decompositionAsRandomVector.getRandVectorAsOtNormalsList()
-            self.NdGaussianProcessList.append([position, process]) #so we mkeep in memory the position in the function arguments
-            return processAsRandVect
-       
-        elif 'meanAndStd' in processDict :
-            mu, sigma          = processDict['meanAndStd']
-            NormalDistribution = ngpc.NormalDistribution(mu    = mu,
-                                                         sigma = sigma,
-                                                         name  = processDict['nameRV'])
-            return  [NormalDistribution]
-
-        elif 'lowerUpper' in processDict:
-            lower, upper       = processDict['lowerUpper']
-            UniformDistribution = ngpc.UniformDistribution(lower = lower,
-                                                           upper = upper,
-                                                           name  = processDict['nameRV'])
-            return [UniformDistribution]
-
     def getInputVariablesName(self):
-        sortedKeys = sorted(self.inputDict , key = lambda x : self.inputDict[x]['position'])
-        self._inputVarOrdering = sortedKeys
         self.inputVarNames.clear()
-        for key in sortedKeys :
-            try : 
-                nameInput      = self.inputDict[key]['nameRV']
-                self.inputVarNames.append(nameInput)
-            except KeyError :
-                try :
-                    nameInput  = self.inputDict[key]['nameProcess']
-                    self.inputVarNames.append(nameInput)
-                except :
-                    print('Error in your input dictionary')
-        print('Input Variables are (without Karhunen Loeve Decomposition) :\n',self.inputVarNames,'\n')
+        for inp in self.inputProcessesDistributions :
+            self.inputVarNames.append(inp.getName())
+        print('Input Variables are (without Karhunen Loeve Decomposition) :\n'," ".join(self.inputVarNames),'\n')
 
     def getOutputVariablesName(self): 
         sortedKeys = sorted(self.outputDict , key = lambda x : self.outputDict[x]['position'])
@@ -473,7 +455,6 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
             dim_perOut.append(size)
         return tot_dim, dim_perOut, shapeList
 
-
     def getKLDecompositionVarNames(self):
         fieldPositions    = [self.NdGaussianProcessList[i][0] for i in range(len(self.NdGaussianProcessList))]
         numberModesFields = [int(self.NdGaussianProcessList[i][1].decompositionAsRandomVector.n_modes) for i in range(len(self.NdGaussianProcessList))]
@@ -489,7 +470,6 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
                 namesArray = numpy.hstack([namesArray[:i+reIdx],numpy.asarray(RVNames[idx]),namesArray[1+i+reIdx:]])
                 reIdx      += numberModesFields[idx]-1
         return namesArray.tolist()
-
     
     def outputListToMatrix(self, outputList):
         '''Flattens a list of ndarrays, sharing the same first dimension
@@ -538,13 +518,28 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
 
     def _exec(self, X):
         #X = deepcopy(X)
-        inputProcessNRVs = self.liftKLComposedDistributionAsFieldAndRvs(X)
+        inputProcessNRVs = self.liftFieldFromKLDistribution(X)
         return self.PythonFunction(*inputProcessNRVs)
 
     def _exec_sample(self, X):
         #X = deepcopy(X)
-        inputProcessNRVs = self.liftKLComposedDistributionAsFieldAndRvs(X)
+        inputProcessNRVs = self.liftFieldFromKLDistribution(X)
         return self.PythonFunctionSample(*inputProcessNRVs)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #######################################################################################
 #######################################################################################
