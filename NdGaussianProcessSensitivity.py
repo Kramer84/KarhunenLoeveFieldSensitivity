@@ -6,6 +6,7 @@ from   copy                                  import deepcopy
 import NdGaussianProcessConstructor          as     ngpc
 import NdGaussianProcessExperimentGeneration as     ngpeg
 import NdGaussianProcessSensitivityIndices   as     ngpsi 
+from   functools                             import wraps
 import atexit
 import gc
 
@@ -29,11 +30,11 @@ class NdGaussianProcessSensitivityAnalysis(object):
 
         Attributes:
 
-            inputProcessesDistributions    : list
+            processesDistributions    : list
                 list of NdGaussianProcessConstructor.NdGaussianProcessConstructor and scalar
                 probabilistic openturns distributions
 
-            outputVariables   : nested dict
+            outputVariables : nested dict
                 dictionary containg the parameters for the output processes
                     dictModel = {'outputField_1' :
                                  {
@@ -43,47 +44,68 @@ class NdGaussianProcessSensitivityAnalysis(object):
                                  },
                                 }
 
-            funcSample         : pythonFunction
+            f_batchEval    : pythonFunction
                 function taking as an input samples of rvs (vectors) 
                 and samples of fields (ndarrays) for multiprocessing)
 
-            funcSolo           : pythonFunction
+            f_singleEval   : pythonFunction
                 function taking as a input rvs (scalars) and fields
 
-            sampleSize         : int
+            size     : int
                 size of the sample for the sensitivity analysis
     '''
-    def __init__(self, inputProcessesDistributions : Optional[list]     = None , ###  
-                       outputVariables             : Optional[dict]     = None , ##  While being optional in the init method
-                       funcSample                  : Optional[Callable] = None , ##  it is still necessary to set the variables 
-                       funcSolo                    : Optional[Callable] = None , ##  through the .set* methods
-                       sampleSize                  : Optional[int]      = None): ##
+    def __init__(self, processesDistributions : Optional[list]     = None , ###  
+                       outputVariables        : Optional[dict]     = None , ##  While being optional in the init method
+                       f_batchEval            : Optional[Callable] = None , ##  it is still necessary to set the variables 
+                       f_singleEval           : Optional[Callable] = None , ##  through the .set* methods
+                       size                   : Optional[int]      = None): ###
 
-        self.inputProcessesDistributions = inputProcessesDistributions
-        self.outputVariables             = outputVariables
-        self.functionSample              = funcSample
-        self.functionSolo                = funcSolo
-        self.wrappedFunction = OpenturnsPythonFunctionWrapper(functionSample              = self.functionSample,
-                                                              functionSolo                = self.functionSolo, 
-                                                              inputProcessesDistributions = self.inputProcessesDistributions,
-                                                              outputDict                  = self.outputVariables)
-        self.sampleSize          = sampleSize
-        self.sobolBatchSize      = None
-        self.inputDesign         = None
-        self.outputDesignList    = None 
-        self.sensitivityResults  = None 
+        self.processesDistributions = processesDistributions ###  
+        self.outputVariables        = outputVariables        ##  variables to be set to make class work      
+        self.f_batchEval            = f_batchEval            ##      
+        self.f_singleEval           = f_singleEval           ##      
+        self.size                   = size                   ###     
+        
+        self.wrappedFunction        = None   #wrapper around functions passed 
+        
+        self.sobolBatchSize         = None
+        self.inputDesign            = None
+        self.outputDesignList       = None 
+        self.sensitivityResults     = None 
+        
+        self._errorWNans            = 0
+        self._inputDesignNC         = None   #non corrected designs => the functions are expected to malfunction sometimes and to return nan values 
+        self._outputDesignListNC    = None   #non corrected designs  
+        self._designsWErrors        = None
 
-        self._errorWNans         = 0
-        self._inputDesignNC      = None   #non corrected designs => the functions are expected to malfunction sometimes and to return nan values 
-        self._outputDesignListNC = None   #non corrected designs  
-        self._designsWErrors     = None
+        state = self._getState()
+        if (state[0] is True) and (state[1] is True) and ((state[2] is True) or (state[3] is True)) and (state[4] is True):
+            self._wrapFunc()
 
-    def makeExperiment(self, **kwargs):
+    def _wrapFunc(self):
+        wrapFunc = OpenturnsPythonFunctionWrapper(f_batchEval     = self.f_batchEval,
+                                           f_singleEval           = self.f_singleEval, 
+                                           processesDistributions = self.processesDistributions,
+                                           outputDict             = self.outputVariables)
+        self.wrappedFunction = wrapFunc
+        print('Program initialised, ready for sensitivity analysis. You can now proceed to prepare the Sobol indices experiment\n')
+
+    def _getState(self):
+        return (self.processesDistributions!=None), (self.outputVariables!=None), (self.f_batchEval!=None), (self.f_singleEval!=None), (self.size!=None)
+
+
+    #####################################################################################
+    ##################
+    #############                   Everything concerning the experiment generation and
+    ########                     model evaluation. 
+    ######
+
+    def run(self, **kwargs):
         self.prepareSobolIndicesExperiment(**kwargs)
         self.getOutputDesignAndPostprocess(**kwargs)
 
     def prepareSobolIndicesExperiment(self, gen_type = 1,  **kwargs):
-        sobolExperiment         = ngpeg.NdGaussianProcessExperiment(self.sampleSize, self.wrappedFunction, gen_type)
+        sobolExperiment         = ngpeg.NdGaussianProcessExperiment(self.size, self.wrappedFunction, gen_type)
         inputDesign             = sobolExperiment.generate(**kwargs)
         sobolBatchSize          = len(inputDesign)
         print('number of samples for sobol experiment = ', sobolBatchSize, '\n')
@@ -93,8 +115,8 @@ class NdGaussianProcessSensitivityAnalysis(object):
 
     def getOutputDesignAndPostprocess(self, **kwargs):
         assert self._inputDesignNC is not None, ""
-        assert self.functionSample is not None or self.functionSolo is not None , ""
-        if self.functionSample is not None : 
+        assert self.f_batchEval is not None or self.f_singleEval is not None , ""
+        if self.f_batchEval is not None : 
             inputDes         = deepcopy(self._inputDesignNC)
             outputDesign     = self.wrappedFunction(inputDes)
         else :
@@ -112,14 +134,13 @@ class NdGaussianProcessSensitivityAnalysis(object):
         '''To check if there are nan values and replace them with new realizations
            We not only have to erase the value with the nan, but all the corresponding
            permutations. 
-           
         '''
         outputList           = deepcopy(self._outputDesignListNC)
         ## We flatten all the realisation of each sample, to check if we have np.nans
         outputMatrix         = self.wrappedFunction.outputListToMatrix(outputList)
         inputArray           = numpy.array(deepcopy(self._inputDesignNC)) 
         composedDistribution = self.wrappedFunction.KLComposedDistribution
-        N                    = self.sampleSize
+        N                    = self.size
         d_implicit           = int(inputArray.shape[0]/N)-2  #Any type of input shape being a multiple > 2 of N
         d_inputKL            = composedDistribution.getDimension() #dimension of the karhunen loeve composed distribution
         combinedMatrix       = numpy.hstack([inputArray, outputMatrix]).copy() # of size (N_samples, inputDim*outputDim)
@@ -178,7 +199,74 @@ class NdGaussianProcessSensitivityAnalysis(object):
 
         return numpy.hstack([inputDes, outputDesFlat])
 
-    def getSensitivityAnalysisResults(self, methodOfChoice = 'Saltelli', returnStuff = False):
+    #####################################################################################
+    ##################
+    #############                   Basic functions to set the attributes of the class
+    ######## 
+    ######
+
+    def setOutput(self, outputDict):
+        '''set dictionary containing data about the output variables name, it's position in the functions
+        output, as well as dimension
+        '''
+        assert type(outputDict) is dict ,""
+        s00, s01, s02, s03, s04 = self._getState()
+        self.outputVariables    = outputDict       
+        s10, s11, s12, s13, s14 = self._getState()
+        state0, state1, state2, state3, state4 = (s00 or s10), (s01 or s11), (s02 or s12), (s03 or s13), (s04 or s14)
+        if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
+            self._wrapFunc() 
+
+    def setProcessesDistributions(self, processesDistributions):
+        '''set list of input processes and distributions
+        '''
+        assert type(processesDistributions) is list ,""
+        s00, s01, s02, s03, s04 = self._getState()
+        self.processesDistributions = processesDistributionsN
+        s10, s11, s12, s13, s14 = self._getState()
+        state0, state1, state2, state3, state4 = (s00 or s10), (s01 or s11), (s02 or s12), (s03 or s13), (s04 or s14)
+        if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
+            self._wrapFunc() 
+
+    def setSize(self, N):
+        assert (type(N) is int) and (N > 0), "size can only be a positive integer"
+        s00, s01, s02, s03, s04 = self._getState()
+        self.size = N
+        s10, s11, s12, s13, s14 = self._getState()
+        state0, state1, state2, state3, state4 = (s00 or s10), (s01 or s11), (s02 or s12), (s03 or s13), (s04 or s14)
+        if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
+            self._wrapFunc() 
+
+    def setF_batch(self, f_batchEval):
+        '''Python function taking as an input random variables and fields
+        '''
+        s00, s01, s02, s03, s04 = self._getState()
+        self.f_batchEval = f_batchEval
+        s10, s11, s12, s13, s14 = self._getState()
+        state0, state1, state2, state3, state4 = (s00 or s10), (s01 or s11), (s02 or s12), (s03 or s13), (s04 or s14)
+        if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
+            self._wrapFunc() 
+
+    def setF_single(self, f_singleEval):
+        '''Python function taking as an input random variables and fields
+        '''
+        s00, s01, s02, s03, s04 = self._getState()
+        self.f_singleEval = f_singleEval
+        s10, s11, s12, s13, s14 = self._getState()
+        state0, state1, state2, state3, state4 = (s00 or s10), (s01 or s11), (s02 or s12), (s03 or s13), (s04 or s14)
+        if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
+            self._wrapFunc() 
+
+
+    #####################################################################################
+    ##################
+    #############                   Functions to retrieve the sensitivity analysis
+    ########                    results.
+    ######
+
+
+
+    def getSensitivityResults(self, methodOfChoice = 'Saltelli', returnStuff = False):
         '''get sobol indices for each element of the output
         As the output should be a list of fields and scalars, this step will
         return a list of scalar sobol indices and field sobol indices
@@ -188,7 +276,7 @@ class NdGaussianProcessSensitivityAnalysis(object):
                     'Mauntz-Kucherenko' : 3,
                     'Martinez'          : 4}
         assert methodOfChoice in algoDict, "argument has to be a string:\n['Jansen','Saltelli','Mauntz-Kucherenko','Martinez'] "
-        size             = self.sampleSize
+        size             = self.size
         inputDesign      = self.inputDesign
         dimensionInput   = int(len(inputDesign[0]))
         dimensionOutput  = len(self.outputVariables.keys())
@@ -221,25 +309,22 @@ class NdGaussianProcessSensitivityAnalysis(object):
         if returnStuff == True :
             return sensitivityAnalysisList
 
-    def setFunctionSample(self, wrapFunction):
-        '''Python function taking as an input random variables and fields
 
-        Note
-        ----
-        the function's arguments order is the one defined in
-        self.InputProcesses and self.InputRVs
-        '''
-        self.funcModel = wrapFunction
+    #####################################################################################
+    ##################
+    #############                   Utility functions, to retrieve the covariance function
+    ########                    of a field you would only have samples of.
+    ######
 
     def KarhunenLoeveSVDAlgorithm(self, ndarray : numpy.ndarray, process_sample = None, threshold = 0.0001, centeredFlag = False):
-        '''Function to get Kahrunen Loeve decomposition from samples stored in array
+        '''Function to get Kahrunen Loeve decomposition from samples stored in array.
+        Allows to get 
         '''
         if process_sample is None :
             process_sample = self.getProcessSampleFromNumpyArray(ndarray)
-        FL_SVD = openturns.KarhunenLoeveSVDAlgorithm(process_sample, threshold, centeredFlag)
-        #FL_SVD.setNbModes(nbModes)
-        FL_SVD.run()
-        return FL_SVD
+        KLresult = openturns.KarhunenLoeveSVDAlgorithm(process_sample, threshold, centeredFlag)
+        KLresult.run()
+        return KLresult
 
     def getProcessSampleFromNumpyArray(self, ndarray : numpy.array) -> openturns.ProcessSample :
         '''Function to get a field out of a numpy array representing a sample
@@ -276,10 +361,6 @@ class NdGaussianProcessSensitivityAnalysis(object):
         return mesh
 
 
-
-
-
-
 #######################################################################################
 #######################################################################################
 #######################################################################################
@@ -312,7 +393,7 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         for batch processing
     functionSolo : python function
         same function than above, but only working with one sample at once 
-    inputProcessesDistributions : list 
+    processesDistributions : list 
         list of distributions and processes (processes are defined with the 
         NdGaussianProcessConstructor)
     outputDict : dict
@@ -324,14 +405,15 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
 
 
     '''
-    def __init__(self, functionSample          : Optional[Callable] = None, 
-                       functionSolo            : Optional[Callable] = None,
-                       inputProcessesDistributions : Optional[list] = None , 
-                       outputDict                  : Optional[dict] = None):
-        self.inputProcessesDistributions = inputProcessesDistributions
+    def __init__(self, f_batchEval            : Optional[Callable] = None, 
+                       f_singleEval           : Optional[Callable] = None,
+                       processesDistributions : Optional[list]     = None , 
+                       outputDict             : Optional[dict]     = None):
+        self.processesDistributions = processesDistributions
         self.outputDict             = outputDict
-        self.PythonFunctionSample   = functionSample
-        self.PythonFunction         = functionSolo
+        self.PythonFunctionSample   = f_batchEval
+        self.PythonFunction         = f_singleEval
+
         self.NdGaussianProcessList  = list()
         self.inputVarNames          = list()
         self.outputVarNames         = list()
@@ -339,14 +421,14 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         self.getOutputVariablesName()
         self.inputDim               = len(self.inputVarNames)
         self.outputDim              = len(self.outputVarNames)
-        self.KLComposedDistribution = self.composeFromProcessAndDistribution(self.inputProcessesDistributions)
+        self.KLComposedDistribution = self.composeFromProcessAndDistribution(self.processesDistributions)
         self.inputVarNamesKL        = self.getKLDecompositionVarNames()
         self.inputDimKL             = len(self.inputVarNamesKL)
         super(OpenturnsPythonFunctionWrapper, self).__init__(self.inputDimKL, self.outputDim)
         self.setInputDescription(self.inputVarNamesKL)
         self.setOutputDescription(self.outputVarNames)
 
-    def composeFromProcessAndDistribution(self, inputProcessesDistributions : list, ntemp : int = 1750):
+    def composeFromProcessAndDistribution(self, processesDistributions : list, ntemp : int = 1750):
         '''Using a list of ordered openturns distributions and custom defined Process
         with the NdGaussianProcessConstructor class we construct a vector of scalar 
         distributions, according to the distributions and the Karhunen-Loeve decomposition
@@ -354,7 +436,7 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
 
         Arguments
         ---------
-        inputProcessesDistributions : list
+        processesDistributions : list
             list of probabilistic distributions as well as Processes 
 
         Returns
@@ -365,7 +447,7 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         '''
         listNames = list()
         listProbabilisticDistributions = list()
-        inputList = inputProcessesDistributions
+        inputList = processesDistributions
         for i, inp in enumerate(inputList) :
             if isinstance(inp, openturns.DistributionImplementation):
                 name = inp.getName()
@@ -400,11 +482,14 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
                 processAsRandVect = inp.decompositionAsRandomVector.getRandVectorAsOtNormalsList()
                 self.NdGaussianProcessList.append([i, inp]) #so we mkeep in memory the position in the function arguments
                 listProbabilisticDistributions.extend(processAsRandVect)
-        print('Composed distribution built with processes and distributions:',' '.join(listNames))
+        print('Composed distribution built with processes and distributions:','; '.join(listNames))
         composedDistribution = openturns.ComposedDistribution(listProbabilisticDistributions)
         return composedDistribution
 
     def liftFieldFromKLDistribution(self, KLComposedDistribution):
+        '''Function to transform an 2D array of random variables (as we have allways more than one sample)
+        into a collection of random variables and fields, according to the Karhunen-Loeve decomposition
+        '''
         fieldPositions     = [self.NdGaussianProcessList[i][0] for i in range(len(self.NdGaussianProcessList))]
         numberModesFields  = [int(self.NdGaussianProcessList[i][1].decompositionAsRandomVector.n_modes) for i in range(len(self.NdGaussianProcessList))]
         fieldNames         = [self.NdGaussianProcessList[i][1].getName() for i in range(len(self.NdGaussianProcessList))]
@@ -425,8 +510,10 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         return listInputVars
 
     def getInputVariablesName(self):
+        '''Get the name of the input variables and fields
+        '''
         self.inputVarNames.clear()
-        for inp in self.inputProcessesDistributions :
+        for inp in self.processesDistributions :
             self.inputVarNames.append(inp.getName())
         print('Input Variables are (without Karhunen Loeve Decomposition) :\n'," ".join(self.inputVarNames),'\n')
 
@@ -442,20 +529,26 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         print('Output Variables are :\n',self.outputVarNames,'\n')
 
     def getTotalOutputDimension(self):
+        '''As we don't know how many output variables the function returns, and the dimension of
+        each of theme, we analyse it again  
+        '''
         outputDict = self.outputDict
         n_outputs  = len(outputDict.keys())
         shapeList  = list()
         for key in outputDict.keys() : 
             shapeList.append(list(outputDict[key]['shape']))
-        tot_dim = 0
+        tot_dim    = 0
         dim_perOut = list()
         for shape in shapeList : 
-            size = numpy.prod(numpy.array(list(shape)))
+            size    = numpy.prod(numpy.array(list(shape)))
             tot_dim = tot_dim + size
             dim_perOut.append(size)
         return tot_dim, dim_perOut, shapeList
 
     def getKLDecompositionVarNames(self):
+        '''function to retrieve new set of variable names, once the function
+        is depending on the KL decomposition
+        '''
         fieldPositions    = [self.NdGaussianProcessList[i][0] for i in range(len(self.NdGaussianProcessList))]
         numberModesFields = [int(self.NdGaussianProcessList[i][1].decompositionAsRandomVector.n_modes) for i in range(len(self.NdGaussianProcessList))]
         fieldNames        = [self.NdGaussianProcessList[i][1].getName() for i in range(len(self.NdGaussianProcessList))]
@@ -474,22 +567,21 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
     def outputListToMatrix(self, outputList):
         '''Flattens a list of ndarrays, sharing the same first dimension
         '''
-        # Should be ok...
         outputList    = deepcopy(outputList)
         flatArrayList = list()
         n_tot         = int(numpy.array(outputList[0]).shape[0])
-        print('Converting list of outputs into matrix: ')
+        print('Converting list of outputs into matrix...')
         el = 1
         for array in outputList :
             array     = numpy.array(array) #to be sure
             shapeArr  = array.shape
-            print('Element ', el ,' has shape ', array.shape)
+            print('Output variable', el ,'has shape', array.shape)
             dimNew    = int(numpy.prod(shapeArr[1:]))
             arrayFlat = numpy.reshape(array, [n_tot, dimNew])
             flatArrayList.append(arrayFlat)
             el += 1
         flatArray = numpy.hstack(flatArrayList)
-        print('Final shape matrix: ', flatArray.shape)
+        print('Final matrix shape:', flatArray.shape)
 
         return flatArray
 
@@ -497,32 +589,40 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         '''Tranform the flattened image of the output back into it's original
         shape
         '''
-        n_outputs = len(self.outputDict.keys())
+        n_outputs                      = len(self.outputDict.keys())
         tot_dim, dim_perOut, shapeList = self.getTotalOutputDimension()
         assert matrix.shape[1] == tot_dim, "Should be the same if from same function"
         outputList = list()
-        increment = 0
+        increment  = 0
         print('Transforming matrix of shape ',matrix.shape)
-        print('Into list of Ndarrays according to output definition')
+        print('Into list of Ndarrays according to output definition...')
         for i in range(n_outputs) : 
             flattenedOutput = matrix[...,increment : increment+dim_perOut[i]]
-            print('Dimension output ',i, ' is ',dim_perOut[i])
-            print('Intermediary shape is :', flattenedOutput.shape)
-            shape = sum([[matrix.shape[0]],shapeList[i]],[])
-            print('new shape is: ',shape)
+            shape           = sum([[matrix.shape[0]],shapeList[i]],[])
             reshapedOutput  = numpy.squeeze(numpy.reshape(flattenedOutput, shape))
             increment       += dim_perOut[i]-1
             outputList.append(reshapedOutput)
-            print('Output element ',i,' has shape ', reshapedOutput.shape)
         return outputList
 
     def _exec(self, X):
-        #X = deepcopy(X)
+        '''single evaluation, X is a sequence of float, returns a tuple of float,
+        arrays and/or matrices, according to the function
+
+        Note
+        ----
+        These functions are now using the Karhunen-Loeve decomposition
+        '''
         inputProcessNRVs = self.liftFieldFromKLDistribution(X)
         return self.PythonFunction(*inputProcessNRVs)
 
     def _exec_sample(self, X):
-        #X = deepcopy(X)
+        '''multiple evaluations, X is a 2-d sequence of float, returns a 2-d sequence of floats,
+        ndarrays and/or matrices, according to the function
+
+        Note
+        ----
+    ²   These functions are now using the Karhunen-Loeve decomposition
+        '''
         inputProcessNRVs = self.liftFieldFromKLDistribution(X)
         return self.PythonFunctionSample(*inputProcessNRVs)
 

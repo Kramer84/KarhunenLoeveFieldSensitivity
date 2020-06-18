@@ -208,7 +208,7 @@ La difficultée qui découle de cette analyse, est de trouver la manière qui pe
 
 Pour parvenir à faire ce lien, nous avions comme base différentes études sur le sujet, notamment le papier par \cite{Wei2017May}, sur l'analyse de sensibilité sur des modèles ayant des paramètres dépendants du temps. (Les variables étant gouvernées par le temps sont générallement stochastiques, ex: température, effort etc. ) \\
 
-Mais ayant fait une analyse préliminaire de ces indices de sobol', des incohérences dans ces indices ont pu être remarqués. En effet, la somme de l'ensemble des indices du premier ordre doit être inferieure à 1 , et il ne peut y avoir d'indices négatifs. L'apparition d'indices de Sobol' négatifs peut être expliqué par un nombre d'experiences trop faible, nombre d'experiences qui lui même est limité par la mémoire disponible dans l'ordinateur. Néanmoins, ce n'était pas la seule incohérence. Nous vous présentons ici les indices de Sobol' pour la contrainte de Von Mises dans chaque élément de la poutre, et nous essayons de voir l'influence de l'augmentation du nombre d'experiences sur le nombre d'indices de Sobol' qui sont négatifs, ou voir comment varie la somme de l'ensemble des indices de Sobol' associés à un seul élément. Nous utilisons ici $N=100 , N=500, N=1000, N=2500$
+Mais ayant fait une analyse préliminaire de ces indices de sobol', des incohérences dans ces indices ont pu être remarqués. En effet, la somme de l'ensemble des indices du premier ordre doit être inferieure à 1 , et il ne peut y avoir d'indices négatifs. L'apparition d'indices de Sobol' négatifs peut être expliqué par un nombre d'experiences trop faible, nombre d'experiences qui lui même est limité par la mémoire disponible dans l'ordinateur. %Néanmoins, ce n'était pas la seule incohérence. Nous vous présentons ici les indices de Sobol' pour la contrainte de Von Mises dans chaque élément de la poutre, et nous essayons de voir l'influence de l'augmentation du nombre d'experiences sur le nombre d'indices de Sobol' qui sont négatifs, ou voir comment varie la somme de l'ensemble des indices de Sobol' associés à un seul élément. Nous utilisons ici $N=100 , N=500, N=1000, N=2500$
 
 
 
@@ -443,11 +443,13 @@ Finalement, l'on récupère les indices de Sobol' pour les différents élements
       \caption{Sensibilité de la contrainte de Von-Mises aux champs (Module d'Young, diamètre) et variables d'entrée.(densité, position, Norme de la force
       )}
          \label{MaxDeflec}
-\end{figure}
+\end{figure}\\
+
+L'on peut voir qu'il y a très peu d'écarts entre les indices d'ordre total et premier ordre. Les effets d'interaction sont donc très peu présents entre les variables d'entrée.
 
 
 
-\subsection{Example of verbatim text}
+\subsection{Application au modèle NASTRAN d'échangeur thermique}
 
 \begin{verbatim}
         PROGRAM area

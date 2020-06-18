@@ -1,8 +1,9 @@
 import openturns 
 import numpy 
-import matplotlib.pyplot as plt
-from   joblib    import Parallel, delayed, cpu_count
-from   itertools import chain
+import matplotlib.pyplot  as plt
+import matplotlib.patches as mpatches
+from   joblib             import Parallel, delayed, cpu_count
+from   itertools          import chain
 
 
 '''Here we are going to rewrite a vectorized method to calculate the Sobol' Indices,
@@ -206,8 +207,8 @@ class NdGaussianProcessSensitivityIndicesBase(object):
             print('Variance is:', variance, '\n')
 
 
-        ####  lorsqu'il y a une dimension de sortie
-        ####  Ces formules sont utilisées par exemple pour ishigami 
+        # lorsqu'il y a une dimension de sortie
+        # Ces formules sont utilisées par exemple pour ishigami 
         else : 
             covariance = numpy.cov([X,Y])
             print('Covariance is:', covariance)
@@ -224,9 +225,9 @@ class NdGaussianProcessSensitivityIndicesBase(object):
 
 
 
-                        ### lors de l'affichage, nous multiplions la variance par 4
-                        ### pour couvrir l'ensemble de l'intervalle de confiance 
-
+                        ### lors de l'affichage, nous multiplions la variance par 4 ##
+                        ### pour couvrir l'ensemble de l'intervalle de confiance    ##
+                        #######################  PLOTTING   ##########################
 ############################################################################################################
 ############################################################################################################
 ############################################################################################################
@@ -234,8 +235,6 @@ class NdGaussianProcessSensitivityIndicesBase(object):
 #############################
 ####################
 
-from matplotlib.lines import Line2D
-import matplotlib.patches as mpatches
 
 def plotSobolIndicesWithErr(S, errS, varNames, n_dims, Stot=None, errStot=None):
     plt.style.use('classic')
@@ -345,23 +344,12 @@ def plotSobolIndicesWithErr(S, errS, varNames, n_dims, Stot=None, errStot=None):
 
     if len(S.shape) == 3:
         print('The output is a 2D field')
-        
-
     plt.style.use('default')
 
 
-
-
-'''
-class SobolIndicesClass(object):
-    def __init__(self, SobolExperiment, N ,method = 'Saltelli'):
-        self.method            = method
-        self.N                 = N
-        self.experiment        = SobolExperiment
-        self.firstOrderIndices = None
-
-    def getFirstOrderIndices(self):
-        self.firstOrderIndices = NdGaussianProcessSensitivityIndicesBase.getSobolIndices(self.experiment, self.N, self,method)
-
-
-'''
+####################
+#############################
+############################################
+############################################################################################################
+############################################################################################################
+############################################################################################################

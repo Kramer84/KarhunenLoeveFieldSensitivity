@@ -43,25 +43,32 @@ class NdGaussianProcessExperiment(object):
     3 : LowDiscrepancySequence
     4 : SimulatedAnnealingLHS
     '''
+    genTypes = {1 : 'Random', 2 : 'LHS', 3 : 'LowDiscrepancySequence', 4 : 'SimulatedAnnealingLHS'} 
 
     def __init__(self, sampleSize = None, OTPyFunctionWrapper = None, generationType = 1):
         self.OTPyFunctionWrapper  = None
+        self.N                    = None
+        self._genType             = 1
+
         self.composedDistribution = None
         self.inputVarNames        = list()
         self.inputVarNamesKL      = list()
-        self.N                    = None
-        self._genType             = 1
-        print('Generation types:\n1 : Random (default)\n2 : LHS\n3 : LowDiscrepancySequence\n4 : SimulatedAnnealingLHS')
-        if sampleSize is not None:          self.setSampleSize(sampleSize)
+
+        print('Generation types are:\n1 : Random (default)\n2 : LHS\n3 : LowDiscrepancySequence\n4 : SimulatedAnnealingLHS')
+        print('You choose',self.genTypes[self._genType],'generation')
+        if sampleSize          is not None: self.setSize(sampleSize)
         if OTPyFunctionWrapper is not None: self.setOTPyFunctionWrapper(OTPyFunctionWrapper)
-        if generationType is not None:      self.setGenType(generationType)
-        # here we come to the samples
+        if generationType      is not None: self.setGenType(generationType)
+
+        # here we come to the samples (our outputs) 
         self.sample_A             = None
         self.sample_B             = None
         self.dataMixSamples       = list()
         self.experimentSample     = None
 
     def generate(self, **kwargs):
+        '''generate final sample with A and b mixed
+        '''
         assert (self.OTPyFunctionWrapper is not None) and \
                (self.N is not None) , "Please intialise sample size and PythonFunction wrapper"
         self.generateSample(**kwargs)
@@ -69,8 +76,10 @@ class NdGaussianProcessExperiment(object):
         self.getExperiment()
         return self.experimentSample
 
-    def setSampleSize(self, N):
-        assert type(N) is int, "Sample size can only be positive integer"
+    def setSize(self, N):
+        '''set size of the samples 
+        '''
+        assert (type(N) is int) and (N > 0), "Sample size can only be positive integer"
         if self.N is None :
             self.N = N 
         else :
@@ -78,6 +87,8 @@ class NdGaussianProcessExperiment(object):
             self.sample_A = self.sample_B = self.experimentSample = None
 
     def setOTPyFunctionWrapper(self, OTPyFunctionWrapper):
+        '''set the wrapped function from the NdGaussianProcessSensitivity;
+        '''
         self.OTPyFunctionWrapper  = OTPyFunctionWrapper
         self.inputVarNames        = self.OTPyFunctionWrapper.inputVarNames
         self.inputVarNamesKL      = self.OTPyFunctionWrapper.inputVarNamesKL
@@ -85,9 +96,12 @@ class NdGaussianProcessExperiment(object):
         self.getDataFieldAndRV()
 
     def setGenType(self, arg):
+        '''set type of experiment generation
+        '''
         arg = int(arg)
         if arg not in [1,2,3,4]:
-            print('Generation types:\n1 : Random (default)\n2 : LHS\n3 : LowDiscrepancySequence\n4 : SimulatedAnnealingLHS')
+            print('Generation types are :\n1 : Random (default)\n2 : LHS\n3 : LowDiscrepancySequence\n4 : SimulatedAnnealingLHS')
+            print('Please pick one.')
             raise TypeError
         self._genType = arg
 
@@ -109,26 +123,31 @@ class NdGaussianProcessExperiment(object):
             self.dataMixSamples.append(timesInList)
 
     def getExperiment(self):
-        n_vars = len(self.inputVarNames)
-        N = self.N
-        self.experimentSample            = numpy.tile(self.sample_A,[2+n_vars,1])
-        self.experimentSample[N:2*N,...] = self.sample_B
-        jump    = 2*N
-        jumpDim = 0
+        '''Here we mix the samples together 
+        '''
+        n_vars                  = len(self.inputVarNames)
+        N                       = self.N
+        self.experimentSample   = numpy.tile(self.sample_A,[2+n_vars,1])
+        self.experimentSample[N :2*N,...] = self.sample_B
+        jump                    = 2*N
+        jumpDim                 = 0
         for i in range(n_vars):
             self.experimentSample[jump+N*i:jump+N*(i+1), jumpDim:jumpDim+self.dataMixSamples[i]] = \
                     self.sample_B[...,                   jumpDim:jumpDim+self.dataMixSamples[i]]
             jumpDim += self.dataMixSamples[i]
 
     def ramp(self,X):
-        if X >= 0: return X
-        else:      return 0
+        '''simple ramp function
+        '''
+        if X >= 0 : return X
+        else :      return 0
 
     def generateSample(self, **kwargs):
+        '''Generation of two samples A and B using diverse methods
+        '''
         distribution = self.composedDistribution
         method       = self._genType
-        methodDict   = {1:'Random (default)', 2:'LHS', 3:'LowDiscrepancySequence', 4:'SimulatedAnnealingLHS'}
-        print('Choosen generation method is',methodDict[method])
+        print('Choosen generation method is',self.genTypes[method])
         N2           = 2*self.N 
         if   method is 1 :
             sample = distribution.getSample(N2)
