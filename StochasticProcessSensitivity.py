@@ -10,7 +10,7 @@ from   functools                             import wraps
 import atexit
 import gc
 
-class NdGaussianProcessSensitivityAnalysis(object):
+class StochasticProcessSensitivityAnalysis(object):
     '''Custom class to do sensitivity analysis on complex models
         
         This class will guide through the process of doing sensitivity
@@ -111,7 +111,7 @@ class NdGaussianProcessSensitivityAnalysis(object):
         print('number of samples for sobol experiment = ', sobolBatchSize, '\n')
         self.sobolBatchSize     = sobolBatchSize
         self._inputDesignNC     = inputDesign
-        print('input design is: ',inputDesign)
+        print('input design shape is: ',inputDesign.shape)
 
     def getOutputDesignAndPostprocess(self, **kwargs):
         assert self._inputDesignNC is not None, ""
@@ -237,7 +237,7 @@ class NdGaussianProcessSensitivityAnalysis(object):
         if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
             self._wrapFunc() 
 
-    def setF_batch(self, f_batchEval):
+    def setBatchFunc(self, f_batchEval):
         '''Python function taking as an input random variables and fields
         '''
         s00, s01, s02, s03, s04 = self._getState()
@@ -247,7 +247,7 @@ class NdGaussianProcessSensitivityAnalysis(object):
         if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
             self._wrapFunc() 
 
-    def setF_single(self, f_singleEval):
+    def setSingleFunc(self, f_singleEval):
         '''Python function taking as an input random variables and fields
         '''
         s00, s01, s02, s03, s04 = self._getState()
@@ -263,8 +263,6 @@ class NdGaussianProcessSensitivityAnalysis(object):
     #############                   Functions to retrieve the sensitivity analysis
     ########                    results.
     ######
-
-
 
     def getSensitivityResults(self, methodOfChoice = 'Saltelli', returnStuff = False):
         '''get sobol indices for each element of the output
@@ -359,6 +357,9 @@ class NdGaussianProcessSensitivityAnalysis(object):
         mesh            = mesherObj.build(grid_interval)
         mesh.setName(str(dimension)+'D_Grid')
         return mesh
+
+
+
 
 
 #######################################################################################

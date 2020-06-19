@@ -6,7 +6,7 @@ import tempfile     #for storing the samples as temporary memmaps
 import shutil
 from   joblib       import  Parallel, delayed, cpu_count
 
-class NdGaussianProcessConstructor(openturns.Process):
+class StochasticProcessConstructor(openturns.Process):
     '''Class to create up to 4-dimensional gaussian processes.
 
     It has a bit more flexibility than the low level openturns classes, 

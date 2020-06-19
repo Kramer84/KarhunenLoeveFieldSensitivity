@@ -16,7 +16,7 @@ and inputVarNamesKL. Later, this can later be modified to work with other inputs
 '''
 
 
-class NdGaussianProcessExperiment(object):
+class StochasticProcessSensitivityExperiment(object):
     '''Class to generate experiments for the sensitivity analysis.
 
     This uses the fact that we have fields decomposed in a series of
@@ -147,7 +147,6 @@ class NdGaussianProcessExperiment(object):
         '''
         distribution = self.composedDistribution
         method       = self._genType
-        print('Choosen generation method is',self.genTypes[method])
         N2           = 2*self.N 
         if   method is 1 :
             sample = distribution.getSample(N2)
