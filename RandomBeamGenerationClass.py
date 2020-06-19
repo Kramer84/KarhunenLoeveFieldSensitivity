@@ -7,7 +7,6 @@ from    PIL                          import  Image
 from    anastruct.fem.system         import  SystemElements, Vertex
 import  matplotlib.pyplot            as      pyplot
 from    joblib                       import  Parallel, delayed, cpu_count
-import  NdGaussianProcessConstructor as      ngpc
 
 '''
 

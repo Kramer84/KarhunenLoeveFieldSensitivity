@@ -45,10 +45,10 @@ class StochasticProcessSensitivityExperiment(object):
     '''
     genTypes = {1 : 'Random', 2 : 'LHS', 3 : 'LowDiscrepancySequence', 4 : 'SimulatedAnnealingLHS'} 
 
-    def __init__(self, sampleSize = None, OTPyFunctionWrapper = None, generationType = 1):
+    def __init__(self, size = None, OTPyFunctionWrapper = None, generationType = 1):
         self.OTPyFunctionWrapper  = None
         self.N                    = None
-        self._genType             = 1
+        self._genType             = generationType
 
         self.composedDistribution = None
         self.inputVarNames        = list()
@@ -56,7 +56,7 @@ class StochasticProcessSensitivityExperiment(object):
 
         print('Generation types are:\n1 : Random (default)\n2 : LHS\n3 : LowDiscrepancySequence\n4 : SimulatedAnnealingLHS')
         print('You choose',self.genTypes[self._genType],'generation')
-        if sampleSize          is not None: self.setSize(sampleSize)
+        if size          is not None: self.setSize(size)
         if OTPyFunctionWrapper is not None: self.setOTPyFunctionWrapper(OTPyFunctionWrapper)
         if generationType      is not None: self.setGenType(generationType)
 

@@ -319,7 +319,13 @@ class StochasticProcessConstructor(openturns.Process):
         ----
         Based on the openturns example : Metamodel of a field function
         '''
-        assert(self.GaussianProcess is not None and self.mesh is not None), "First create process"
+        try :
+            assert(self.GaussianProcess is not None and self.mesh is not None), "First create process"
+        except AssertionError :
+            if self.mesh is None :
+                raise Exception('No mesh, create one')
+            if self.GaussianProcess is None:
+                self.setGaussianProcess()
         assert method in ['P1Algorithm', 'QuadratureAlgorithm'], "Methods available : 'P1Algorithm', 'QuadratureAlgorithm'"
         if method is 'P1Algorithm' :
             KarhunenLoeveAlgorithm = openturns.KarhunenLoeveP1Algorithm(self.mesh,

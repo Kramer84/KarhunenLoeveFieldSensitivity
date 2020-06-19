@@ -2,11 +2,10 @@ import openturns
 import uuid 
 import numpy
 from   typing                                import Callable, List, Tuple, Optional, Any, Union
-from   copy                                  import deepcopy
-import NdGaussianProcessConstructor          as     ngpc
-import NdGaussianProcessExperimentGeneration as     ngpeg
-import NdGaussianProcessSensitivityIndices   as     ngpsi 
-from   functools                             import wraps
+from   copy                                  import deepcopy, copy
+import StochasticProcessConstructor          as     ngpc
+import StochasticProcessExperimentGeneration as     SPEG
+import StochasticProcessSensitivityIndices   as     ngpsi 
 import atexit
 import gc
 
@@ -17,15 +16,15 @@ class StochasticProcessSensitivityAnalysis(object):
         analysis on functions that take as an input random variables
         and Gaussian Processes, and output fields as well as scalars.
 
-        To make the analysis possible, some informations are required in 
-        advance, mainly the shape of the inputs, the laws or processes 
+        To make the analysis possible, some informations are required in
+        advance, mainly the shape of the inputs, the laws or processes
         that these inputs follow, as well as the nature of the outputs.
         This informations are added by passing a list of objects defined in
         an other class: NdGaussianProcessConstructor
         
-        The function indicated can be any python function, but not the 
+        The function indicated can be any python function, but not the
         openTurnsPythonFunction type, as this is done internaly. The
-        function also needs to take as an input the full field, not the 
+        function also needs to take as an input the full field, not the
         modified function taking in decompositions like kahrunen loeve.
 
         Attributes:
@@ -54,7 +53,7 @@ class StochasticProcessSensitivityAnalysis(object):
             size     : int
                 size of the sample for the sensitivity analysis
     '''
-    def __init__(self, processesDistributions : Optional[list]     = None , ###  
+    def __init__(self, processesDistributions : Optional[list]     = None , ###
                        outputVariables        : Optional[dict]     = None , ##  While being optional in the init method
                        batchFunction          : Optional[Callable] = None , ##  it is still necessary to set the variables 
                        singleFunction         : Optional[Callable] = None , ##  through the .set* methods
@@ -62,8 +61,8 @@ class StochasticProcessSensitivityAnalysis(object):
 
         self.processesDistributions = processesDistributions ###  
         self.outputVariables        = outputVariables        ##  variables to be set to make class work      
-        self.batchFunction          = batchFunction            ##      
-        self.singleFunction         = singleFunction           ##      
+        self.batchFunction          = batchFunction          ##      
+        self.singleFunction         = singleFunction         ##      
         self.size                   = size                   ###     
         
         self.wrappedFunction        = None   #wrapper around functions passed 
@@ -97,7 +96,7 @@ class StochasticProcessSensitivityAnalysis(object):
     #####################################################################################
     ##################
     #############                   Everything concerning the experiment generation and
-    ########                     model evaluation. 
+    ########                     model evaluation.
     ######
 
     def run(self, **kwargs):
@@ -109,10 +108,14 @@ class StochasticProcessSensitivityAnalysis(object):
                 print('Please initialize the attributes of the class by using the .set methods')
                 state = self._getState()
                 attributes = ['list of processes & distributions', 'output variables dictionary', 'batch python function', 'single python function', 'sample size']
-                
 
-    def prepareSobolIndicesExperiment(self, gen_type = 1,  **kwargs):
-        sobolExperiment         = ngpeg.NdGaussianProcessExperiment(self.size, self.wrappedFunction, gen_type)
+
+    def prepareSobolIndicesExperiment(self, **kwargs):
+        if 'generationType' not in kwargs : generationType = 1 
+        else : generationType = kwargs['generationType'] 
+        sobolExperiment         = SPEG.StochasticProcessSensitivityExperiment(size                = self.size, 
+                                                                              OTPyFunctionWrapper = self.wrappedFunction, 
+                                                                              generationType      = generationType)
         inputDesign             = sobolExperiment.generate(**kwargs)
         sobolBatchSize          = len(inputDesign)
         print('number of samples for sobol experiment = ', sobolBatchSize, '\n')
@@ -124,7 +127,7 @@ class StochasticProcessSensitivityAnalysis(object):
         assert self._inputDesignNC is not None, ""
         assert self.batchFunction is not None or self.singleFunction is not None , ""
         if self.batchFunction is not None : 
-            inputDes         = deepcopy(self._inputDesignNC)
+            inputDes         = copy(self._inputDesignNC)
             outputDesign     = self.wrappedFunction(inputDes)
         else :
           ## We first have to implement the multiprocessing of the single evaluation model
@@ -142,7 +145,7 @@ class StochasticProcessSensitivityAnalysis(object):
            We not only have to erase the value with the nan, but all the corresponding
            permutations. 
         '''
-        outputList           = deepcopy(self._outputDesignListNC)
+        outputList           = copy(self._outputDesignListNC)
         ## We flatten all the realisation of each sample, to check if we have np.nans
         outputMatrix         = self.wrappedFunction.outputListToMatrix(outputList)
         inputArray           = numpy.array(deepcopy(self._inputDesignNC)) 
@@ -169,7 +172,7 @@ class StochasticProcessSensitivityAnalysis(object):
                     combinedMatrix[p, ...] = newCombinedMatrix[q, ...]
             try :
                 assert numpy.allclose(combinedMatrix0,combinedMatrix, equal_nan=True) == False, "after correction they should be some difference"
-                assert numpy.isnan(combinedMatrix).any() == False, "should have no nan anymore"
+                assert numpy.isnan(combinedMatrix).any() == False,                              "should have no nan anymore"
             except : 
                 whereNan             = numpy.argwhere(numpy.isnan(deepcopy(combinedMatrix)))[...,0]
                 columnIdx            = numpy.atleast_1d(numpy.squeeze(numpy.unique(whereNan)))
@@ -188,11 +191,13 @@ class StochasticProcessSensitivityAnalysis(object):
             print('\nNo errors while processing, the function has returned no np.nan.\n')
 
     def _regenerate_missing_vals_safe(self, **kwargs): 
+        if 'generationType' not in kwargs : generationType = 1 
+        else : generationType = kwargs['generationType']         
         composedDistribution = self.wrappedFunction.KLComposedDistribution
         exit                 = 1
         tries                = 0
         while exit != 0:
-            sobolReg      = ngpeg.NdGaussianProcessExperiment(1,self.wrappedFunction)
+            sobolReg      = SPEG.StochasticProcessSensitivityExperiment(1, self.wrappedFunction, generationType)
             inputDes      = sobolReg.generate(**kwargs)
             outputDes     = self.wrappedFunction(inputDes)
             inputDes      = numpy.array(inputDes).tolist()
@@ -413,14 +418,14 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
 
 
     '''
-    def __init__(self, f_batchEval            : Optional[Callable] = None, 
-                       f_singleEval           : Optional[Callable] = None,
+    def __init__(self, batchFunction          : Optional[Callable] = None, 
+                       singleFunction         : Optional[Callable] = None,
                        processesDistributions : Optional[list]     = None , 
                        outputDict             : Optional[dict]     = None):
         self.processesDistributions = processesDistributions
         self.outputDict             = outputDict
-        self.PythonFunctionSample   = f_batchEval
-        self.PythonFunction         = f_singleEval
+        self.PythonBatchFunction    = batchFunction
+        self.PythonSingleFunction   = singleFunction
 
         self.NdGaussianProcessList  = list()
         self.inputVarNames          = list()
@@ -621,7 +626,7 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         These functions are now using the Karhunen-Loeve decomposition
         '''
         inputProcessNRVs = self.liftFieldFromKLDistribution(X)
-        return self.PythonFunction(*inputProcessNRVs)
+        return self.PythonSingleFunction(*inputProcessNRVs)
 
     def _exec_sample(self, X):
         '''multiple evaluations, X is a 2-d sequence of float, returns a 2-d sequence of floats,
@@ -632,7 +637,7 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
     ²   These functions are now using the Karhunen-Loeve decomposition
         '''
         inputProcessNRVs = self.liftFieldFromKLDistribution(X)
-        return self.PythonFunctionSample(*inputProcessNRVs)
+        return self.PythonBatchFunction(*inputProcessNRVs)
 
 
 #######################################################################################

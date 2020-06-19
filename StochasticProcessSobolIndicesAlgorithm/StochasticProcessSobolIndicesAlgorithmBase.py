@@ -6,7 +6,7 @@ from   typing             import Callable, List, Tuple, Optional, Any, Union
 from   joblib             import Parallel, delayed, cpu_count
 from   itertools          import chain
 
-class FieldSobolIndicesAlgorithmBase(object):
+class StochasticProcessSobolIndicesAlgorithmBase(object):
     '''Basic methods to calculate unitary sensitivity indices
     We first set the samples Y_A and Y_B and calculate the means and
     variances of those, so they don't have to be calculated again. 
@@ -26,7 +26,7 @@ class FieldSobolIndicesAlgorithmBase(object):
         inputListParallel = list()
         SobolExperiment0  = SobolExperiment
         dim               = 1
-        psi_fo, psi_to    = NdGaussianProcessSensitivityIndicesBase.SymbolicSaltelliIndices(1)
+        psi_fo, psi_to    = StochasticProcessSobolIndicesAlgorithmBase.SymbolicSaltelliIndices(1)
         for i in range(nSamps):
             #Centering
             SobolExperiment[i*N:(i+1)*N,...] = numpy.subtract(SobolExperiment[i*N:(i+1)*N,...],
@@ -44,14 +44,14 @@ class FieldSobolIndicesAlgorithmBase(object):
         SobolExperiment0 = SobolExperiment
         if dim == (): dim = 1
         print('There are',nIndices,'indices to get in',dim,'dimensions with',SobolExperiment[0].size,'elements')
-        SobolExperiment, inputListParallel = NdGaussianProcessSensitivityIndicesBase.centerSobolExp(SobolExperiment, N)
+        SobolExperiment, inputListParallel = StochasticProcessSobolIndicesAlgorithmBase.centerSobolExp(SobolExperiment, N)
         if method is 'Saltelli':
             '''SobolIndices = Parallel(
                                     n_jobs = cpu_count())(
-                                    delayed(NdGaussianProcessSensitivityIndicesBase.SaltelliIndices)(
+                                    delayed(StochasticProcessSobolIndicesAlgorithmBase.SaltelliIndices)(
                                     *inputListParallel[i]) for i in range(nIndices)
                                     )'''
-            SobolIndices       = [NdGaussianProcessSensitivityIndicesBase.SaltelliIndices(*inputListParallel[i]) for i in range(nIndices)]
+            SobolIndices       = [StochasticProcessSobolIndicesAlgorithmBase.SaltelliIndices(*inputListParallel[i]) for i in range(nIndices)]
             SobolIndices, SobolIndicesTot, VarSobolIndices, VarSobolIndicesTot = map(list,zip(*SobolIndices))
             print('Indices successfully calculated')
             SobolIndices       = numpy.stack(SobolIndices)
@@ -82,7 +82,7 @@ class FieldSobolIndicesAlgorithmBase(object):
                     numpy.divide(Ni*numpy.sum(numpy.multiply(Y_Ac,Y_Ec),axis=0),
                                                      Ni*numpy.sum(numpy.square(Y_Ac)))
                                                      )
-        varS, varS_tot = NdGaussianProcessSensitivityIndicesBase.computeVariance(Y_Ac, Y_Bc, Y_Ec, N, psi_fo, psi_to)
+        varS, varS_tot = StochasticProcessSobolIndicesAlgorithmBase.computeVariance(Y_Ac, Y_Bc, Y_Ec, N, psi_fo, psi_to)
         return S, S_tot, varS, varS_tot
 
     @staticmethod
@@ -141,8 +141,8 @@ class FieldSobolIndicesAlgorithmBase(object):
         Y_to = numpy.squeeze(numpy.square(YAc))  
 
         print('data for variance calculus prepared \n X_fo shape is', X_fo.shape, 'Y_fo shape is', Y_fo.shape, '\n')
-        varianceFO = NdGaussianProcessSensitivityIndicesBase.computeSobolVariance(X_fo, Y_fo, psi_fo, N)
-        varianceTO = NdGaussianProcessSensitivityIndicesBase.computeSobolVariance(X_to, Y_to, psi_to, N)
+        varianceFO = StochasticProcessSobolIndicesAlgorithmBase.computeSobolVariance(X_fo, Y_fo, psi_fo, N)
+        varianceTO = StochasticProcessSobolIndicesAlgorithmBase.computeSobolVariance(X_to, Y_to, psi_to, N)
 
         shape      = baseShape[1:]
         if len(baseShape)<=1 : shape=(1,)
