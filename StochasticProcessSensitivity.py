@@ -56,14 +56,14 @@ class StochasticProcessSensitivityAnalysis(object):
     '''
     def __init__(self, processesDistributions : Optional[list]     = None , ###  
                        outputVariables        : Optional[dict]     = None , ##  While being optional in the init method
-                       f_batchEval            : Optional[Callable] = None , ##  it is still necessary to set the variables 
-                       f_singleEval           : Optional[Callable] = None , ##  through the .set* methods
+                       batchFunction          : Optional[Callable] = None , ##  it is still necessary to set the variables 
+                       singleFunction         : Optional[Callable] = None , ##  through the .set* methods
                        size                   : Optional[int]      = None): ###
 
         self.processesDistributions = processesDistributions ###  
         self.outputVariables        = outputVariables        ##  variables to be set to make class work      
-        self.f_batchEval            = f_batchEval            ##      
-        self.f_singleEval           = f_singleEval           ##      
+        self.batchFunction          = batchFunction            ##      
+        self.singleFunction         = singleFunction           ##      
         self.size                   = size                   ###     
         
         self.wrappedFunction        = None   #wrapper around functions passed 
@@ -83,15 +83,15 @@ class StochasticProcessSensitivityAnalysis(object):
             self._wrapFunc()
 
     def _wrapFunc(self):
-        wrapFunc = OpenturnsPythonFunctionWrapper(f_batchEval     = self.f_batchEval,
-                                           f_singleEval           = self.f_singleEval, 
+        wrapFunc = OpenturnsPythonFunctionWrapper(batchFunction   = self.batchFunction,
+                                           singleFunction         = self.singleFunction, 
                                            processesDistributions = self.processesDistributions,
                                            outputDict             = self.outputVariables)
         self.wrappedFunction = wrapFunc
         print('Program initialised, ready for sensitivity analysis. You can now proceed to prepare the Sobol indices experiment\n')
 
     def _getState(self):
-        return (self.processesDistributions!=None), (self.outputVariables!=None), (self.f_batchEval!=None), (self.f_singleEval!=None), (self.size!=None)
+        return (self.processesDistributions!=None), (self.outputVariables!=None), (self.batchFunction!=None), (self.singleFunction!=None), (self.size!=None)
 
 
     #####################################################################################
@@ -101,8 +101,15 @@ class StochasticProcessSensitivityAnalysis(object):
     ######
 
     def run(self, **kwargs):
-        self.prepareSobolIndicesExperiment(**kwargs)
-        self.getOutputDesignAndPostprocess(**kwargs)
+        try :
+            self.prepareSobolIndicesExperiment(**kwargs)
+            self.getOutputDesignAndPostprocess(**kwargs)
+        except :
+            if self.wrappedFunction is None :
+                print('Please initialize the attributes of the class by using the .set methods')
+                state = self._getState()
+                attributes = ['list of processes & distributions', 'output variables dictionary', 'batch python function', 'single python function', 'sample size']
+                
 
     def prepareSobolIndicesExperiment(self, gen_type = 1,  **kwargs):
         sobolExperiment         = ngpeg.NdGaussianProcessExperiment(self.size, self.wrappedFunction, gen_type)
@@ -115,8 +122,8 @@ class StochasticProcessSensitivityAnalysis(object):
 
     def getOutputDesignAndPostprocess(self, **kwargs):
         assert self._inputDesignNC is not None, ""
-        assert self.f_batchEval is not None or self.f_singleEval is not None , ""
-        if self.f_batchEval is not None : 
+        assert self.batchFunction is not None or self.singleFunction is not None , ""
+        if self.batchFunction is not None : 
             inputDes         = deepcopy(self._inputDesignNC)
             outputDesign     = self.wrappedFunction(inputDes)
         else :
@@ -237,21 +244,21 @@ class StochasticProcessSensitivityAnalysis(object):
         if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
             self._wrapFunc() 
 
-    def setBatchFunc(self, f_batchEval):
+    def setBatchFunc(self, batchFunction):
         '''Python function taking as an input random variables and fields
         '''
         s00, s01, s02, s03, s04 = self._getState()
-        self.f_batchEval = f_batchEval
+        self.batchFunction = batchFunction
         s10, s11, s12, s13, s14 = self._getState()
         state0, state1, state2, state3, state4 = (s00 or s10), (s01 or s11), (s02 or s12), (s03 or s13), (s04 or s14)
         if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
             self._wrapFunc() 
 
-    def setSingleFunc(self, f_singleEval):
+    def setSingleFunc(self, singleFunction):
         '''Python function taking as an input random variables and fields
         '''
         s00, s01, s02, s03, s04 = self._getState()
-        self.f_singleEval = f_singleEval
+        self.singleFunction = singleFunction
         s10, s11, s12, s13, s14 = self._getState()
         state0, state1, state2, state3, state4 = (s00 or s10), (s01 or s11), (s02 or s12), (s03 or s13), (s04 or s14)
         if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
@@ -626,67 +633,6 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         '''
         inputProcessNRVs = self.liftFieldFromKLDistribution(X)
         return self.PythonFunctionSample(*inputProcessNRVs)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#######################################################################################
-#######################################################################################
-#######################################################################################
-
-class senstivityAnalysisWrapper(object):
-    '''Wrapper to easily have access to the different sensitivty indices
-
-    Necessary as the NdGaussianProcessSensitivityAnalysis.getSensitivityAnalysisResults 
-    method returns a list of objects, that can be openturns sensitivityAnalysis objects,
-    or arrays of those same objects. Thus the original methods can't be directly used.
-
-
-    Arguments
-    ---------
-    sensitivityAnalysisList : list
-        list of np.arrays of openturns.sensitivityAnalysis objects
-
-    _description : list of strings
-        list of all the variable names of the sensitivity analysis
-        (name of the Karhunen Loève variables and other RVs)
-    '''
-    def __init__(self, sensitivityAnalysisList, description):
-        self.sensitivityAnalysisList = sensitivityAnalysisList
-        self._description            = description
-        self._dimInput               = len(self._description)
-        self._dimOutput              = len(self.sensitivityAnalysisList)
-        self.firstOrderIndices       = None 
-   
-    def getFirstOrderIndices(self):
-        '''Returns a list of the sensitivty indices arrays (Sobol)
-        '''
-        firstOrderIndicesList = list()
-        for i in range(self._dimOutput):
-            sensitivityOutput = self.sensitivityAnalysisList[i]
-            assert type(sensitivityOutput) == numpy.ndarray , ""
-            shape_output      = sensitivityOutput.shape
-            flat_shape        = int(numpy.prod(shape_output))
-            flattenedOutput   = numpy.reshape(sensitivityOutput, list([flat_shape]))
-            tempIndArray      = numpy.empty(list([self._dimInput,flat_shape]))
-            for k in range(flat_shape):
-                tempIndArray[...,k] = numpy.array(flattenedOutput[k].getFirstOrderIndices())
-            reshapeIndicesArray = numpy.reshape(tempIndArray,list([self._dimInput]).extend(list(shape_output)))
-            firstOrderIndicesList.append(reshapeIndicesArray)
-        self.firstOrderIndices  = firstOrderIndicesList
-
 
 
 #######################################################################################

@@ -1,10 +1,6 @@
 import openturns 
 import numpy 
-import matplotlib.pyplot  as     plt
-import matplotlib.patches as     mpatches
 from   typing             import Callable, List, Tuple, Optional, Any, Union
-from   joblib             import Parallel, delayed, cpu_count
-from   itertools          import chain
 import FieldSobolIndicesAlgorithm.FieldSobolIndicesAlgorithmBase as fsiab
 
 class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImplementation):
@@ -21,13 +17,14 @@ class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImpl
         self.inputDescription   = openturns.Description(['X'+str(i) for i in range(self.dim)])
         print('Implicit description:',self.inputDescription)
 
+        super(SaltelliSensitivityAlgorithmField, self).__init__()
+
         self._FirstOrderIndices = None
         self._TotalOrderIndices = None
         
         self._varFirstOrder     = None 
-        self._varTotalOrder     = None
+        self._varTotalOrder     = None        
 
-        super(SaltelliSensitivityAlgorithmField, self).__init__()
 
     def _runAlgorithm(self, method='Saltelli'):
         if (self._FirstOrderIndices is None) and (self._TotalOrderIndices is None) and (self._varFirstOrder is None) and (self._varTotalOrder is None) :

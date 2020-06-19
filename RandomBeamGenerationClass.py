@@ -3,70 +3,17 @@ import  openturns
 import  pickle
 import  io
 import  os
-import  traceback
-import  logging
-from    time                         import  time
-from    copy                         import  deepcopy 
 from    PIL                          import  Image
 from    anastruct.fem.system         import  SystemElements, Vertex
-from    anastruct.basic              import  FEMException
 import  matplotlib.pyplot            as      pyplot
 from    joblib                       import  Parallel, delayed, cpu_count
-from    joblib.externals.loky        import  set_loky_pickler
-from    joblib                       import  parallel_backend
-from    joblib                       import  wrap_non_picklable_objects
 import  NdGaussianProcessConstructor as      ngpc
-import  customWraps                  as      cw
-
-########################################################################################################################################################################################
-########################################################################################################################################################################################
-########################################################################################################################################################################################
-
-#ssh simady@neo-l64
-#
-#definition of the random processes :
-#the nodes of the random processes are the elements of the beam !!
 
 '''
-# process governing the young modulus for each element      (MPa)
-process_E = ngpc.NdGaussianProcessConstructor(dimension=1,grid_shape=[[0,1000,100],],covariance_model={'NameModel':'MaternModel','amplitude':5000.,'scale':300,'nu':13/3},trend_arguments=['x'],trend_function=210000)
-process_E.setName('E_')
-_=process_E.getSample(1000)
-process_E.getFieldProjectionOnEigenmodes()
-process_E.getDecompositionAsRandomVector()
 
+Tutorial in : notebook/Demo_Analyse_Sensibilite_poutre.ipynb
 
-# process governing the diameter for each element          (mm)
-process_D = ngpc.NdGaussianProcessConstructor(dimension=1,grid_shape=[[0,1000,100],],covariance_model={'NameModel':'MaternModel','amplitude':.3,'scale':250,'nu':7.4/3},trend_arguments=['x'],trend_function=10)
-process_D.setName('D_')
-_=process_D.getSample(1000)
-process_D.getFieldProjectionOnEigenmodes()
-process_D.getDecompositionAsRandomVector()
-
-
-# process for the density of the material (kg/m³)
-rho         = 7850.
-sigma       = 250
-nameD       = 'Rho'
-process_Rho = ngpc.NormalDistribution(mu = rho, sigma = sigma, name = nameD)
-
-# process for the position of the force   (mm) 
-middle       = 500
-sigma_f      = 50
-namePos     = 'FP'
-process_Fpos = ngpc.NormalDistribution(mu = middle, sigma = sigma_f, name = namePos)
-
-# process for the norm of the force    (N)
-muForce       = 100
-sigma_Fnor    = 15
-nameNor       = 'FN'
-process_Fnorm = ngpc.NormalDistribution(mu = muForce, sigma = sigma_Fnor, name = nameNor)
 '''
-
-########################################################################################################################################################################################
-########################################################################################################################################################################################
-########################################################################################################################################################################################
-
 
 class RandomBeam_anastruct(object):
     '''Class to create a finite element beam where each parameter is random 
@@ -701,7 +648,7 @@ class sampleAndSoloFunctionWrapper(object):
                                                      RV_FNorm)
         self.results = None
 
-    @cw.timing
+    
     def randomBeamFunctionSample(self,
                                  random_young_modulus, 
                                  random_diameter, 
@@ -718,7 +665,7 @@ class sampleAndSoloFunctionWrapper(object):
         self.results   = result
         return vonMisesStress, maxDeflection
 
-    @cw.timing
+    
     def randomBeamFunctionSolo(self,
                                random_young_modulus, 
                                random_diameter, 
@@ -737,29 +684,5 @@ class sampleAndSoloFunctionWrapper(object):
         vonMisesCriteria          = numpy.sqrt(numpy.square(maxbendingStress) + numpy.multiply(numpy.square(shearStress), 3))
         maxDeflection             = numpy.abs(np.min(deflection))
         return vonMisesCriteria, maxDeflection     
-
-
-
-'''
-from importlib import reload
-import RandomBeamGenerationClass as rbgc
-randomBeam_test = rbgc.RandomBeam_anastruct()
-randomBeam_test.monteCarlo_experience(10000)
-images = randomBeam_test.plot_monte_carlo_res_mult()
-'''
-
-'''
-import openturns as ot
-from importlib import reload
-import RandomBeamGenerationClass as rbgc
-
-function =rbgc.OpenturnsFunctionWrapperRandomBeam()
-size = 1000
-sobolExp = ot.SobolIndicesExperiment(function.composedDistribution, size)
-inputDesign = sobolExp.generate()
-inputDesign.setDescription(function.getInputDescription())
-inputDesign.getSize()
-outputDesign = function(inputDesign)
-'''
 
 
