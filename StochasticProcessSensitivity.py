@@ -3,9 +3,8 @@ import uuid
 import numpy
 from   typing                                import Callable, List, Tuple, Optional, Any, Union
 from   copy                                  import deepcopy, copy
-import StochasticProcessConstructor          as     ngpc
 import StochasticProcessExperimentGeneration as     SPEG
-import StochasticProcessSensitivityIndices   as     ngpsi 
+import StochasticProcessSensitivityIndices   as     SPSI 
 import atexit
 import gc
 
@@ -37,9 +36,9 @@ class StochasticProcessSensitivityAnalysis(object):
                 dictionary containg the parameters for the output processes
                     dictModel = {'outputField_1' :
                                  {
-                                  'nameField'    : str,
-                                  'position'     : int, #position in output
-                                  'shape'        : list
+                                  'name'     : str,
+                                  'position' : int, #position in output
+                                  'shape'    : list
                                  },
                                 }
 
@@ -65,17 +64,17 @@ class StochasticProcessSensitivityAnalysis(object):
         self.singleFunction         = singleFunction         ##      
         self.size                   = size                   ###     
         
-        self.wrappedFunction        = None   #wrapper around functions passed 
+        self._wrappedFunction       = None   #wrapper around functions passed 
         
-        self.sobolBatchSize         = None
-        self.inputDesign            = None
-        self.outputDesignList       = None 
-        self.sensitivityResults     = None 
+        self.sobolBatchSize             = None
+        self.inputDesign                = None
+        self.outputDesignList           = None 
+        self.SensitivityAnalysisResults = None 
         
-        self._errorWNans            = 0
-        self._inputDesignNC         = None   #non corrected designs => the functions are expected to malfunction sometimes and to return nan values 
-        self._outputDesignListNC    = None   #non corrected designs  
-        self._designsWErrors        = None
+        self._errorWNans         = 0
+        self._inputDesignNC      = None   #non corrected designs => the functions are expected to malfunction sometimes and to return nan values 
+        self._outputDesignListNC = None   #non corrected designs  
+        self._designsWErrors     = None
 
         state = self._getState()
         if (state[0] is True) and (state[1] is True) and ((state[2] is True) or (state[3] is True)) and (state[4] is True):
@@ -86,7 +85,7 @@ class StochasticProcessSensitivityAnalysis(object):
                                            singleFunction         = self.singleFunction, 
                                            processesDistributions = self.processesDistributions,
                                            outputDict             = self.outputVariables)
-        self.wrappedFunction = wrapFunc
+        self._wrappedFunction = wrapFunc
         print('Program initialised, ready for sensitivity analysis. You can now proceed to prepare the Sobol indices experiment\n')
 
     def _getState(self):
@@ -104,7 +103,7 @@ class StochasticProcessSensitivityAnalysis(object):
             self.prepareSobolIndicesExperiment(**kwargs)
             self.getOutputDesignAndPostprocess(**kwargs)
         except :
-            if self.wrappedFunction is None :
+            if self._wrappedFunction is None :
                 print('Please initialize the attributes of the class by using the .set methods')
                 state = self._getState()
                 attributes = ['list of processes & distributions', 'output variables dictionary', 'batch python function', 'single python function', 'sample size']
@@ -114,7 +113,7 @@ class StochasticProcessSensitivityAnalysis(object):
         if 'generationType' not in kwargs : generationType = 1 
         else : generationType = kwargs['generationType'] 
         sobolExperiment         = SPEG.StochasticProcessSensitivityExperiment(size                = self.size, 
-                                                                              OTPyFunctionWrapper = self.wrappedFunction, 
+                                                                              OTPyFunctionWrapper = self._wrappedFunction, 
                                                                               generationType      = generationType)
         inputDesign             = sobolExperiment.generate(**kwargs)
         sobolBatchSize          = len(inputDesign)
@@ -128,7 +127,7 @@ class StochasticProcessSensitivityAnalysis(object):
         assert self.batchFunction is not None or self.singleFunction is not None , ""
         if self.batchFunction is not None : 
             inputDes         = copy(self._inputDesignNC)
-            outputDesign     = self.wrappedFunction(inputDes)
+            outputDesign     = self._wrappedFunction(inputDes)
         else :
           ## We first have to implement the multiprocessing of the single evaluation model
             raise NotImplementedError
@@ -147,9 +146,9 @@ class StochasticProcessSensitivityAnalysis(object):
         '''
         outputList           = copy(self._outputDesignListNC)
         ## We flatten all the realisation of each sample, to check if we have np.nans
-        outputMatrix         = self.wrappedFunction.outputListToMatrix(outputList)
+        outputMatrix         = self._wrappedFunction.outputListToMatrix(outputList)
         inputArray           = numpy.array(deepcopy(self._inputDesignNC)) 
-        composedDistribution = self.wrappedFunction.KLComposedDistribution
+        composedDistribution = self._wrappedFunction.KLComposedDistribution
         N                    = self.size
         d_implicit           = int(inputArray.shape[0]/N)-2  #Any type of input shape being a multiple > 2 of N
         d_inputKL            = composedDistribution.getDimension() #dimension of the karhunen loeve composed distribution
@@ -182,8 +181,8 @@ class StochasticProcessSensitivityAnalysis(object):
             inputArray  = combinedMatrix[..., :d_inputKL]    
             outputArray = combinedMatrix[..., d_inputKL:]
             inputSample = openturns.Sample(inputArray)
-            inputSample.setDescription(self.wrappedFunction.getInputDescription())
-            self.outputDesignList = self.wrappedFunction.matrixToOutputList(outputArray)
+            inputSample.setDescription(self._wrappedFunction.getInputDescription())
+            self.outputDesignList = self._wrappedFunction.matrixToOutputList(outputArray)
             self.inputDesign      = inputSample
         else :
             self.outputDesignList = self._outputDesignListNC
@@ -193,15 +192,15 @@ class StochasticProcessSensitivityAnalysis(object):
     def _regenerate_missing_vals_safe(self, **kwargs): 
         if 'generationType' not in kwargs : generationType = 1 
         else : generationType = kwargs['generationType']         
-        composedDistribution = self.wrappedFunction.KLComposedDistribution
+        composedDistribution = self._wrappedFunction.KLComposedDistribution
         exit                 = 1
         tries                = 0
         while exit != 0:
-            sobolReg      = SPEG.StochasticProcessSensitivityExperiment(1, self.wrappedFunction, generationType)
+            sobolReg      = SPEG.StochasticProcessSensitivityExperiment(1, self._wrappedFunction, generationType)
             inputDes      = sobolReg.generate(**kwargs)
-            outputDes     = self.wrappedFunction(inputDes)
+            outputDes     = self._wrappedFunction(inputDes)
             inputDes      = numpy.array(inputDes).tolist()
-            outputDesFlat = self.wrappedFunction.outputListToMatrix(outputDes)
+            outputDesFlat = self._wrappedFunction.outputListToMatrix(outputDes)
             #should be 0 when there is no nan
             exit  = len(numpy.atleast_1d(numpy.squeeze(numpy.argwhere(numpy.isnan(outputDesFlat))[...,0])))
             tries += 1
@@ -276,49 +275,36 @@ class StochasticProcessSensitivityAnalysis(object):
     ########                    results.
     ######
 
-    def getSensitivityResults(self, methodOfChoice = 'Saltelli', returnStuff = False):
+    def getSensitivityAnalysisResults(self, method = 'Saltelli'):
         '''get sobol indices for each element of the output
         As the output should be a list of fields and scalars, this step will
         return a list of scalar sobol indices and field sobol indices
         '''
-        algoDict = {'Jansen'            : 1,
-                    'Saltelli'          : 2,
-                    'Mauntz-Kucherenko' : 3,
-                    'Martinez'          : 4}
-        assert methodOfChoice in algoDict, "argument has to be a string:\n['Jansen','Saltelli','Mauntz-Kucherenko','Martinez'] "
-        size             = self.size
-        inputDesign      = self.inputDesign
-        dimensionInput   = int(len(inputDesign[0]))
-        dimensionOutput  = len(self.outputVariables.keys())
-        outputDesignList = self.outputDesignList
-        sensitivityAnalysisList = list()
-        n_tot  = size*(2+dimensionInput)
-        for k in range(dimensionOutput):
-            outputDesign        = numpy.array(outputDesignList[k])
-            shapeDesign         = list(outputDesign.shape) 
-            shapeNew            = int(numpy.prod(shapeDesign[1:]))
-            print('new shape is : ', shapeNew)
-            outputDesResh        = numpy.reshape(outputDesign, [n_tot, shapeNew])
-            if shapeNew == 1 :
-                outputDesResh        = numpy.squeeze(outputDesResh.flatten())
-                print(outputDesResh)
-                sensitivityAna = algoDict[methodOfChoice](inputDesign, numpy.expand_dims(outputDesResh,1), size)
-                sensitivityAnalysisList.append(numpy.array([sensitivityAna]))
-            elif shapeNew > 1 :            
-                sensitivityIdList = [algoDict[methodOfChoice](inputDesign, numpy.expand_dims(outputDesResh[...,i], 1), size) for i in range(shapeNew)]
-                sensitivityIdArr  = numpy.array(sensitivityIdList)
-                endShape          = shapeDesign[1:] # we suppress the first dimension as we have fields of objects, not indices
-                print('sobol field shape: ',endShape)
-                sensitivityField  = numpy.reshape(sensitivityIdArr, endShape)
-                print('Shape sensitivity field : ',sensitivityField.shape)
-                sensitivityAnalysisList.append(sensitivityField)
-            else :
-                print('Unknown problem')
-                raise TypeError
-        self.sensitivityResults = senstivityAnalysisWrapper(sensitivityAnalysisList, self.wrappedFunction.getInputDescription()) 
-        if returnStuff == True :
-            return sensitivityAnalysisList
+        methods = ['Jansen', 'Saltelli', 'Mauntz-Kucherenko', 'Martinez']
+        assert method in methods, "argument has to be one of:\n['Jansen','Saltelli','Mauntz-Kucherenko','Martinez'] "
+        print('You have chosen to use the',method,'method')
+        print('There are',len(self.outputDesignList),'distinct outputs')
+        sensitivityAnalysisDict = dict()
+        for k, key in enumerate(self.outputVariables.keys()):
+            sensitivityAnalysis = SPSI.SobolIndicesStochasticProcessAlgorithm(self.outputDesignList[k], self.size, method)
+            try : 
+                subKeys             = list(self.outputVariables[key].keys())
+                nameKey             = str()
+                for subKey in subKeys : 
+                    if ('name' in subKey) or ('Name' in subKey) or ('var' in subKey) or ('descri' in subKey) or ('Var' in subKey):
+                        nameKey = subKey
+                name = self.outputVariables[key][nameKey]
+            except :
+                print("'name' key not found in outputVariables dictionary")
+                name = 'tempName_'+str(k)
+            sensitivityAnalysis.setInputDescription([self.processesDistributions[i].getName() for i in range(len(self.processesDistributions))])
+            sensitivityAnalysis.setName(name)
+            sensitivityAnalysis._runAlgorithm()
+            sensitivityAnalysisDict[k]    = sensitivityAnalysis
+            sensitivityAnalysisDict[name] = sensitivityAnalysis
+            print(sensitivityAnalysis)
 
+        self.SensitivityAnalysisResults = sensitivityAnalysisDict
 
     #####################################################################################
     ##################

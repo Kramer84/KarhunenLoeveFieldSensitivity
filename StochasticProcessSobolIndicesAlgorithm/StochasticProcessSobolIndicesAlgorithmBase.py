@@ -60,6 +60,7 @@ class StochasticProcessSobolIndicesAlgorithmBase(object):
             VarSobolIndicesTot = numpy.stack(VarSobolIndicesTot)
             halfConfinterSFO   = VarSobolIndices
             halfConfinterSTO   = VarSobolIndicesTot  #Confidence interval (half)
+            SobolIndices, SobolIndicesTot, halfConfinterSFO, halfConfinterSTO = numpy.squeeze(SobolIndices), numpy.squeeze(SobolIndicesTot), numpy.squeeze(halfConfinterSFO), numpy.squeeze(halfConfinterSTO)                      
         return SobolIndices, SobolIndicesTot, halfConfinterSFO ,halfConfinterSTO
         
     @staticmethod

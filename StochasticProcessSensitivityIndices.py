@@ -1,15 +1,16 @@
 import openturns 
 import numpy 
 from   typing    import Callable, List, Tuple, Optional, Any, Union
-import StochasticProcessSobolIndicesAlgorithm.StochasticProcessSobolIndicesAlgorithmBase as spsia
+import StochasticProcessSobolIndicesAlgorithm.StochasticProcessSobolIndicesAlgorithmBase as SPSIA
 
 class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImplementation):
-    sobolEngine = spsia.StochasticProcessSobolIndicesAlgorithmBase()
-    def __init__(self, outputDesign : Union[openturns.Sample, numpy.array], N : int) -> None:
+    sobolEngine = SPSIA.StochasticProcessSobolIndicesAlgorithmBase()
+    def __init__(self, outputDesign : Union[openturns.Sample, numpy.array], N : int, method : str = 'Saltelli') -> None:
         self.outputDesign       = outputDesign
         self.sampleSize         = N 
+        self.method             = method
 
-        self.dim                = int(self.outputDesign.shape[0]/N)
+        self.dim                = int(self.outputDesign.shape[0]/N) - 2 # -2 as the we have two samples A and B
         print('Implicit dimension =', self.dim)
 
         self.confidenceLevel    = 0.975
@@ -26,9 +27,9 @@ class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImpl
         self._varTotalOrder     = None        
 
 
-    def _runAlgorithm(self, method : str ='Saltelli') -> None:
+    def _runAlgorithm(self) -> None:
         if (self._FirstOrderIndices is None) and (self._TotalOrderIndices is None) and (self._varFirstOrder is None) and (self._varTotalOrder is None) :
-            self._FirstOrderIndices, self._TotalOrderIndices, self._varFirstOrder , self._varTotalOrder = self.sobolEngine.getSobolIndices(self.outputDesign, self.sampleSize , method)
+            self._FirstOrderIndices, self._TotalOrderIndices, self._varFirstOrder , self._varTotalOrder = self.sobolEngine.getSobolIndices(self.outputDesign, self.sampleSize , self.method)
 
     def setInputDescription(self, names : Union[List[str], str]) -> None:
         if type(names) is str:
@@ -42,7 +43,7 @@ class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImpl
     def setMethod(self, method : str = 'Saltelli') -> None:
         self.method = method
 
-    def getmethod(self) -> str:
+    def getMethod(self) -> str:
         return self.method
 
     ###########################################################################
@@ -89,12 +90,12 @@ class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImpl
         return self.confidenceLevel
 
     def draw(self, *args : Any) -> None :
-        fsiab.plotSobolIndicesWithErr(self._FirstOrderIndices, 
-                            self.getFirstOrderIndicesInterval(), 
-                            self.inputDescription, 
-                            self.dim, 
-                            self._TotalOrderIndices, 
-                            self.getTotalorderIndicesInterval())
+        SPSIA.plotSobolIndicesWithErr(S = self._FirstOrderIndices, 
+                               errS     = self.getFirstOrderIndicesInterval(), 
+                               varNames = self.inputDescription, 
+                               n_dims   = self.dim, 
+                               Stot     = self._TotalOrderIndices, 
+                               errStot  = self.getTotalorderIndicesInterval())
 
 
 
