@@ -6,7 +6,7 @@ import os
 import gc
 import tempfile     #for storing the samples as temporary memmaps
 import shutil
-from   joblib       import  Parallel, delayed, cpu_count
+from   joblib import  Parallel, delayed, cpu_count
 
 import openturns
 import numpy 

@@ -5,9 +5,9 @@ __date__  = '15.03.20'
 import  io
 import  os
 import  pickle
-from    joblib               import  Parallel, delayed, cpu_count
+from    joblib import  Parallel, delayed, cpu_count
 
-from    PIL                  import  Image
+from    PIL    import  Image
 import  numpy
 import  openturns
 import  matplotlib.pyplot    as      pyplot

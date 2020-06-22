@@ -1,6 +1,6 @@
 __version__ = '0.1'
-__author__  = 'Kristof Attila S.'
-__date__    = '22.06.20'
+__author__ = 'Kristof Attila S.'
+__date__  = '22.06.20'
 
 import atexit
 import gc

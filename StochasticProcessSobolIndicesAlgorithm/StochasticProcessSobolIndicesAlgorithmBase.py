@@ -13,34 +13,34 @@ import matplotlib.patches as mpatches
 
 
 class StochasticProcessSobolIndicesAlgorithmBase(object):
-    '''Basic methods to calculate unitary sensitivity indices
+    '''Basic methods to calculate unitary sensitivity indices.
     We first set the samples Y_A and Y_B and calculate the means and
-    variances of those, so they don't have to be calculated again. 
+    variances of those, so they don't have to be calculated again.
     The notations are those of A. DUMAS in the paper :
     "Lois asymptotiques des estimateurs des indices de Sobol"
-
 
     This class can accept vectors (unidimensional outputs) as well
     as matrices (multidimensional outputs)
 
-    The agregated Sobol indices are not calculated yet 
+    The agregated Sobol indices are not calculated yet
     '''
     @staticmethod
-    def centerSobolExp(SobolExperiment, N):
+    def _centerSobolExp(SobolExperiment: numpy.array, N: int) -> Tuple[numpy.array, List]:
+        '''private method centering the output desgins as well as
+        preparing the data for the estimator calculus
+        '''
         nSamps = int(SobolExperiment.shape[0] / N)
         N = int(N)
         inputListParallel = list()
         SobolExperiment0 = SobolExperiment
         dim = 1
-        psi_fo, psi_to = StochasticProcessSobolIndicesAlgorithmBase.SymbolicSaltelliIndices(
-            1)
+        psi_fo, psi_to = StochasticProcessSobolIndicesAlgorithmBase._SymbolicSaltelliIndices(1)
         for i in range(nSamps):
             # Centering
-            SobolExperiment[i * N:(i + 1) * N, ...] = numpy.subtract(SobolExperiment[i * N:(i + 1) * N, ...],
-                                                                     SobolExperiment[i * N:(i + 1) * N, ...].mean(axis=0))
+            SobolExperiment[i * N:(i + 1) * N, ...] = numpy.subtract(
+                SobolExperiment[i * N:(i + 1) * N, ...],
+                SobolExperiment[i * N:(i + 1) * N, ...].mean(axis=0))
         for p in range(nSamps - 2):
-                                     # Here is Y_Ac             # Here is Y_Bc
-                                     # # here is Y_Ec
             inputListParallel.append(
                 (SobolExperiment[:N, ...],
                     SobolExperiment[N:2 * N, ...],
@@ -49,7 +49,12 @@ class StochasticProcessSobolIndicesAlgorithmBase(object):
         return SobolExperiment, inputListParallel
 
     @staticmethod
-    def getSobolIndices(SobolExperiment, N, method='Saltelli'):
+    def getSobolIndices(SobolExperiment : numpy.array, N : int, method : str = 'Saltelli'):
+        '''method to retrieve the Sobol' indices from an output design.
+        It uses to samples A,B and a number of samples being the sample A
+        with one column of sample B.
+        for now only the first order indices are calculated
+        '''
         expShape = SobolExperiment.shape
         nIndices = int(expShape[0] / N) - 2
         dim = expShape[1:]
@@ -58,7 +63,7 @@ class StochasticProcessSobolIndicesAlgorithmBase(object):
             dim = 1
         print('There are', nIndices, 'indices to get in', dim,
               'dimensions with', SobolExperiment[0].size, 'elements')
-        SobolExperiment, inputListParallel = StochasticProcessSobolIndicesAlgorithmBase.centerSobolExp(
+        SobolExperiment, inputListParallel = StochasticProcessSobolIndicesAlgorithmBase._centerSobolExp(
             SobolExperiment, N)
         if method is 'Saltelli':
 
@@ -73,14 +78,50 @@ class StochasticProcessSobolIndicesAlgorithmBase(object):
             VarSobolIndicesTot = numpy.stack(VarSobolIndicesTot)
             halfConfinterSFO = VarSobolIndices
             halfConfinterSTO = VarSobolIndicesTot  # Confidence interval (half)
-            SobolIndices, SobolIndicesTot, \
-                halfConfinterSFO, halfConfinterSTO = numpy.squeeze(SobolIndices), numpy.squeeze(SobolIndicesTot), \
-                numpy.squeeze(halfConfinterSFO), numpy.squeeze(
-                    halfConfinterSTO)
+            SobolIndices = numpy.squeeze(SobolIndices)
+            SobolIndicesTot = numpy.squeeze(SobolIndicesTot)
+            halfConfinterSFO = numpy.squeeze(halfConfinterSFO)
+            halfConfinterSTO = numpy.squeeze(halfConfinterSTO)
+
         return SobolIndices, SobolIndicesTot, halfConfinterSFO, halfConfinterSTO
 
     @staticmethod
-    def SaltelliIndices(Y_Ac, Y_Bc, Y_Ec, psi_fo, psi_to):
+    def SaltelliIndices(Y_Ac: numpy.array, Y_Bc: numpy.array,\
+                Y_Ec: numpy.array, psi_fo: openturns.SymbolicFunction,\
+                psi_to: openturns.SymbolicFunction) ->\
+                    Tuple[numpy.array, numpy.array, numpy.array, numpy.array]:
+        '''method implementing the Saltelli' way of calculating 
+        Sobol Indices it only calculates the indice for one unique input variables
+        at the time, but on the whole output dimensions, thanks to highly parallelized
+        numpy code. 
+
+        Attributes
+        ----------
+        Y_Ac : numpy.array
+            sample A , centered on its mean
+        Y_Bc : numpy.array
+            sample B , centered on its mean
+        Y_Ec : numpy.array
+            sample E (A|B_i) , centered on its mean
+        psi_fo : openturns.SymbolicFunction
+            symbolic function to calculate the gradient of
+            the estimator function
+        psi_fto : openturns.SymbolicFunction
+            symbolic function to calculate the gradient of
+            the estimator function
+
+        Returns
+        -------
+        S : numpy.array
+            first order Sobol' indices
+        S_tot : numpy.array
+            total order Sobol' indices
+        varS : numpy.array
+            variance of the first order Sobol' indice
+        varS_tot : numpy.array
+            variance of the total order Sobol' indice
+
+        '''
         assert (Y_Ac.shape == Y_Bc.shape ==
                 Y_Ec.shape), "samples have to have same shape"
         N = Y_Ac.shape[0]
@@ -94,12 +135,30 @@ class StochasticProcessSobolIndicesAlgorithmBase(object):
                                numpy.divide(Ni * numpy.sum(numpy.multiply(Y_Ac, Y_Ec), axis=0),
                                             Ni * numpy.sum(numpy.square(Y_Ac)))
                                )
-        varS, varS_tot = StochasticProcessSobolIndicesAlgorithmBase.computeVariance(Y_Ac, Y_Bc,
-                                                                                    Y_Ec, N, psi_fo, psi_to)
+        varS, varS_tot = StochasticProcessSobolIndicesAlgorithmBase._computeVariance(Y_Ac, Y_Bc,
+                                                                                     Y_Ec, N, psi_fo, psi_to)
         return S, S_tot, varS, varS_tot
 
     @staticmethod
-    def SymbolicSaltelliIndices(N):
+    def _SymbolicSaltelliIndices(N : int) :
+        '''Method to create the symbolic python saltelli function
+
+        Note
+        ----
+        N > 1 only in the case of aggregated indices
+
+        Arguments
+        ---------
+        N : int
+            number of nominators and denominators
+
+        Returns
+        -------
+        psi_fo : openturns.SymbolicFunction
+            first order symbolic function
+        psi_to : openturns.SymbolicFunction
+            total order symbolic function
+        '''
         x, y = (openturns.Description.BuildDefault(N, 'X'),
                 openturns.Description.BuildDefault(N, 'Y'))
         # in order X0, Y0, X1, Y1
@@ -118,7 +177,7 @@ class StochasticProcessSobolIndicesAlgorithmBase(object):
         return psi_fo, psi_to
 
     @staticmethod
-    def computeVariance(YAc, YBc, YEc, N, psi_fo, psi_to):
+    def _computeVariance(YAc, YBc, YEc, N, psi_fo, psi_to):
         """
         Compute the variance of the estimator sample
 
@@ -138,10 +197,10 @@ class StochasticProcessSobolIndicesAlgorithmBase(object):
             Total order saltelli indices symbolic function
         """
         baseShape = YAc.shape
-        #print('basic output shape is:', baseShape)
+        # print('basic output shape is:', baseShape)
         flatDim = int(numpy.prod(baseShape[1:]))
         flatShape = [N, flatDim]
-        #print('output reshaped into matrix of shape (dim<=2) ',flatShape)
+        # print('output reshaped into matrix of shape (dim<=2) ',flatShape)
         YAc = numpy.reshape(YAc, flatShape)
         YBc = numpy.reshape(YBc, flatShape)
         YEc = numpy.reshape(YEc, flatShape)
@@ -155,9 +214,9 @@ class StochasticProcessSobolIndicesAlgorithmBase(object):
         X_to = numpy.squeeze(numpy.multiply(YAc, YEc))
         Y_to = numpy.squeeze(numpy.square(YAc))
 
-        varianceFO = StochasticProcessSobolIndicesAlgorithmBase.computeSobolVariance(
+        varianceFO = StochasticProcessSobolIndicesAlgorithmBase._computeSobolVariance(
             X_fo, Y_fo, psi_fo, N)
-        varianceTO = StochasticProcessSobolIndicesAlgorithmBase.computeSobolVariance(
+        varianceTO = StochasticProcessSobolIndicesAlgorithmBase._computeSobolVariance(
             X_to, Y_to, psi_to, N)
 
         shape = baseShape[1:]
@@ -168,7 +227,7 @@ class StochasticProcessSobolIndicesAlgorithmBase(object):
         return varianceFO, varianceTO
 
     @staticmethod
-    def computeSobolVariance(X, Y, psi, N):
+    def _computeSobolVariance(X, Y, psi, N):
         """
         Compute the variance of the estimators (NON agregated)
 
@@ -202,7 +261,6 @@ class StochasticProcessSobolIndicesAlgorithmBase(object):
             P2 = numpy.sum(numpy.multiply(mean_psi_temp, covariance), axis=1)
             variance = numpy.divide(
                 numpy.sum(numpy.multiply(mean_psi, P2),  axis=1), N)
-            print('Variance ND is:', variance, '\n')
 
         # lorsqu'il y a une dimension de sortie
         else:          # Ces formules sont utilisées par exemple pour ishigami
@@ -211,14 +269,24 @@ class StochasticProcessSobolIndicesAlgorithmBase(object):
             meanPsi = numpy.squeeze(psi.gradient(mean_samp))
             variance = numpy.matmul(meanPsi, numpy.matmul(covariance, meanPsi))
             variance = variance / N
-            print('variance 1D is:', variance, '\n')
         return variance
+
 
         ### lors de l'affichage, nous multiplions la variance par 4 ##
         ### pour couvrir l'ensemble de l'intervalle de confiance    ##
         #######################  PLOTTING   ##########################
 
 def plotSobolIndicesWithErr(S, errS, varNames, n_dims, Stot=None, errStot=None):
+    '''Function to plot the Sobol' indices with an errorbar to visualize the 
+    uncertaintity in the estimator. (only first and total order yet) 
+
+    Note
+    ----
+    Function is written to adapt the plotting according to the dimensions of
+    the input, for higher level inputs, mayavi seems the most reasonable choice
+    for plotting
+    '''
+
     plt.style.use('classic')
     S, errS = numpy.squeeze(S), numpy.squeeze(errS)
     if Stot is not None and errStot is not None:
@@ -242,14 +310,14 @@ def plotSobolIndicesWithErr(S, errS, varNames, n_dims, Stot=None, errStot=None):
 
         x = numpy.arange(n_dims)
         y = S
-        yerr = errS * 3  # to have 95%
+        yerr = errS  # to have 95%                                 #####
 
         fig, ax = plt.subplots()
         ax.errorbar(x, y, yerr=yerr, fmt='s', color='r', ecolor='r')
         if Stot is not None and errStot is not None:
             y2 = numpy.squeeze(Stot)
-            y2err = numpy.squeeze(errStot) * 3
-            ax.errorbar(x - 0.05, y2, yerr=y2err,
+            y2err = numpy.squeeze(errStot)                        #####
+            ax.errorbar(x + 0.05, y2, yerr=y2err,
                         fmt='o', color='b', ecolor='b')
         else:
             lgd_elems.pop()
@@ -257,6 +325,7 @@ def plotSobolIndicesWithErr(S, errS, varNames, n_dims, Stot=None, errStot=None):
         ax.set_xticks(ticks=x)
         ax.set_xticklabels(labels=varNames)
         ax.axis(xmin=-0.5, xmax=x.max() + 0.5, ymin=-0.1, ymax=1.1)
+        plt.grid()
         plt.show()
 
     if len(S.shape) == 2:
@@ -291,7 +360,7 @@ def plotSobolIndicesWithErr(S, errS, varNames, n_dims, Stot=None, errStot=None):
                 dimOut = S.shape[1]
                 x = numpy.arange(dimOut)
                 y = S[i, ...]
-                yerr = errS[i, ...] * 4.
+                yerr = errS[i, ...]
 
                 graphList[i].errorbar(x, y, yerr, color='r', ecolor='b')
                 graphList[i].axis(xmin=-0.5, xmax=x.max() +
@@ -321,7 +390,7 @@ def plotSobolIndicesWithErr(S, errS, varNames, n_dims, Stot=None, errStot=None):
                 dimOut = S.shape[1]
                 x = numpy.arange(dimOut)
                 y = S[i, ...]
-                yerr = errS[i, ...] * 4.
+                yerr = errS[i, ...]
 
                 graphList[i].errorbar(x, y, yerr, color='r', ecolor='b')
                 graphList[i].axis(xmin=-0.5, xmax=x.max() + 0.5,

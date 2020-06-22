@@ -445,9 +445,19 @@ Finalement, l'on récupère les indices de Sobol' pour les différents élements
          \label{MaxDeflec}
 \end{figure}
 L'on peut voir qu'il y a très peu d'écarts entre les indices d'ordre total et premier ordre. Les effets d'interaction sont donc très peu présents entre les variables d'entrée.\\
+\\
 Finalement une comparaison entre un exemple de la documentation d'\textit{openTURNS} et les codes développés durant ce stage peut être faite, pour confirmer que les méthodes implémentées sont exemptes d'erreurs. 
 
+\begin{figure}[H]
+   \centering   
+   \includegraphics[scale=0.255]{comparisonOtMe.png}
+      \caption{Comparaison entre la solution par openturns (à gauche) et la notre (à droite), pour un échantillon de taille 1000 sur la fonction d'Ishigami}
+         \label{Comparison}
+\end{figure}
+L'on observe, que pour cet échantillon de 1000, l'indice de Sobol' calculé avec nos codes est relativement proche de ceux calculés avec \textit{openTURNS}, même si des écarts subsistent, notamment au niveau de la variance. 
 
+
+ 
 \subsection{Application au modèle NASTRAN d'échangeur thermique}
 
 \begin{verbatim}

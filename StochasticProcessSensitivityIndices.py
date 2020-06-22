@@ -69,7 +69,7 @@ class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImpl
     setDimension: 
         method to set the dimension of the input. usually deduced automatically
     setConfidenceLevel: 
-        method to set the desired confidence level for the estimator (default : 0.975)
+        method to set the desired confidence level for the estimator (default : 0.95)
     getConfidenceLevel:
         accessor to the confidence level 
     draw:
@@ -77,8 +77,8 @@ class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImpl
     '''
     sobolEngine = SPSIA.StochasticProcessSobolIndicesAlgorithmBase()
 
-    def __init__(self, outputDesign: Union[openturns.Sample, numpy.array], 
-                 N : int, method: str = 'Saltelli') -> None:
+    def __init__(self, outputDesign: Union[openturns.Sample, numpy.array],
+                 N: int, method: str = 'Saltelli') -> None:
         self.outputDesign = outputDesign
         self.sampleSize = N
         self.method = method
@@ -87,7 +87,7 @@ class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImpl
         self.dim = int(self.outputDesign.shape[0] / N) - 2
         print('Implicit dimension =', self.dim)
 
-        self.confidenceLevel = 0.975
+        self.confidenceLevel = 0.95
 
         self.inputDescription = openturns.Description(
             ['X' + str(i) for i in range(self.dim)])
@@ -105,8 +105,8 @@ class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImpl
         if (self._FirstOrderIndices is None) and (self._TotalOrderIndices is None) \
            and (self._varFirstOrder is None) and (self._varTotalOrder is None):
             self._FirstOrderIndices, self._TotalOrderIndices, \
-            self._varFirstOrder, self._varTotalOrder = self.sobolEngine.getSobolIndices(
-                                             self.outputDesign, self.sampleSize, self.method)
+                self._varFirstOrder, self._varTotalOrder = self.sobolEngine.getSobolIndices(
+                    self.outputDesign, self.sampleSize, self.method)
 
     def setInputDescription(self, names: Union[List[str], str]) -> None:
         if type(names) is str:
@@ -142,7 +142,6 @@ class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImpl
         self._runAlgorithm()
         confidence = numpy.sqrt(
             self._varFirstOrder) * openturns.Normal().computeQuantile(self.confidenceLevel)[0]
-        print('half of the length of the symetric confidence interval ')
         return confidence
 
     def getTotalorderIndicesInterval(self) -> float:
@@ -150,7 +149,6 @@ class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImpl
         self._runAlgorithm()
         confidence = numpy.sqrt(
             self._varTotalOrder) * openturns.Normal().computeQuantile(self.confidenceLevel)[0]
-        print('half of the length of the symetric confidence interval ')
         return confidence
 
     def setDimension(self, dim: int) -> None:
