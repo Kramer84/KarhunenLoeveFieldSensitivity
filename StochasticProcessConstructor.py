@@ -1,10 +1,15 @@
-import openturns
-import numpy 
+__version__ = '0.1'
+__author__  = 'Kristof Attila S.'
+__date__    = '22.06.20'
+
 import os
 import gc
 import tempfile     #for storing the samples as temporary memmaps
 import shutil
 from   joblib       import  Parallel, delayed, cpu_count
+
+import openturns
+import numpy 
 
 class StochasticProcessConstructor(openturns.Process):
     '''Class to create up to 4-dimensional gaussian processes.
@@ -201,19 +206,19 @@ class StochasticProcessConstructor(openturns.Process):
         covarianceModel : openturns.statistics.CovarianceModels*
             openTURNS covariance model object, already constructed
         '''
-        OTCovarModels = {'AbsoluteExponential'            : (openturns.AbsoluteExponential,           ['spatialDim','scale','amplitude'], [1, 2, 23]),          
-                         'SquaredExponential'             : (openturns.SquaredExponential,            ['spatialDim','scale','amplitude'],[1, 2, 23] ),    
-                         'MaternModel'                    : (openturns.MaternModel,                   ['spatialDim','scale','amplitude' ,'nu'], [1, 24, 234]),
-                         'ExponentialModel'               : (openturns.ExponentialModel,              ['spatialDim','scale','amplitude' ,'spatialCorrelation' ,'spatialCovariance'], [1, 23, 234, 235]),
-                         'DiracCovarianceModel'           : (openturns.DiracCovarianceModel,          ['spatialDim','amplitude' ,'spatialCorrelation' ,'spatialCovariance'], [1, 12, 123, 14]),
-                         'ExponentiallyDampedCosineModel' : (openturns.ExponentiallyDampedCosineModel,['spatialDim','scale' ,'amplitude' ,'f' ], [1, 234]),     
-                         'FractionalBrownianMotionModel'  : (openturns.FractionalBrownianMotionModel, ['scale' ,'amplitude' ,'exponent' ,'eta' ,'rho'], [123, 12345]),
-                         'GeneralizedExponential'         : (openturns.GeneralizedExponential,        ['spatialDim', 'scale', 'amplitude', 'p'], [1, 24, 234 ]),        
-                         'ProductCovarianceModel'         : (openturns.ProductCovarianceModel,        ['coll'], [1]),
-                         'RankMCovarianceModel'           : (openturns.RankMCovarianceModel,          ['inputDimension','variance','basis','covariance'], [1, 23, 42]),
-                         'SphericalModel'                 : (openturns.SphericalModel,                ['spatialDim','scale','amplitude','radius'], [1, 23, 234]),            
-                         'TensorizedCovarianceModel'      : (openturns.TensorizedCovarianceModel,     ['coll'], [1]),
-                         'UserDefinedCovarianceModel'     : (openturns.UserDefinedCovarianceModel,    ['mesh','matrix'], [12])
+        OTCovarModels = {'AbsoluteExponential'           : (openturns.AbsoluteExponential,           ['spatialDim','scale','amplitude'], [1, 2, 23]),          
+                         'SquaredExponential'            : (openturns.SquaredExponential,            ['spatialDim','scale','amplitude'],[1, 2, 23] ),    
+                         'MaternModel'                   : (openturns.MaternModel,                   ['spatialDim','scale','amplitude' ,'nu'], [1, 24, 234]),
+                         'ExponentialModel'              : (openturns.ExponentialModel,              ['spatialDim','scale','amplitude' ,'spatialCorrelation' ,'spatialCovariance'], [1, 23, 234, 235]),
+                         'DiracCovarianceModel'          : (openturns.DiracCovarianceModel,          ['spatialDim','amplitude' ,'spatialCorrelation' ,'spatialCovariance'], [1, 12, 123, 14]),
+                         'ExponentiallyDampedCosineModel': (openturns.ExponentiallyDampedCosineModel,['spatialDim','scale' ,'amplitude' ,'f' ], [1, 234]),     
+                         'FractionalBrownianMotionModel' : (openturns.FractionalBrownianMotionModel, ['scale' ,'amplitude' ,'exponent' ,'eta' ,'rho'], [123, 12345]),
+                         'GeneralizedExponential'        : (openturns.GeneralizedExponential,        ['spatialDim', 'scale', 'amplitude', 'p'], [1, 24, 234 ]),        
+                         'ProductCovarianceModel'        : (openturns.ProductCovarianceModel,        ['coll'], [1]),
+                         'RankMCovarianceModel'          : (openturns.RankMCovarianceModel,          ['inputDimension','variance','basis','covariance'], [1, 23, 42]),
+                         'SphericalModel'                : (openturns.SphericalModel,                ['spatialDim','scale','amplitude','radius'], [1, 23, 234]),            
+                         'TensorizedCovarianceModel'     : (openturns.TensorizedCovarianceModel,     ['coll'], [1]),
+                         'UserDefinedCovarianceModel'    : (openturns.UserDefinedCovarianceModel,    ['mesh','matrix'], [12])
                          }
 
         if covarianceModel is not None :
@@ -251,7 +256,9 @@ class StochasticProcessConstructor(openturns.Process):
             try:
                 covarianceModel = OTCovarModels[covarianceModelDict['Model']][0](*constructor)
             except:
-                print('Please check your input parameters with the openTURNS documentation, as some values have to be points rather than numbers: \n 5 --> [5]  ""brackets!!"" ')
+                print('Please check your input parameters with the openTURNS documentation, \
+                    as some values have to be points rather than numbers: \n \
+                                                    5 --> [5]  ""brackets!!"" ')
             covarianceModel.setName(covarianceModelDict['Model'])
             self.covarianceModel = covarianceModel
 
@@ -289,7 +296,8 @@ class StochasticProcessConstructor(openturns.Process):
         self._trendArgs    = arguments 
         self._trendFunc    = funcCst
         print('trend function args: ',self._trendArgs,' trend function: ', self._trendFunc,'\n')
-        print('Please be aware that the number of elements in the argument list has to be the same as the dimension of the process: ', self.dimension)
+        print('Please be aware that the number of elements in the argument list \
+                    has to be the same as the dimension of the process: ', self.dimension)
         symbolicFunction   = openturns.SymbolicFunction(self._trendArgs, [self._trendFunc])
         TrendTransform      = openturns.TrendTransform(symbolicFunction, self.mesh)
         self.TrendTransform = TrendTransform
@@ -301,17 +309,20 @@ class StochasticProcessConstructor(openturns.Process):
         ----
         The grid and the covariance model have to be already defined
         '''
-        assert(self.mesh is not None and self.covarianceModel is not None), "first instantiate grid and covariance model"
+        assert(self.mesh is not None and self.covarianceModel is not None), \
+                                            "first instantiate grid and covariance model"
         if self.TrendTransform is not None :
-            self.GaussianProcess = openturns.GaussianProcess(self.TrendTransform, self.covarianceModel, self.mesh)
+            self.GaussianProcess = openturns.GaussianProcess(self.TrendTransform, 
+                                                        self.covarianceModel, self.mesh)
         else :
             self.GaussianProcess = openturns.GaussianProcess(self.covarianceModel, self.mesh)
         self.GaussianProcess.setName(str(self.dimension)+'D_Gaussian_Process')
 
 ## Everything concerning Karhunen Loève
-###################################################################################################
+########################################################################################
 
-    def getKarhunenLoeveDecomposition(self, method = 'P1Algorithm',  threshold = 1e-4, getResult = False, **kwargs):
+    def getKarhunenLoeveDecomposition(self, method = 'P1Algorithm',  
+                                        threshold = 1e-4, getResult = False, **kwargs):
         '''Function to get the Karhunen Loève decomposition of the gaussian process, using 
         the P1 approximation
 
@@ -326,7 +337,8 @@ class StochasticProcessConstructor(openturns.Process):
                 raise Exception('No mesh, create one')
             if self.GaussianProcess is None:
                 self.setGaussianProcess()
-        assert method in ['P1Algorithm', 'QuadratureAlgorithm'], "Methods available : 'P1Algorithm', 'QuadratureAlgorithm'"
+        assert method in ['P1Algorithm', 'QuadratureAlgorithm'], \
+                    "Methods available : 'P1Algorithm', 'QuadratureAlgorithm'"
         if method is 'P1Algorithm' :
             KarhunenLoeveAlgorithm = openturns.KarhunenLoeveP1Algorithm(self.mesh,
                                                                     self.getCovarianceModel(),
@@ -474,15 +486,13 @@ class StochasticProcessConstructor(openturns.Process):
 
 
 
-## Class representing a vector of normal distributions, all with 1 as variance but centered around 
-## independent means
-###################################################################################################
-###################################################################################################
-###################################################################################################
+# Class representing a vector of normal distributions, all with 1 as variance,
+# but centered around independent means
+########################################################################################
 
 class RandomNormalVector(openturns.PythonRandomVector):
-    '''class holding a random normal vector, used to get relaizations that can later be transformed
-    in random fields
+    '''class holding a random normal vector, used to get relaizations that can later 
+    be transformed into random fields
     '''
     def __init__(self, n_modes : int, optName = None):
         super(RandomNormalVector, self).__init__(n_modes)
@@ -539,59 +549,7 @@ class RandomNormalVector(openturns.PythonRandomVector):
         return listOtNormals
 
 
-## Redifinition of the normal distribution, random number generation with numpy seems more optimal
-###################################################################################################
-###################################################################################################
-###################################################################################################
 
-class NormalDistribution(openturns.dist_bundle2.Normal):
-    '''class defining the normal distribution
-    '''
-    def __init__(self,mu : float, sigma : float, name = None, seed = None):
-        super(NormalDistribution, self).__init__(mu, sigma)
-        self.variance   = sigma
-        self.mean       = mu
-        self.sample     = None
-        self.seed       = seed
-        self.setName(name)
-
-    def getRealization(self):
-        numpy.random.seed(self.seed)
-        X=numpy.random.normal(self.mean,self.variance)
-        return float(X)
-
-    def getSample(self, size):
-        numpy.random.seed(self.seed)
-        X=numpy.random.normal(self.mean,self.variance, size)
-        self.sample = X
-        return X.tolist()  
-
-## Redifinition of the uniform distribution, random number generation with numpy seems more optimal
-###################################################################################################
-###################################################################################################
-###################################################################################################
-
-class UniformDistribution(openturns.dist_bundle3.Uniform):
-    '''class defining the uniform distribution
-    '''
-    def __init__(self, lower : float, upper : float, name = None, seed = None):
-        super(UniformDistribution, self).__init__(lower, upper)
-        self.lower      = lower
-        self.upper      = upper
-        self.sample     = None
-        self.seed       = seed
-        self.setName(name)
-
-    def getRealization(self):
-        numpy.random.seed(self.seed)
-        X=numpy.random.uniform(self.lower,self.upper)
-        return float(X)
-
-    def getSample(self, size):
-        numpy.random.seed(self.seed)
-        X=numpy.random.uniform(self.lower,self.upper, size)
-        self.sample = X
-        return X.tolist()  
 
 def cleanAtExit() :
     dirName = './tempNpArrayMaps'
@@ -599,8 +557,10 @@ def cleanAtExit() :
         if os.path.isdir(dirName) == True:
             shutil.rmtree(dirName, ignore_errors=True)
         gc.collect()
+        print('temporary directory deleted')
     except :
         gc.collect()
+        print('temporary directory already deleted')
 
 #######################################################################################
 #######################################################################################
@@ -612,15 +572,18 @@ def cleanAtExit() :
 class tempmap(numpy.memmap):
     """
     Extension of numpy memmap to automatically map to a file stored in temporary directory.
-    Usefull as a fast storage option when numpy arrays become large and we just want to do some quick experimental stuff.
+    Usefull as a fast storage option when numpy arrays become large and we just want 
+    to do some quick experimental stuff.
     """
     def __new__(subtype, dtype=numpy.uint8, mode='w+', offset=0,
                 shape=None, order='C'):
         dirName             = './tempNpArrayMaps'
         if os.path.isdir(dirName) == False:
             os.mkdir(dirName)
-        ntf                 = tempfile.NamedTemporaryFile(suffix='_tempMap', prefix='npArray_', dir = dirName)
-        self                = numpy.memmap.__new__(subtype, ntf, dtype, mode, offset, shape, order)
+        ntf                 = tempfile.NamedTemporaryFile(suffix='_tempMap', 
+                                                        prefix='npArray_', dir = dirName)
+        self                = numpy.memmap.__new__(subtype, ntf, dtype, mode, 
+                                                offset, shape, order)
         self.tempDir        = dirName
         self.temp_file_obj  = ntf
         return self

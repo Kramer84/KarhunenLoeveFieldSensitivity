@@ -1,12 +1,19 @@
-import openturns
-import uuid 
-import numpy
-from   typing                                import Callable, List, Tuple, Optional, Any, Union
-from   copy                                  import deepcopy, copy
-import StochasticProcessExperimentGeneration as     SPEG
-import StochasticProcessSensitivityIndices   as     SPSI 
+__version__ = '0.1'
+__author__  = 'Kristof Attila S.'
+__date__    = '22.06.20'
+
 import atexit
 import gc
+import uuid 
+from   typing import Callable, List, Tuple, Optional, Any, Union
+from   copy   import deepcopy, copy
+
+import openturns
+import numpy
+
+import StochasticProcessExperimentGeneration as     SPEG
+import StochasticProcessSensitivityIndices   as     SPSI 
+
 
 class StochasticProcessSensitivityAnalysis(object):
     '''Custom class to do sensitivity analysis on complex models
@@ -42,11 +49,11 @@ class StochasticProcessSensitivityAnalysis(object):
                                  },
                                 }
 
-            f_batchEval    : pythonFunction
+            batchFunction    : pythonFunction
                 function taking as an input samples of rvs (vectors) 
                 and samples of fields (ndarrays) for multiprocessing)
 
-            f_singleEval   : pythonFunction
+            singleFunction   : pythonFunction
                 function taking as a input rvs (scalars) and fields
 
             size     : int
@@ -99,6 +106,37 @@ class StochasticProcessSensitivityAnalysis(object):
     ######
 
     def run(self, **kwargs):
+        '''Method to generate the Sobol' Experiment, solve it and correct the output
+
+        Note
+        ----
+        This run method can take a multitude of arguments, according to the different 
+        sampling strategies. 
+        *** : only SimulatedAnnealingLHS
+        **  : only LowDiscrepancySequence
+
+        Arguments
+        ---------
+        generationType : int + (< 5)
+            attribute to set the desired sampling strategy 
+                1 : Random
+                2 : LHS
+                3 : LowDiscrepancySequence
+                4 : SimulatedAnnealingLHS  
+        SpaceFilling ***   : str                    
+            'SpaceFillingC2', 'SpaceFillingMinDist', 'SpaceFillingPhiP'
+        p ***              : int 
+            default 50 => refer to openTURNS documentation for more details
+        TemperatureProfile *** : str                  
+            'GeometricProfile'(default), 'LinearProfile'
+            refer to openTURNS documentation for more details
+        sequence ** : str 
+            'Faure'
+            'Halton'
+            'ReverseHalton'
+            'Haselgrove'
+            'Sobol' (default)
+        '''
         try :
             self.prepareSobolIndicesExperiment(**kwargs)
             self.getOutputDesignAndPostprocess(**kwargs)
@@ -110,6 +148,12 @@ class StochasticProcessSensitivityAnalysis(object):
 
 
     def prepareSobolIndicesExperiment(self, **kwargs):
+        '''Method to generate the experiment for the sensitivity analysis.
+
+        Arguments
+        ---------
+         ~ same as .run() method ~
+        '''
         if 'generationType' not in kwargs : generationType = 1 
         else : generationType = kwargs['generationType'] 
         sobolExperiment         = SPEG.StochasticProcessSensitivityExperiment(size                = self.size, 
@@ -123,6 +167,13 @@ class StochasticProcessSensitivityAnalysis(object):
         print('input design shape is: ',inputDesign.shape)
 
     def getOutputDesignAndPostprocess(self, **kwargs):
+        '''Method to evaluate the model on the experiment. Has to be done once the experiment
+        is generated
+
+        Arguments
+        ---------
+         ~ same as .run() method ~
+        '''
         assert self._inputDesignNC is not None, ""
         assert self.batchFunction is not None or self.singleFunction is not None , ""
         if self.batchFunction is not None : 
@@ -143,6 +194,10 @@ class StochasticProcessSensitivityAnalysis(object):
         '''To check if there are nan values and replace them with new realizations
            We not only have to erase the value with the nan, but all the corresponding
            permutations. 
+
+        Arguments
+        ---------
+         ~ same as .run() method ~
         '''
         outputList           = copy(self._outputDesignListNC)
         ## We flatten all the realisation of each sample, to check if we have np.nans
@@ -190,6 +245,13 @@ class StochasticProcessSensitivityAnalysis(object):
             print('\nNo errors while processing, the function has returned no np.nan.\n')
 
     def _regenerate_missing_vals_safe(self, **kwargs): 
+        '''Method to generate and evaluate new samples of size N=1 to
+        fill the outputs of the model where we have nans
+
+        Arguments
+        ---------
+         ~ same as .run() method ~
+        '''
         if 'generationType' not in kwargs : generationType = 1 
         else : generationType = kwargs['generationType']         
         composedDistribution = self._wrappedFunction.KLComposedDistribution
@@ -216,9 +278,9 @@ class StochasticProcessSensitivityAnalysis(object):
     ######## 
     ######
 
-    def setOutput(self, outputDict):
-        '''set dictionary containing data about the output variables name, it's position in the functions
-        output, as well as dimension
+    def setOutput(self, outputDict : dict) -> None:
+        '''set dictionary containing data about the output variables name, their positions in the functions
+        output, as well as their dimension
         '''
         assert type(outputDict) is dict ,""
         s00, s01, s02, s03, s04 = self._getState()
@@ -228,8 +290,14 @@ class StochasticProcessSensitivityAnalysis(object):
         if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
             self._wrapFunc() 
 
-    def setProcessesDistributions(self, processesDistributions):
-        '''set list of input processes and distributions
+    def setProcessesDistributions(self, processesDistributions : List) -> None:
+        '''set list of input processes and distributions.
+
+        Note
+        ----
+        You can use any openTURNS distribution (Normal, Arcsine...), but if using
+        Stochastic processes you have to use the class contained in StochasticProcessConstructor
+        to create and define them
         '''
         assert type(processesDistributions) is list ,""
         s00, s01, s02, s03, s04 = self._getState()
@@ -239,7 +307,9 @@ class StochasticProcessSensitivityAnalysis(object):
         if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
             self._wrapFunc() 
 
-    def setSize(self, N):
+    def setSize(self, N : int) -> None:
+        '''Method to set the size of the samples to generate
+        '''
         assert (type(N) is int) and (N > 0), "size can only be a positive integer"
         s00, s01, s02, s03, s04 = self._getState()
         self.size = N
@@ -248,8 +318,8 @@ class StochasticProcessSensitivityAnalysis(object):
         if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
             self._wrapFunc() 
 
-    def setBatchFunc(self, batchFunction):
-        '''Python function taking as an input random variables and fields
+    def setBatchFunc(self, batchFunction : Callable = None) -> None:
+        '''method to set a python function taking as an input random variables and fields in batches
         '''
         s00, s01, s02, s03, s04 = self._getState()
         self.batchFunction = batchFunction
@@ -258,8 +328,8 @@ class StochasticProcessSensitivityAnalysis(object):
         if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
             self._wrapFunc() 
 
-    def setSingleFunc(self, singleFunction):
-        '''Python function taking as an input random variables and fields
+    def setSingleFunc(self, singleFunction: Callable = None) -> None:
+        '''method to set a python function taking as an input random variables and fields
         '''
         s00, s01, s02, s03, s04 = self._getState()
         self.singleFunction = singleFunction
@@ -275,10 +345,13 @@ class StochasticProcessSensitivityAnalysis(object):
     ########                    results.
     ######
 
-    def getSensitivityAnalysisResults(self, method = 'Saltelli'):
-        '''get sobol indices for each element of the output
-        As the output should be a list of fields and scalars, this step will
-        return a list of scalar sobol indices and field sobol indices
+    def getSensitivityAnalysisResults(self, method : str = 'Saltelli') -> None:
+        '''method to execute the sensitivity analysis and store it's results in a dictionnary
+
+        Arguments
+        ---------
+        method : str
+            string specifying the Sobol' estimator (default : Saltelli)
         '''
         methods = ['Jansen', 'Saltelli', 'Mauntz-Kucherenko', 'Martinez']
         assert method in methods, "argument has to be one of:\n['Jansen','Saltelli','Mauntz-Kucherenko','Martinez'] "
@@ -314,7 +387,7 @@ class StochasticProcessSensitivityAnalysis(object):
 
     def KarhunenLoeveSVDAlgorithm(self, ndarray : numpy.ndarray, process_sample = None, threshold = 0.0001, centeredFlag = False):
         '''Function to get Kahrunen Loeve decomposition from samples stored in array.
-        Allows to get 
+        Allows to get a representation of a field and it's beahaviour only by looking at samples
         '''
         if process_sample is None :
             process_sample = self.getProcessSampleFromNumpyArray(ndarray)
@@ -345,6 +418,8 @@ class StochasticProcessSensitivityAnalysis(object):
         grid_shape : list
             List containing the lower bound, the length and the number of elements
             for each dimension. Ex: [[x0 , Lx , Nx], **]
+        dimension : int
+            dimension of the mesh
         '''
         n_intervals     = [grid_shape[i][2]-1         for i in range(dimension)]
         low_bounds      = [grid_shape[i][0]           for i in range(dimension)]

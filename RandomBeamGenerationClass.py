@@ -1,17 +1,19 @@
-import  numpy
-import  openturns
-import  pickle
+__version__ = '0.1'
+__author__ = 'Kristof Attila S.'
+__date__  = '15.03.20'
+
 import  io
 import  os
-from    PIL                          import  Image
-from    anastruct.fem.system         import  SystemElements, Vertex
-import  matplotlib.pyplot            as      pyplot
-from    joblib                       import  Parallel, delayed, cpu_count
+import  pickle
+from    joblib               import  Parallel, delayed, cpu_count
 
-'''
+from    PIL                  import  Image
+import  numpy
+import  openturns
+import  matplotlib.pyplot    as      pyplot
+from    anastruct.fem.system import  SystemElements, Vertex
 
-Tutorial in : notebook/Demo_Analyse_Sensibilite_poutre.ipynb
-
+'''analysis of model in tutorial : notebook/Demo_Analyse_Sensibilite_poutre.ipynb
 '''
 
 class RandomBeam_anastruct(object):
@@ -40,14 +42,16 @@ class RandomBeam_anastruct(object):
                        process_Fpos  = None,
                        process_Fnorm = None):   ## fpos en mm
     
-        assert (process_E.getDimension() == 1 and process_D.getMesh() == process_E.getMesh()) , "Only pass one dimensional gaussian process"
+        assert (process_E.getDimension() == 1 and process_D.getMesh() \
+                == process_E.getMesh()) , "Only pass one dimensional gaussian process"
         self.process_young           = process_E     # MPa  Stochastic Process
         self.process_diam            = process_D     # mm   Stochastic Process
         self.process_Rho             = process_Rho   # to later divide by 100 to be in kN/m³ Normal Distribution
         self.process_Fpos            = process_Fpos  # m    Normal Distribution
         self.process_Fnorm           = process_Fnorm # N    Normal Distribution
         self.mesh                    = self.process_diam.getMesh() #it is a regular mesh
-        self.l_element               = (self.mesh.getUpperBound() - self.mesh.getLowerBound()).norm()/self.mesh.getSimplicesNumber()
+        self.l_element               = (self.mesh.getUpperBound() \
+                            - self.mesh.getLowerBound()).norm()/self.mesh.getSimplicesNumber()
         self.vertex_list             = self._makeVerticesList()
         self.BeamObj                 = None
         self.random_young_modulus    = None
