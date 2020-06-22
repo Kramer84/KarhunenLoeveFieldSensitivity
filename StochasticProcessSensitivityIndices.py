@@ -7,7 +7,7 @@ from typing import Callable, List, Tuple, Optional, Any, Union
 import openturns
 import numpy
 
-import StochasticProcessSobolIndicesAlgorithm.StochasticProcessSobolIndicesAlgorithmBase as SPSIA
+import StochasticProcessSobolIndicesAlgorithmBase as SPSIA
 
 
 class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImplementation):
