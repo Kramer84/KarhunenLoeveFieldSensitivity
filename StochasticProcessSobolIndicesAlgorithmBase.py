@@ -63,8 +63,8 @@ class StochasticProcessSobolIndicesAlgorithmBase(object):
             dim = 1
         print('There are', nIndices, 'indices to get in', dim,
               'dimensions with', SobolExperiment[0].size, 'elements')
-        SobolExperiment, inputListParallel = StochasticProcessSobolIndicesAlgorithmBase._centerSobolExp(
-            SobolExperiment, N)
+        SobolExperiment, inputListParallel \
+        = StochasticProcessSobolIndicesAlgorithmBase._centerSobolExp(SobolExperiment, N)
         if method is 'Saltelli':
 
             SobolIndices = [StochasticProcessSobolIndicesAlgorithmBase.SaltelliIndices(
@@ -128,15 +128,14 @@ class StochasticProcessSobolIndicesAlgorithmBase(object):
         Ni = 1. / N
 
         # Simplified indice as samples centered
-        S = numpy.divide(Ni * numpy.sum(numpy.multiply(Y_Bc, Y_Ec), axis=0),
-                         Ni * numpy.sum(numpy.square(Y_Ac), axis=0)
-                         )
+        S = numpy.divide(Ni * numpy.sum(numpy.multiply(Y_Bc, Y_Ec), axis=0),\
+                         Ni * numpy.sum(numpy.square(Y_Ac), axis=0))
         S_tot = numpy.subtract(1.,
-                               numpy.divide(Ni * numpy.sum(numpy.multiply(Y_Ac, Y_Ec), axis=0),
+                               numpy.divide(Ni * numpy.sum(numpy.multiply(Y_Ac, Y_Ec), axis=0),\
                                             Ni * numpy.sum(numpy.square(Y_Ac)))
                                )
-        varS, varS_tot = StochasticProcessSobolIndicesAlgorithmBase._computeVariance(Y_Ac, Y_Bc,
-                                                                                     Y_Ec, N, psi_fo, psi_to)
+        varS, varS_tot = StochasticProcessSobolIndicesAlgorithmBase._computeVariance(Y_Ac, Y_Bc,\
+                                                                        Y_Ec, N, psi_fo, psi_to)
         return S, S_tot, varS, varS_tot
 
     @staticmethod
@@ -172,8 +171,10 @@ class StochasticProcessSobolIndicesAlgorithmBase(object):
         symbolic_num = ''.join(symbolic_num)
         # psi  = (x1 + x2 + ...) / (y1 + y2 + ...).
         symbolic_denom = ''.join(symbolic_denom)
-        psi_fo, psi_to = (openturns.SymbolicFunction(xy, ['(' + symbolic_num + ')/(' + symbolic_denom + ')']),
-                          openturns.SymbolicFunction(xy, ['1 - ' + '(' + symbolic_num + ')/(' + symbolic_denom + ')']))
+        psi_fo = openturns.SymbolicFunction(xy,\
+                             ['(' + symbolic_num + ')/(' + symbolic_denom + ')'])
+        psi_to = openturns.SymbolicFunction(xy,\
+                    ['1 - ' + '(' + symbolic_num + ')/(' + symbolic_denom + ')'])
         return psi_fo, psi_to
 
     @staticmethod

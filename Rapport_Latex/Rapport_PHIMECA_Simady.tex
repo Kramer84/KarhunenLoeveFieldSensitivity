@@ -454,11 +454,38 @@ Finalement une comparaison entre un exemple de la documentation d'\textit{openTU
       \caption{Comparaison entre la solution par openturns (à gauche) et la notre (à droite), pour un échantillon de taille 1000 sur la fonction d'Ishigami}
          \label{Comparison}
 \end{figure}
-L'on observe, que pour cet échantillon de 1000, l'indice de Sobol' calculé avec nos codes est relativement proche de ceux calculés avec \textit{openTURNS}, même si des écarts subsistent, notamment au niveau de la variance. 
 
+L'on observe, que pour cet échantillon de 1000, l'indice de Sobol' calculé avec nos codes est relativement proche de ceux calculés avec \textit{openTURNS}, même si des écarts subsistent, notamment au niveau de la variance. Cette variance s'explique en partie par l'incertitude dans les variables d'entrées (tout échantillon de 1000 est à priori unique).
 
+Les codes ayant montré leur utilisabilité, il était enfin possible d'essayer d'appliquer cette méthodologie à un système plus complexe, un échangeur de chaleur air-air modelisé avec NASTRAN. 
  
 \subsection{Application au modèle NASTRAN d'échangeur thermique}
+
+Comme nous l'avions mentionné avant, la finalité de ce travail de quasi-recherche et développement de codes, était de parvenir à induire des défauts stochastiques dans un modèle informatique, et de mesurer la sensibilité de ce modèle à ces perturbations. 
+
+Le modèle en question est celui d'un échangeur thermique d'utilisation aéronautique, qui est toujours en développement et ou peu de tests ont été, effectués. 
+
+\begin{figure}[H]
+   \centering   
+   \includegraphics[scale=0.255]{comparisonOtMe.png}
+      \caption{Comparaison entre la solution par openturns (à gauche) et la notre (à droite), pour un échantillon de taille 1000 sur la fonction d'Ishigami}
+         \label{Comparison}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \begin{verbatim}
         PROGRAM area

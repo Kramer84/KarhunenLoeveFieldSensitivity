@@ -96,7 +96,12 @@ class StochasticProcessSensitivityAnalysis(object):
         print('Program initialised, ready for sensitivity analysis. You can now proceed to prepare the Sobol indices experiment\n')
 
     def _getState(self):
-        return (self.processesDistributions!=None), (self.outputVariables!=None), (self.batchFunction!=None), (self.singleFunction!=None), (self.size!=None)
+        B1 = self.processesDistributions!=None
+        B2 = self.outputVariables!=None
+        B3 = self.batchFunction!=None
+        B4 = self.singleFunction!=None
+        B5 = self.size!=None
+        return B1, B2, B3, B4, B5
 
 
     #####################################################################################
@@ -144,7 +149,10 @@ class StochasticProcessSensitivityAnalysis(object):
             if self._wrappedFunction is None :
                 print('Please initialize the attributes of the class by using the .set methods')
                 state = self._getState()
-                attributes = ['list of processes & distributions', 'output variables dictionary', 'batch python function', 'single python function', 'sample size']
+                attributes = ['list of processes & distributions', 
+                              'output variables dictionary', 
+                              'batch python function', 
+                              'single python function', 'sample size']
 
 
     def prepareSobolIndicesExperiment(self, **kwargs):
