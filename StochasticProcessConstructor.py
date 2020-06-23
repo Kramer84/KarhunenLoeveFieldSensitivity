@@ -251,14 +251,18 @@ class StochasticProcessConstructor(openturns.Process):
                     if p is True :
                         choice = k
                         break 
+            #Beacause a string is an iterator
             constructor = [covarianceModelDict[dictValues[1][int(i)-1]] for i in str(dictValues[2][choice])]
-            print('Choosen constructor is: (',", ".join([dictValues[1][int(digit)-1] for digit in str(dictValues[2][choice])]),') => ',constructor)
             try:
+                print('Choosen constructor is: (',", ".join([dictValues[1][int(digit)-1] for digit in str(dictValues[2][choice])]),') => ',constructor)
+                print("\nWARNING : if your process is multidimensional, some inputs for the covariance model have to be multidimensional")
+                print("for example, the scale parameter has the same number of arguments than the dimension. ")
+                print("If you forget it, you will have no error message, it just won't work\n")
                 covarianceModel = OTCovarModels[covarianceModelDict['Model']][0](*constructor)
             except:
-                print('Please check your input parameters with the openTURNS documentation, \
+                print('Please check your input parameters with the openTURNS documentation,\
                     as some values have to be points rather than numbers: \n \
-                                                    5 --> [5]  ""brackets!!"" ')
+                    5 --> [5]  ""brackets!!"" ')
             covarianceModel.setName(covarianceModelDict['Model'])
             self.covarianceModel = covarianceModel
 

@@ -11,8 +11,8 @@ from   copy   import deepcopy, copy
 import openturns
 import numpy
 
-import StochasticProcessExperimentGeneration as     SPEG
-import StochasticProcessSensitivityIndices   as     SPSI 
+import StochasticProcessExperimentGeneration as SPEG
+import StochasticProcessSensitivityIndices   as SPSI 
 
 
 class StochasticProcessSensitivityAnalysis(object):
