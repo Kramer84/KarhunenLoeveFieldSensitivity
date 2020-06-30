@@ -1,6 +1,5 @@
-
 %
-% LaTeX report template 
+% LaTeX report from the 2020 PHIMECA internship 
 %
 \documentclass[a4paper,10pt]{article}
 \usepackage{graphicx}
@@ -461,31 +460,43 @@ Les codes ayant montré leur utilisabilité, il était enfin possible d'essayer 
  
 \subsection{Application au modèle NASTRAN d'échangeur thermique}
 
-Comme nous l'avions mentionné avant, la finalité de ce travail de quasi-recherche et développement de codes, était de parvenir à induire des défauts stochastiques dans un modèle informatique, et de mesurer la sensibilité de ce modèle à ces perturbations. 
+Comme nous l'avions mentionné avant, la finalité de ce travail de quasi-recherche et développement de codes, était de parvenir à induire des défauts stochastiques dans un modèle numérique, et de mesurer la sensibilité de ce modèle à ces perturbations. 
 
-Le modèle en question est celui d'un échangeur thermique d'utilisation aéronautique, qui est toujours en développement et ou peu de tests ont été, effectués. 
+Le modèle en question est celui d'un échangeur thermique d'utilisation aéronautique. Cette pièce doit être  capable de supporter et échanger la température de deux flux d'air perpendiculaires, l'un a température ambiante et l'autre a des températures allant jusqu'à 600C. \\
 
 \begin{figure}[H]
    \centering   
-   \includegraphics[scale=0.255]{comparisonOtMe.png}
-      \caption{Comparaison entre la solution par openturns (à gauche) et la notre (à droite), pour un échantillon de taille 1000 sur la fonction d'Ishigami}
-         \label{Comparison}
+   \includegraphics[scale=0.5]{principeEchangeur.png}
+      \caption{Principe de l'échangeur à chaleur air-air}
+         \label{principleExchanger}
 \end{figure}
 
+Ce projet est financé par l'union européenne, et la fabrication est assurée par le fabricant allemand \textbf{LIEBHERR}. Ce dernier sous-traite certaines étapes de l'étude, comme les essais physiques sur des échantillons de l'échangeur, tâche réalisée par \textbf{Lortek}, la construction d'un modèle paramétrique numérique de l'échangeur, tâche réalisée par \textbf{Epsilon}, et enfin la partie analyse de sensibilité réalisée par \textbf{Phimeca}. \\
+
+Ce projet à donc impliqué l'étroite collaboration de ces différents acteurs, vu que pour l'analyse de sensibilité il nous fallait utiliser le modèle contruit par \textbf{Epsilon}, et introduire des incertitudes dans les paramètres, récuperées dans les mesures faites par \textbf{Lortek}.
 
 
+\begin{figure}[H]
+   \centering   
+   \includegraphics[scale=0.3]{exchangerModel.png}
+      \caption{Modèle Nastran de l'echangeur de chaleur - Siemens Simcenter 3D}
+         \label{exchangerModel}
+\end{figure}
 
+Pour bien se coordoner sur le projet, des réunions se sont régulièrement tenues, permettant de se tenir à jour sur les avancements de chacun, et de définir les prochaines étapes à atteindre. \\ 
 
+Dans le cas de l'étude à réaliser par \textbf{Phimeca}, le sujet d'analyse était l'étude de l'influence de la variabilité dans les paramètres des aillettes de l'échangeur de chaleur sur la localisation de la défaillance. Dans le cas de l'échangeur de chaleur, la défaillance correspond à une rupture d'aillette, ou une perte d'étancheité. \\
 
+Numériquement, la rupture se traduit par une contrainte maximale superieure à la contrainte maximale suportée par le matérieau constituant de la pièce. L'analyse de la pièce se traduit donc par l'étude de l'effet de la maitrise des paramètres de l'ailette (épaisseur, planéitée, angle...) sur la localisation de la contrainte maximale. 
 
+\begin{figure}[H]
+   \centering   
+   \includegraphics[scale=0.3]{SchemaAilettes.png}
+      \caption{Ailettes d'un échangeur de chaleur}
+         \label{SchemaAilettes}
+\end{figure}
 
-
-
-
-
-
-
-
+Pour parvenir à introduire ces variabilités
 
 \begin{verbatim}
         PROGRAM area

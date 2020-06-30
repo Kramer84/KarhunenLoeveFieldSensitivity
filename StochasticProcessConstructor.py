@@ -98,6 +98,8 @@ class StochasticProcessConstructor(openturns.Process):
         self.dimension                      = dimension
         self._covarianceModelDict           = covariance_model
         self._grid_shape                    = grid_shape
+        self.shape                          = None #Shape of the output numpy arrays 
+        self.extent                         = None #Extent of the processes created
         self.covarianceModel                = None
         self.mesh                           = None
         self._trendArgs                     = trend_arguments
@@ -120,8 +122,10 @@ class StochasticProcessConstructor(openturns.Process):
         if self.mesh           is not None and self.dimension is not None and self._trendArgs is not None and self._trendFunc is not None:
             self.setTrend(self._trendArgs, self._trendFunc)
         if self.mesh           is not None and self.covarianceModel is not None:
-            self.setGaussianProcess()
-        
+            try :
+                self.setGaussianProcess()
+            except : 
+                print("Can't set gaussian process, error occured. Verify your parameters")
     def __help__(self):
         # help method
         helpStr='''
@@ -178,16 +182,20 @@ class StochasticProcessConstructor(openturns.Process):
         assert type(grid_shape) == list, 'the grids shape has to be in a list'
         assert(len(grid_shape)  == self.dimension and type(grid_shape[0]) is list), 'check self.printHelp method' 
         
-        n_intervals     = [grid_shape[i][2]             for i in range(self.dimension)]
-        low_bounds      = [grid_shape[i][0]             for i in range(self.dimension)]
-        lengths         = [grid_shape[i][1]             for i in range(self.dimension)]
-        high_bounds     = [low_bounds[i] + lengths[i]   for i in range(self.dimension)]
-        mesherObj       = openturns.IntervalMesher(n_intervals)
-        grid_interval   = openturns.Interval(low_bounds, high_bounds)
-        mesh            = mesherObj.build(grid_interval)
+        self._grid_shape = grid_shape
+        n_intervals      = [grid_shape[i][2]             for i in range(self.dimension)]
+        low_bounds       = [grid_shape[i][0]             for i in range(self.dimension)]
+        lengths          = [grid_shape[i][1]             for i in range(self.dimension)]
+        high_bounds      = [low_bounds[i] + lengths[i]   for i in range(self.dimension)]
+        mesherObj        = openturns.IntervalMesher(n_intervals)
+        grid_interval    = openturns.Interval(low_bounds, high_bounds)
+        mesh             = mesherObj.build(grid_interval)
         mesh.setName(str(self.dimension)+'D_Grid')
-        self.mesh       = mesh
+        self.mesh        = mesh
         self.setMesh(mesh)
+        shape       = numpy.squeeze(n_intervals)+1
+        self.shape  = shape.tolist()
+        self.extent = numpy.ravel(numpy.asarray(list(zip(low_bounds,high_bounds)))).tolist()
 
     def setMesh(self, mesh):
         '''Sets the openturns mesh.
@@ -265,6 +273,10 @@ class StochasticProcessConstructor(openturns.Process):
                     5 --> [5]  ""brackets!!"" ')
             covarianceModel.setName(covarianceModelDict['Model'])
             self.covarianceModel = covarianceModel
+        try : 
+            self.setGaussianProcess()
+        except : 
+            print("Can't set gaussian process, some error occured. Verifiy your parameters")
 
     def setTrend(self, arguments : list, funcOrConst = 0):
         '''Function to set the trend transform of the process
@@ -453,7 +465,9 @@ class StochasticProcessConstructor(openturns.Process):
         sample_ot = self.GaussianProcess.getSample(size)
         self.sample_map = np_as_tmp_map(numpy.asarray(sample_ot))
         if getAsArray == True : 
-            return numpy.asarray(self.sample_map) 
+            array = numpy.asarray(self.sample_map)
+            array = numpy.reshape(array,self.sh)
+            return  
         else :
             return sample_ot
 
@@ -466,10 +480,11 @@ class StochasticProcessConstructor(openturns.Process):
     def getRealization(self, getAsArray = False):
         '''Get a realization of the process.
         '''
-        assert(self.GaussianProcess is not None),""
+        assert(self.GaussianProcess is not None and self.shape is not None),"first initialize process or set grid"
         realization = self.GaussianProcess.getRealization()
         if getAsArray == True : 
-            return numpy.asarray(realization.getValues())
+            array = numpy.asarray(realization.getValues())
+            return numpy.reshape(array,self.shape)
         else :
             return realization
 
