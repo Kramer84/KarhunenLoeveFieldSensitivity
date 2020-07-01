@@ -328,6 +328,7 @@ class StochasticProcessConstructor(openturns.Process):
         assert(self.mesh is not None and self.covarianceModel is not None), \
                                             "first instantiate grid and covariance model"
         if self.TrendTransform is not None :
+            print('Creating Gaussian Process with trend transform ...')
             self.GaussianProcess = openturns.GaussianProcess(self.TrendTransform, 
                                                         self.covarianceModel, self.mesh)
         else :
@@ -484,7 +485,7 @@ class StochasticProcessConstructor(openturns.Process):
         realization = self.GaussianProcess.getRealization()
         if getAsArray == True : 
             array = numpy.asarray(realization.getValues())
-            return numpy.reshape(array,self.shape)
+            return numpy.reshape(array,self.shape,order='F')
         else :
             return realization
 
