@@ -41,7 +41,7 @@ realization = stochasticProcess.getRealization(True)
 plt.imshow(realization)
 ```
 
-<img src="Rapport_Latex/fieldGenPics/processRealization.png" alt="Realization of a two dimensional stochastic process" width="200">
+<img src="Rapport_Latex/fieldGenPics/processRealization.png" alt="Realization of a two dimensional stochastic process" width="300">
 
 ## Built With
 
