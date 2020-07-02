@@ -29,6 +29,8 @@ conda env create -f  sensitivityEnv.yml
 
 ## Usage
 
+#### Creating stochastic processes:
+
 ```python
 import StochasticProcessConstructor as SPC
 import matplotlib.pyplot as plt
@@ -40,8 +42,18 @@ stochasticProcess.setCovarianceModel({'Model':'MaternModel','scale':[25,25],'amp
 realization = stochasticProcess.getRealization(True)
 plt.imshow(realization)
 ```
-
 <img src="Rapport_Latex/fieldGenPics/processRealization.png" alt="Realization of a two dimensional stochastic process" width="300">
+
+#### Sensitivity analysis on stochastic field:
+
+```python
+import StochasticProcessConstructor as SPC
+import StochasticProcessSensitivity as SPS
+import openturns as ot
+
+
+
+```
 
 ## Built With
 
