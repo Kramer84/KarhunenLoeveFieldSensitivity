@@ -17,6 +17,7 @@ Important packages used:
  - NumPy
  - Numba (not really used, but acceleration could be intersting)
  - anastruct (for the random beam example)
+ - mayavi.mlab (simple 3 dimensional plotting)
 
 ### Installing
 
@@ -24,6 +25,22 @@ The environment installation is simple, just have conda install and paste that l
 ```
 conda env create -f  sensitivityEnv.yml
 ```
+
+
+## Usage
+
+```python
+import StochasticProcessConstructor as SPC
+import matplotlib.pyplot as plt
+
+stochasticProcess = SPC.StochasticProcessConstructor() 
+stochasticProcess.setDimension(2)
+stochasticProcess.setGrid([[0,100,100],[0,100,100],])
+stochasticProcess.setCovarianceModel({'Model':'MaternModel','scale':[25,25],'amplitude':[5],'nu':3.})
+realization = stochasticProcess.getRealization(True)
+plt.imshow(realization)
+```
+![realisation](processRealization.png?raw=true "Realization of a two dimensional stochastic process")
 
 ## Built With
 

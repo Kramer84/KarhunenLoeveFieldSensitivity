@@ -197,6 +197,7 @@ class StochasticProcessConstructor(openturns.Process):
         self.shape  = shape.tolist()
         self.extent = numpy.ravel(numpy.asarray(list(zip(low_bounds,high_bounds)))).tolist()
 
+
     def setMesh(self, mesh):
         '''Sets the openturns mesh.
         '''
@@ -214,20 +215,26 @@ class StochasticProcessConstructor(openturns.Process):
         covarianceModel : openturns.statistics.CovarianceModels*
             openTURNS covariance model object, already constructed
         '''
-        OTCovarModels = {'AbsoluteExponential'           : (openturns.AbsoluteExponential,           ['spatialDim','scale','amplitude'], [1, 2, 23]),          
-                         'SquaredExponential'            : (openturns.SquaredExponential,            ['spatialDim','scale','amplitude'],[1, 2, 23] ),    
-                         'MaternModel'                   : (openturns.MaternModel,                   ['spatialDim','scale','amplitude' ,'nu'], [1, 24, 234]),
-                         'ExponentialModel'              : (openturns.ExponentialModel,              ['spatialDim','scale','amplitude' ,'spatialCorrelation' ,'spatialCovariance'], [1, 23, 234, 235]),
-                         'DiracCovarianceModel'          : (openturns.DiracCovarianceModel,          ['spatialDim','amplitude' ,'spatialCorrelation' ,'spatialCovariance'], [1, 12, 123, 14]),
-                         'ExponentiallyDampedCosineModel': (openturns.ExponentiallyDampedCosineModel,['spatialDim','scale' ,'amplitude' ,'f' ], [1, 234]),     
-                         'FractionalBrownianMotionModel' : (openturns.FractionalBrownianMotionModel, ['scale' ,'amplitude' ,'exponent' ,'eta' ,'rho'], [123, 12345]),
-                         'GeneralizedExponential'        : (openturns.GeneralizedExponential,        ['spatialDim', 'scale', 'amplitude', 'p'], [1, 24, 234 ]),        
-                         'ProductCovarianceModel'        : (openturns.ProductCovarianceModel,        ['coll'], [1]),
-                         'RankMCovarianceModel'          : (openturns.RankMCovarianceModel,          ['inputDimension','variance','basis','covariance'], [1, 23, 42]),
-                         'SphericalModel'                : (openturns.SphericalModel,                ['spatialDim','scale','amplitude','radius'], [1, 23, 234]),            
-                         'TensorizedCovarianceModel'     : (openturns.TensorizedCovarianceModel,     ['coll'], [1]),
-                         'UserDefinedCovarianceModel'    : (openturns.UserDefinedCovarianceModel,    ['mesh','matrix'], [12])
+        #This dictionary contains everything 'bout the openturns convariance models. 
+        #The key is the models name as a string, and the values are the model itself, a list of each argument accepted by the covariance model,
+        #a list of ints that contain information about each combination of the arguments and their order. finally a list containing info 'bout 
+        # if the argument should be in form of a list or a float/int or something else... 
+        ot = openturns
+        OTCovarModels = {'AbsoluteExponential'           : (ot.AbsoluteExponential,           ['spatialDim','scale','amplitude'], [1, 2, 23], [0,1,1]),          
+                         'SquaredExponential'            : (ot.SquaredExponential,            ['spatialDim','scale','amplitude'],[1, 2, 23], [0,1,1]),    
+                         'MaternModel'                   : (ot.MaternModel,                   ['spatialDim','scale','amplitude' ,'nu'], [1, 24, 234], [0,1,1,0]),
+                         'ExponentialModel'              : (ot.ExponentialModel,              ['spatialDim','scale','amplitude' ,'spatialCorrelation' ,'spatialCovariance'], [1, 23, 234, 235], [0,1,1,2,2]),
+                         'DiracCovarianceModel'          : (ot.DiracCovarianceModel,          ['spatialDim','amplitude' ,'spatialCorrelation' ,'spatialCovariance'], [1, 12, 123, 14], [0,1,2,2]),
+                         'ExponentiallyDampedCosineModel': (ot.ExponentiallyDampedCosineModel,['spatialDim','scale' ,'amplitude' ,'f' ], [1, 234], [0,1,1,0]),     
+                         'FractionalBrownianMotionModel' : (ot.FractionalBrownianMotionModel, ['scale' ,'amplitude' ,'exponent' ,'eta' ,'rho'], [123, 12345], [1,1,0,0,0]),
+                         'GeneralizedExponential'        : (ot.GeneralizedExponential,        ['spatialDim', 'scale', 'amplitude', 'p'], [1, 24, 234 ], [1,1,1,0]),        
+                         'ProductCovarianceModel'        : (ot.ProductCovarianceModel,        ['coll'], [1], [1]),
+                         'RankMCovarianceModel'          : (ot.RankMCovarianceModel,          ['inputDimension','variance','basis','covariance'], [1, 23, 42], [-1,-1,-1,-1]),
+                         'SphericalModel'                : (ot.SphericalModel,                ['spatialDim','scale','amplitude','radius'], [1, 23, 234], [0,1,1,1]),            
+                         'TensorizedCovarianceModel'     : (ot.TensorizedCovarianceModel,     ['coll'], [1],[-1]),
+                         'UserDefinedCovarianceModel'    : (ot.UserDefinedCovarianceModel,    ['mesh','matrix'], [12],[2,2])
                          }
+        dataTypes = {0:"int/float", 1:"list", 2:"openTURNS object", -1:"unknown"}
 
         if covarianceModel is not None :
             assert type(covarianceModel) in list(zip(*OTCovarModels.values()))[0], str(covarianceModel) + " is not implemented in openturns yet" 
@@ -268,9 +275,14 @@ class StochasticProcessConstructor(openturns.Process):
                 print("If you forget it, you will have no error message, it just won't work\n")
                 covarianceModel = OTCovarModels[covarianceModelDict['Model']][0](*constructor)
             except:
-                print('Please check your input parameters with the openTURNS documentation,\
-                    as some values have to be points rather than numbers: \n \
-                    5 --> [5]  ""brackets!!"" ')
+                print(''.join([' ']*10),' ___    ERROR    ___')
+                print(''.join([' ']*10),'        |  |     ')
+                print(''.join([' ']*10),'       \\|  |/   ')
+                print(''.join([' ']*10),'        \\  /    ')
+                print(''.join([' ']*10),'         \\/  \n ')
+                print('Please check your input parameters with the openTURNS documentation,\nsome values have to be points rather than numbers.\n' )
+                print('For this constructor the types should be:\n',", ".join([dictValues[1][int(digit)-1]+' : '+dataTypes[dictValues[3][int(digit)-1]] for digit in str(dictValues[2][choice])]))
+                return None
             covarianceModel.setName(covarianceModelDict['Model'])
             self.covarianceModel = covarianceModel
         try : 
@@ -465,14 +477,19 @@ class StochasticProcessConstructor(openturns.Process):
         assert(self.GaussianProcess is not None),""
         sample_ot = self.GaussianProcess.getSample(size)
         self.sample_map = np_as_tmp_map(numpy.asarray(sample_ot))
+        if len(self.extent)==2*len(self.shape):
+            self.extent.pop()
+            self.extent.pop()
+            self.extent.append(self.sample_map.min())
+            self.extent.append(self.sample_map.max())
         if getAsArray == True : 
             array = numpy.asarray(self.sample_map)
-            array = numpy.reshape(array,self.sh)
+            array = numpy.reshape(array,[size,*self.shape],order='F')
             return  
         else :
             return sample_ot
 
-    def setSample(self, npSample):
+    def setSample(self, npSample : numpy.array):
         '''Set a sample, used to construct the random vector
         of Karhunen Loeve coefficients
         '''
@@ -483,6 +500,11 @@ class StochasticProcessConstructor(openturns.Process):
         '''
         assert(self.GaussianProcess is not None and self.shape is not None),"first initialize process or set grid"
         realization = self.GaussianProcess.getRealization()
+        if len(self.extent)==2*len(self.shape):
+            self.extent.pop()
+            self.extent.pop()
+            self.extent.append(realization.getValues().getMin()[0])
+            self.extent.append(realization.getValues().getMax()[0])
         if getAsArray == True : 
             array = numpy.asarray(realization.getValues())
             return numpy.reshape(array,self.shape,order='F')
