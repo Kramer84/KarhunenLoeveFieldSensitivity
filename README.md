@@ -42,6 +42,7 @@ stochasticProcess.setCovarianceModel({'Model':'MaternModel','scale':[25,25],'amp
 realization = stochasticProcess.getRealization(True)
 plt.imshow(realization)
 ```
+*Realization of a two dimensional stochastic process*
 <img src="Rapport_Latex/fieldGenPics/processRealization.png" alt="Realization of a two dimensional stochastic process" width="300">
 
 #### Sensitivity analysis with stochastic fields:
@@ -67,6 +68,7 @@ results = sensitivityAnalysis.SensitivityAnalysisResults
 resutls[0].draw()
 #This is a dummy example
 ```
+*Example of sobol indices (not relevant to the example)*
 <img src="Rapport_Latex/sensibiliteDeflection10K.png" alt="Example of sobol indices (not relevant to the example)" width="300">
 
 
