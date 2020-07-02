@@ -17,7 +17,6 @@ Important packages used:
  - NumPy
  - Numba (not really used, but acceleration could be intersting)
  - anastruct (for the random beam example)
- - mayavi.mlab (simple 3 dimensional plotting)
 
 ### Installing
 
@@ -39,7 +38,7 @@ stochasticProcess = SPC.StochasticProcessConstructor()
 stochasticProcess.setDimension(2)
 stochasticProcess.setGrid([[0,100,100],[0,100,100],])
 stochasticProcess.setCovarianceModel({'Model':'MaternModel','scale':[25,25],'amplitude':[5],'nu':3.})
-realization = stochasticProcess.getRealization(True)
+realization = stochasticProcess.getRealization(True) #True to get it as a reshaped numpy array and not a openturns object
 plt.imshow(realization)
 ```
 *Realization of a two dimensional stochastic process*
