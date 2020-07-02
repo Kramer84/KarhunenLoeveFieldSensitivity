@@ -44,16 +44,31 @@ plt.imshow(realization)
 ```
 <img src="Rapport_Latex/fieldGenPics/processRealization.png" alt="Realization of a two dimensional stochastic process" width="300">
 
-#### Sensitivity analysis on stochastic field:
+#### Sensitivity analysis with stochastic fields:
+This is in the case where you have a function that takes as an input fields and random variables, but also random variables alone or only fields.
+The general case would be to have a function **F(X,Y) = U,V**, where **X** and **Y** would be a collection of fields and scalars, and the the outputs **U** and **V** would also be fields and scalars. 
 
 ```python
 import StochasticProcessConstructor as SPC
 import StochasticProcessSensitivity as SPS
 import openturns as ot
 
+RV0 = ot.Normal()        #Centered and reduced normal law
+SP0 = stochasticProcess  #The stochastic process from above
+outputs = {1:{'name':'U','position':0,'shape':(1,)},2:{'name':'V','position':1,'shape':(10,10)}} #We have to know the name, the position in the output tuple, as well as the dimension
+size = 1000 #size of the sobol experiment
+singleFunc = Fsingle #Function doing single evaluations
+sampleFunc = Fsample #Function doing multiple evaluations
 
-
+sensitivityAnalysis = SPS.StochasticProcessSensitivityAnalysis([RV0, SP0], outputs, sampleFunc, singleFunc, size)
+sensitivityAnalysis.run(generationType = 1)
+sensitivityAnalysis.getSensitivityAnalysisResults()
+results = sensitivityAnalysis.SensitivityAnalysisResults
+resutls[0].draw()
+#This is a dummy example
 ```
+<img src="Rapport_Latex/sensibiliteDeflection10K.png" alt="Example of sobol indices (not relevant to the example)" width="300">
+
 
 ## Built With
 
