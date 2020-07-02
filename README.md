@@ -6,7 +6,9 @@ They were done in the frame of an internship at [PHIMECA](http://www.phimeca.com
 ## Aim of the project
 
 It is of common practice today to carry out sensitivity analysis on the item we desire to produce. It allows to get a beter understanding of the products behaviour during and after manufacture, and to master the uncertain nature of reality. This method allows us to know which parameter uncertainty will have the most influence on the products outcome, and *in fine*, know where to invest the most effort to reduce uncertainties.
+
 Sensitivity analysis itself is, although being almost 30 years old, a rather new discipline with it's limitations. In fact, sensitivity analysis is usually carried out on scalar uncertainties (like a length, a diameter, a frequency...) and not so often on more complex random structures, as random fields. The aim of this project is to develop a set of usable codes, that will allow to carry out sensitivity analysis on models where the input uncertainty is not only scalar, but can also occur under the form of random fields. 
+
 The methodology was based on different research papers, with the principal idea gotten from a 2017 paper called **"Time-variant global reliability sensitivity analysis of structures with both input random variables and stochastic processes"** from **P. Wei, Y. Wang & C. Tang**. The methodology is explained in the report (in *French*...).
 
 ## Getting Started
