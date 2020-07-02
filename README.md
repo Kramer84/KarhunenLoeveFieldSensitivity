@@ -40,7 +40,8 @@ stochasticProcess.setCovarianceModel({'Model':'MaternModel','scale':[25,25],'amp
 realization = stochasticProcess.getRealization(True)
 plt.imshow(realization)
 ```
-![realisation](Rapport_Latex/fieldGenPics/processRealization.png=120x "Realization of a two dimensional stochastic process")
+
+<img src="Rapport_Latex/fieldGenPics/processRealization.png" alt="Realization of a two dimensional stochastic process" width="200">
 
 ## Built With
 
