@@ -10,13 +10,14 @@ import numpy
 import StochasticProcessSobolIndicesAlgorithmBase as SPSIA
 
 
-class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImplementation):
-    '''Base class for the sensitivity analysis, without having to use the inputDesign. 
+class SobolIndicesStochasticProcessAlgorithm(
+                        openturns.SobolIndicesAlgorithmImplementation):
+    '''Base class for sensitivity analysis, without usage of the inputDesign. 
 
     Note
     ----
-    This code is trying to be written accoirding to PEP 484 specification, with explicit
-    hints in the methods. This reduces the need to detail the method in the help. 
+    Code written according to PEP 484 specification, with explicit hints in 
+    methods. This reduces the need to detail the method in help. 
 
     Parameters
     ----------
@@ -25,7 +26,7 @@ class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImpl
     N : int 
         size of one sample
     method : str
-        string gathering information about the method to use for the sensitivity analysis 
+        string with information about method for the sensitivity analysis 
 
     Attributes
     ----------
@@ -36,7 +37,7 @@ class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImpl
     method : str
         same as above
     confidenceLevel : float (between 0 and 1)
-        The confidence level of the estimator, important for plotting
+        Confidence level of the estimator, important for plotting
     inputDescription : List[str]
         list containing the names of the different input dimensions
     _FirstOrderIndices : numpy.array
@@ -69,7 +70,7 @@ class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImpl
     setDimension: 
         method to set the dimension of the input. usually deduced automatically
     setConfidenceLevel: 
-        method to set the desired confidence level for the estimator (default : 0.95)
+        set method for confidence level of estimator (default : 0.95)
     getConfidenceLevel:
         accessor to the confidence level 
     draw:
@@ -108,7 +109,7 @@ class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImpl
                 self._varFirstOrder, self._varTotalOrder = self.sobolEngine.getSobolIndices(
                     self.outputDesign, self.sampleSize, self.method)
 
-    def setInputDescription(self, names: Union[List[str], str]) -> None:
+    def setInputDescription(self, names: Union[List[str], str]) -> None:  
         if type(names) is str:
             self.inputDescription = openturns.Description([names])
         else:
@@ -141,14 +142,16 @@ class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImpl
         assert self.outputDesign is not None, "You need a sample to work on"
         self._runAlgorithm()
         confidence = numpy.sqrt(
-            self._varFirstOrder) * openturns.Normal().computeQuantile(self.confidenceLevel)[0]
+            self._varFirstOrder) * openturns.Normal().computeQuantile(
+                                                        self.confidenceLevel)[0]
         return confidence
 
     def getTotalorderIndicesInterval(self) -> float:
         assert self.outputDesign is not None, "You need a sample to work on"
         self._runAlgorithm()
         confidence = numpy.sqrt(
-            self._varTotalOrder) * openturns.Normal().computeQuantile(self.confidenceLevel)[0]
+            self._varTotalOrder) * openturns.Normal().computeQuantile(
+                                                        self.confidenceLevel)[0]
         return confidence
 
     def setDimension(self, dim: int) -> None:
@@ -168,8 +171,8 @@ class SobolIndicesStochasticProcessAlgorithm(openturns.SobolIndicesAlgorithmImpl
 
     def draw(self, *args: Any) -> None:
         SPSIA.plotSobolIndicesWithErr(S=self._FirstOrderIndices,
-                                      errS=self.getFirstOrderIndicesInterval(),
-                                      varNames=self.inputDescription,
-                                      n_dims=self.dim,
-                                      Stot=self._TotalOrderIndices,
-                                      errStot=self.getTotalorderIndicesInterval())
+                                    errS=self.getFirstOrderIndicesInterval(),
+                                    varNames=self.inputDescription,
+                                    n_dims=self.dim,
+                                    Stot=self._TotalOrderIndices,
+                                    errStot=self.getTotalorderIndicesInterval())

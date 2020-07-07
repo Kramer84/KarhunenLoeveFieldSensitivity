@@ -6,17 +6,20 @@ import openturns
 import numpy
 
 
-'''Here we are going to generate samples for the Monte-Carlo experiement,
-knowing that the variables that we are generating are a mix of random-variables
-representing Physical variables and random-variables used to reconstruct stochastic
-field. 
-This has little implication of the Latin Hypercube sampling itself, but will change the
-way we shuffle to retrieve the conditional variances.
+'''Codes for generating samples for the Monte-Carlo experiement. The generation
+is done with the prior knowledge about which of the variables is a field or
+scalar.
 
-To know which variable belongs to which type of physical quantity, this class works will
-work exclusively with the NdGaussianProcessSensitivity.OpenturnsPythonFunctionWrapper
-, from which we need the KLComposedDistribution attribute, as well as the inputVarNames
-and inputVarNamesKL. Later, this can later be modified to work with other inputs as well.
+This has little implication on the Latin Hypercube sampling itself, but will 
+change the way we shuffle to retrieve the conditional variances.
+
+To know which variable belongs to which type of physical quantity, this class 
+works will work exclusively with the 
+NdGaussianProcessSensitivity.OpenturnsPythonFunctionWrapper, from which we need 
+the KLComposedDistribution attribute, as well as the  inputVarNames and 
+inputVarNamesKL. 
+
+This can later be modified to work with other inputs as well.
 '''
 
 
@@ -31,15 +34,16 @@ class StochasticProcessSensitivityExperiment(object):
 
     This generation begins similarly to other experiments, generating a big
     sample of size 2*N that we decompose in two samples A and B of size N.
-    This generation can be done entirely randomely, or using specific sampling methods,
-    as LHS, LowDiscrepancySequence or SimulatedAnnealingLHS.
+    This generation can be done entirely randomely, or using specific sampling 
+    methods, as LHS, LowDiscrepancySequence or SimulatedAnnealingLHS.
 
-    The difference lies in the way we 'shuffle' our two samples. For a classical RV
-    representing a mono-dimensional physical quantitiy, we take the column representing this
-    quantity in the matrix B and replace the correspoding values in A, thus creating a new matrix,
-    that we append to our samples. But in the case of a gaussian field represented by a series
-    of random variables, we take all those variables in B and put them in A, but we do not take them
-    individually, as in a classical experiment.
+    The difference lies in the way we 'shuffle' our two samples. For a classical 
+    RV representing a mono-dimensional physical quantitiy, we take the column 
+    representing this quantity in the matrix B and replace the correspoding 
+    values in A, thus creating a new matrix, that we append to our samples. 
+    But in the case of a gaussian field represented by a series of random 
+    variables, we take all those variables in B and put them in A, but we do 
+    not take them individually, as in a classical experiment.
 
     Generation options :
     1 : Random
@@ -47,7 +51,8 @@ class StochasticProcessSensitivityExperiment(object):
     3 : LowDiscrepancySequence
     4 : SimulatedAnnealingLHS
     '''
-    genTypes = {1: 'Random', 2: 'LHS', 3: 'LowDiscrepancySequence', 4: 'SimulatedAnnealingLHS'}
+    genTypes = {1: 'Random', 2: 'LHS', 3: 'LowDiscrepancySequence', 
+                                                    4: 'SimulatedAnnealingLHS'}
 
     def __init__(self, size=None, OTPyFunctionWrapper=None, generationType=1):
         self.OTPyFunctionWrapper = None
@@ -78,7 +83,8 @@ class StochasticProcessSensitivityExperiment(object):
         '''generate final sample with A and b mixed
         '''
         assert (self.OTPyFunctionWrapper is not None) and \
-               (self.N is not None), "Please intialise sample size and PythonFunction wrapper"
+               (self.N is not None), 
+                    "Please intialise sample size and PythonFunction wrapper"
         self.generateSample(**kwargs)
         self.getDataFieldAndRV()
         self.getExperiment()
@@ -87,7 +93,8 @@ class StochasticProcessSensitivityExperiment(object):
     def setSize(self, N):
         '''set size of the samples 
         '''
-        assert (type(N) is int) and (N > 0), "Sample size can only be positive integer"
+        assert (type(N) is int) and (N > 0), 
+                                    "Sample size can only be positive integer"
         if self.N is None:
             self.N = N
         else:
@@ -125,7 +132,8 @@ class StochasticProcessSensitivityExperiment(object):
             k = 0
             timesInList = 0
             jump = self.ramp(sum(self.dataMixSamples) - i)
-            while self.inputVarNamesKL[i + k + jump].startswith(self.inputVarNames[i]):
+            while self.inputVarNamesKL[i + k + jump].startswith(
+                                                        self.inputVarNames[i]):
                 timesInList += 1
                 k += 1
                 if i + k + jump == n_vars_KL:
@@ -142,17 +150,15 @@ class StochasticProcessSensitivityExperiment(object):
         jump = 2 * N
         jumpDim = 0
         for i in range(n_vars):
-            self.experimentSample[jump + N * i:jump + N * (i + 1), jumpDim:jumpDim + self.dataMixSamples[i]] = \
+            self.experimentSample[jump + N*i:jump + N*(i+1), jumpDim:jumpDim + self.dataMixSamples[i]] = \
                 self.sample_B[...,                   jumpDim:jumpDim + self.dataMixSamples[i]]
             jumpDim += self.dataMixSamples[i]
 
     def ramp(self, X):
         '''simple ramp function
         '''
-        if X >= 0:
-            return X
-        else:
-            return 0
+        if X >= 0: return X
+        else: return 0
 
     def generateSample(self, **kwargs):
         '''Generation of two samples A and B using diverse methods

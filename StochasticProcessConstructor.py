@@ -424,6 +424,7 @@ class StochasticProcessConstructor(openturns.Process):
         eigenmodesDistribution.setStd(stdDistri)
         self.decompositionAsRandomVector = eigenmodesDistribution
         cleanAtExit() #to remove temporary arrays
+        self.sample_map = None
 
     def liftDistributionToField(self, randomVector):
         '''transforms a randomVector or collection of random vectors into gaussian fields
