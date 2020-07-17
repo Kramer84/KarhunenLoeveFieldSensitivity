@@ -252,6 +252,8 @@ class StochasticProcessConstructor(openturns.Process):
                 for j in range(len(numStr)) :
                     digit = int(numStr[j])-1
                     try : 
+                        # this assertion does not take in acount if the letters are capitalized or not
+                        # a new class could be implemented that returns true for (TexT == text)
                         assert dictValues[1][digit] in covarianceModelDict,""
                         if j == int(len(numStr)-1) :
                             constructorPossible[i] = True
