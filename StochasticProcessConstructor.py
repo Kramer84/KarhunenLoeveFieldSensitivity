@@ -183,7 +183,7 @@ class StochasticProcessConstructor(openturns.Process):
         assert(len(grid_shape)  == self.dimension and type(grid_shape[0]) is list), 'check self.printHelp method' 
         
         self._grid_shape = grid_shape
-        n_intervals      = [grid_shape[i][2]             for i in range(self.dimension)]
+        n_intervals      = [int(grid_shape[i][2])             for i in range(self.dimension)]
         low_bounds       = [grid_shape[i][0]             for i in range(self.dimension)]
         lengths          = [grid_shape[i][1]             for i in range(self.dimension)]
         high_bounds      = [low_bounds[i] + lengths[i]   for i in range(self.dimension)]
