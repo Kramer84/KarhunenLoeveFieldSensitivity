@@ -93,7 +93,7 @@ class StochasticProcessConstructor(openturns.Process):
     def __init__(self, 
                 dimension:int      = None, covariance_model:str = None,     
                 grid_shape:list    = None, trend_arguments:list = None, 
-                trend_function:str = None):
+                trend_function:str = None, verbosity:int=0):
         super().__init__()
         self.dimension                      = dimension
         self._covarianceModelDict           = covariance_model
@@ -110,6 +110,7 @@ class StochasticProcessConstructor(openturns.Process):
         self.sample_map                     = None 
         self.fieldSampleEigenmodeProjection = None
         self.decompositionAsRandomVector    = None
+        self.verbosity                      = verbosity
         self._buildIfArgsInInit()
 
     def _buildIfArgsInInit(self):
@@ -271,10 +272,11 @@ class StochasticProcessConstructor(openturns.Process):
             #Beacause a string is an iterator
             constructor = [covarianceModelDict[dictValues[1][int(i)-1]] for i in str(dictValues[2][choice])]
             try:
-                print('Choosen constructor is: (',", ".join([dictValues[1][int(digit)-1] for digit in str(dictValues[2][choice])]),') => ',constructor)
-                print("\nWARNING : if your process is multidimensional, some inputs for the covariance model have to be multidimensional")
-                print("for example, the scale parameter has the same number of arguments than the dimension. ")
-                print("If you forget it, you will have no error message, it just won't work\n")
+                if self.verbosity > 1 :
+                    print('Choosen constructor is: (',", ".join([dictValues[1][int(digit)-1] for digit in str(dictValues[2][choice])]),') => ',constructor)
+                    print("\nWARNING : if your process is multidimensional, some inputs for the covariance model have to be multidimensional")
+                    print("for example, the scale parameter has the same number of arguments than the dimension. ")
+                    print("If you forget it, you will have no error message, it just won't work\n")
                 covarianceModel = OTCovarModels[covarianceModelDict['Model']][0](*constructor)
             except:
                 print(''.join([' ']*10),' ___    ERROR    ___')
@@ -282,7 +284,8 @@ class StochasticProcessConstructor(openturns.Process):
                 print(''.join([' ']*10),'       \\|  |/   ')
                 print(''.join([' ']*10),'        \\  /    ')
                 print(''.join([' ']*10),'         \\/  \n ')
-                print('Please check your input parameters with the openTURNS documentation,\nsome values have to be points rather than numbers.\n' )
+                print('Please check your input parameters with the openTURNS documentation,\nsome values have to be points (with brackets) rather than numbers.\n5 ==> [5]' )
+                print('in the case of some parameters as scale and amplitude, the values have to be points (so with brackets) 5 ==> [5]')
                 print('For this constructor the types should be:\n',", ".join([dictValues[1][int(digit)-1]+' : '+dataTypes[dictValues[3][int(digit)-1]] for digit in str(dictValues[2][choice])]))
                 return None
             covarianceModel.setName(covarianceModelDict['Model'])
