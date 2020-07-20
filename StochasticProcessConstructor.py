@@ -495,7 +495,7 @@ class StochasticProcessConstructor(openturns.Process):
         if getAsArray == True : 
             array = numpy.asarray(self.sample_map)
             array = numpy.reshape(array,[size,*self.shape],order='F')
-            return  
+            return array
         else :
             return sample_ot
 
