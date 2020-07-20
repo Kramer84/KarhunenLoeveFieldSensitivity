@@ -348,7 +348,8 @@ class StochasticProcessConstructor(openturns.Process):
         assert(self.mesh is not None and self.covarianceModel is not None), \
                                             "first instantiate grid and covariance model"
         if self.TrendTransform is not None :
-            print('Creating Gaussian Process with trend transform ...')
+            if self.verbosity > 1 :
+                print('Creating Gaussian Process with trend transform ...')
             self.GaussianProcess = openturns.GaussianProcess(self.TrendTransform, 
                                                         self.covarianceModel, self.mesh)
         else :
