@@ -154,6 +154,17 @@ class StochasticProcessConstructor(openturns.Process):
                 '''
         print(helpStr)
 
+    def __repr__(self):
+        if self._grid_shape is not None:
+            shape = str([self._grid_shape[i][2] for i in range(self.dimension)])
+        else :
+            shape = 'UNKNOWN'
+        if self.covarianceModel is not None:
+            covaModel = self.covarianceModel.getName()
+        else:
+            covaModel = 'UNKNOWN'
+        return 'Stochastic Process on grid of shape {} and {} covariance Model '.format(shape, covaModel)
+
     def __del__(self):
         del(self.GaussianProcess)
         del(self.sample_map)
@@ -197,7 +208,6 @@ class StochasticProcessConstructor(openturns.Process):
         shape       = numpy.squeeze(n_intervals)+1
         self.shape  = shape.tolist()
         self.extent = numpy.ravel(numpy.asarray(list(zip(low_bounds,high_bounds)))).tolist()
-
 
     def setMesh(self, mesh):
         '''Sets the openturns mesh.
