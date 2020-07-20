@@ -245,7 +245,8 @@ class StochasticProcessConstructor(openturns.Process):
             self._covarianceModelDict = covarianceModelDict
             assert self.dimension is not None,                     "first set dimension with self.setDimension method"
             assert(covarianceModelDict['Model'] in OTCovarModels), "only use the same model names than those existing in openTURNS"
-            print("Assessing the right constructor choice from input dictionary for",covarianceModelDict['Model'])
+            if self.verbosity > 2 :
+                print("Assessing the right constructor choice from input dictionary for",covarianceModelDict['Model'])
             dictValues = OTCovarModels[covarianceModelDict['Model']]  #Here we choose the values of one of the keys in OTCovarModels
             constructorPossible = [False]*len(dictValues[2]) #Here we check all the possible constructors
             for i in range(len(dictValues[2])):
@@ -328,9 +329,11 @@ class StochasticProcessConstructor(openturns.Process):
 
         self._trendArgs    = arguments 
         self._trendFunc    = funcCst
-        print('trend function args: ',self._trendArgs,' trend function: ', self._trendFunc,'\n')
-        print('Please be aware that the number of elements in the argument list \
-                    has to be the same as the dimension of the process: ', self.dimension)
+        if self.verbosity > 0 :
+            print('trend function args: ',self._trendArgs,' trend function: ', self._trendFunc,'\n')
+        if self.verbosity > 1 :
+            print('Please be aware that the number of elements in the argument list \
+                       has to be the same as the dimension of the process: ', self.dimension)
         symbolicFunction   = openturns.SymbolicFunction(self._trendArgs, [self._trendFunc])
         TrendTransform      = openturns.TrendTransform(symbolicFunction, self.mesh)
         self.TrendTransform = TrendTransform
