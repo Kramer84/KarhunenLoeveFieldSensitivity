@@ -9,8 +9,6 @@ import numpy
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
-__all__ = ['StochasticProcessSobolIndicesAlgorithmBase']
-
 class StochasticProcessSobolIndicesAlgorithmBase(object):
     '''Basic methods to calculate unitary sensitivity indices.
     We first set the samples Y_A and Y_B and calculate the means and

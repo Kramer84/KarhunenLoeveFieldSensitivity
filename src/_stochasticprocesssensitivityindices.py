@@ -7,7 +7,7 @@ from typing import Callable, List, Tuple, Optional, Any, Union
 import openturns
 import numpy
 
-import StochasticProcessSobolIndicesAlgorithmBase as SPSIA
+from ._stochasticprocesssobolindicesalgorithmbase import *
 
 __all__ = ['SobolIndicesStochasticProcessAlgorithm']
 
@@ -77,7 +77,7 @@ class SobolIndicesStochasticProcessAlgorithm(
     draw:
         method to draw the indices, in up to three dimensions
     '''
-    sobolEngine = SPSIA.StochasticProcessSobolIndicesAlgorithmBase()
+    sobolEngine = StochasticProcessSobolIndicesAlgorithmBase()
 
     def __init__(self, outputDesign: Union[openturns.Sample, numpy.array],
                  N: int, method: str = 'Saltelli') -> None:
@@ -171,9 +171,9 @@ class SobolIndicesStochasticProcessAlgorithm(
         return self.confidenceLevel
 
     def draw(self, *args: Any) -> None:
-        SPSIA.plotSobolIndicesWithErr(S=self._FirstOrderIndices,
-                                    errS=self.getFirstOrderIndicesInterval(),
-                                    varNames=self.inputDescription,
-                                    n_dims=self.dim,
-                                    Stot=self._TotalOrderIndices,
-                                    errStot=self.getTotalorderIndicesInterval())
+        plotSobolIndicesWithErr(S=self._FirstOrderIndices,
+                                errS=self.getFirstOrderIndicesInterval(),
+                                varNames=self.inputDescription,
+                                n_dims=self.dim,
+                                Stot=self._TotalOrderIndices,
+                                errStot=self.getTotalorderIndicesInterval())

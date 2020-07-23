@@ -84,7 +84,7 @@ class StochasticProcessSensitivityExperiment(object):
         '''generate final sample with A and b mixed
         '''
         assert (self.OTPyFunctionWrapper is not None) and \
-               (self.N is not None), 
+               (self.N is not None), \
                     "Please intialise sample size and PythonFunction wrapper"
         self.generateSample(**kwargs)
         self.getDataFieldAndRV()
@@ -94,7 +94,7 @@ class StochasticProcessSensitivityExperiment(object):
     def setSize(self, N):
         '''set size of the samples 
         '''
-        assert (type(N) is int) and (N > 0), 
+        assert (type(N) is int) and (N > 0), \
                                     "Sample size can only be positive integer"
         if self.N is None:
             self.N = N
