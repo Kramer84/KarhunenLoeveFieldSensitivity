@@ -14,6 +14,7 @@ import numpy
 import StochasticProcessExperimentGeneration as SPEG
 import StochasticProcessSensitivityIndices   as SPSI 
 
+__all__ = ['StochasticProcessSensitivityAnalysis']
 
 class StochasticProcessSensitivityAnalysis(object):
     '''Custom class to do sensitivity analysis on complex models

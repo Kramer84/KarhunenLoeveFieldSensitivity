@@ -9,6 +9,7 @@ import numpy
 
 import StochasticProcessSobolIndicesAlgorithmBase as SPSIA
 
+__all__ = ['SobolIndicesStochasticProcessAlgorithm']
 
 class SobolIndicesStochasticProcessAlgorithm(
                         openturns.SobolIndicesAlgorithmImplementation):

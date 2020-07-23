@@ -22,6 +22,7 @@ inputVarNamesKL.
 This can later be modified to work with other inputs as well.
 '''
 
+__all__ = ['StochasticProcessSensitivityExperiment']
 
 class StochasticProcessSensitivityExperiment(object):
     '''Class to generate experiments for the sensitivity analysis.

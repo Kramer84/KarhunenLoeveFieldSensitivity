@@ -11,6 +11,8 @@ from   joblib import  Parallel, delayed, cpu_count
 import openturns
 import numpy 
 
+__all__ = ['StochasticProcessConstructor']
+
 class StochasticProcessConstructor(openturns.Process):
     '''Class to create up to 4-dimensional gaussian processes.
 

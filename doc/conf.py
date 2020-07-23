@@ -58,9 +58,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'StochasticProcessAnalysis'
+project = u'StochasticProcessSensitivityAnalysis'
 copyright = u'2020, Kristof Simady'
-author = u'kristof Simady'
+author = u'Kristof Simady'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -154,8 +154,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'power.tex', u'power Documentation',
-     u'Antoine Dumas', 'manual'),
+    (master_doc, 'StochasticProcessSensitivityAnalysis.tex', u'StochasticProcessSensitivityAnalysis Documentation',
+     u'Kristof Simady', 'manual'),
 ]
 
 
@@ -164,7 +164,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'power', u'power Documentation',
+    (master_doc, 'StochasticProcessSensitivityAnalysis', u'StochasticProcessSensitivityAnalysis Documentation',
      [author], 1)
 ]
 
@@ -175,8 +175,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'power', u'power Documentation',
-     author, 'power', 'One line description of project.',
+    (master_doc, 'StochasticProcessSensitivityAnalysis', u'StochasticProcessSensitivityAnalysis Documentation',
+     author, 'StochasticProcessSensitivityAnalysis', 'Sensitivity analysis on models governed by random variables and stochastic processes',
      'Miscellaneous'),
 ]
 

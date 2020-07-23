@@ -2,15 +2,14 @@ __version__ = '0.1'
 __author__ = 'Kristof Attila S.'
 __date__ = '22.06.20'
 
-from typing import Callable, List, Tuple, Optional, Any, Union
-from joblib import Parallel, delayed, cpu_count
-from itertools import chain
+from typing import List, Tuple, Union
 
 import openturns
 import numpy
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
+__all__ = ['StochasticProcessSobolIndicesAlgorithmBase']
 
 class StochasticProcessSobolIndicesAlgorithmBase(object):
     '''Basic methods to calculate unitary sensitivity indices.
