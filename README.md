@@ -32,7 +32,8 @@ To install the module, clone the repository and execute:
 ```
 python setup.py -install 
 ```
-
+### Documentation
+[documentation](spsa/docs/_build/html/index.html)
 
 ## Usage
 
