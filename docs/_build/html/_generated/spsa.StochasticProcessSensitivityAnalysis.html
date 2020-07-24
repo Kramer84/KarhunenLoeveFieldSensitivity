@@ -104,6 +104,7 @@
 <li class="toctree-l3"><a class="reference internal" href="spsa.SobolIndicesStochasticProcessAlgorithm.html">SobolIndicesStochasticProcessAlgorithm</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">StochasticProcessSensitivityAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="spsa.StochasticProcessSensitivityExperiment.html">StochasticProcessSensitivityExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spsa.OpenturnsPythonFunctionWrapper.html">OpenturnsPythonFunctionWrapper</a></li>
 </ul>
 </li>
 </ul>
@@ -195,63 +196,44 @@ and Gaussian Processes, and output fields as well as scalars.</p>
 advance, mainly the shape of the inputs, the laws or processes
 that these inputs follow, as well as the nature of the outputs.
 This informations are added by passing a list of objects defined in
-an other class: NdGaussianProcessConstructor</p>
+an other class: spsa.StochasticProcessConstructor</p>
 <p>The function indicated can be any python function, but not the
 openTurnsPythonFunction type, as this is done internaly. The
 function also needs to take as an input the full field, not the
 modified function taking in decompositions like kahrunen loeve.</p>
-<dl class="py attribute">
-<dt id="spsa.StochasticProcessSensitivityAnalysis.processesDistributions">
-<code class="sig-name descname">processesDistributions</code><a class="headerlink" href="#spsa.StochasticProcessSensitivityAnalysis.processesDistributions" title="Permalink to this definition">¶</a></dt>
-<dd><p>list
-list of NdGaussianProcessConstructor.NdGaussianProcessConstructor and scalar
+<p class="rubric">Notes</p>
+<p>The functions are expected to malfunction sometimes and to return
+nan’s. In this case, the algorithm automatically regenerates new
+inputs for the generation and replaces the nan’s with new values</p>
+<dl class="field-list">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl>
+<dt><strong>processesDistributions: list</strong></dt><dd><p>list of spsa.StochasticProcessConstructor and scalar
 probabilistic openturns distributions</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="spsa.StochasticProcessSensitivityAnalysis.outputVariables">
-<code class="sig-name descname">outputVariables</code><a class="headerlink" href="#spsa.StochasticProcessSensitivityAnalysis.outputVariables" title="Permalink to this definition">¶</a></dt>
-<dd><p>nested dict
-dictionary containg the parameters for the output processes</p>
-<blockquote>
-<div><dl>
-<dt>dictModel = {‘outputField_1’ :</dt><dd><blockquote>
-<div><dl class="simple">
-<dt>{</dt><dd><p>‘name’     : str,
-‘position’ : int, #position in output
-‘shape’    : list</p>
+</dd>
+<dt><strong>outputVariables: nested dict</strong></dt><dd><dl>
+<dt>dictionary containg the parameters for the output processes</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dictModel</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;outputField_1&#39;</span> <span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>             <span class="p">{</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="s1">&#39;name&#39;</span> <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="s1">&#39;position&#39;</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="c1">#position in output</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="s1">&#39;shape&#39;</span> <span class="p">:</span> <span class="nb">list</span>
+<span class="gp">&gt;&gt;&gt; </span>             <span class="p">},</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="p">}</span>
+</pre></div>
+</div>
 </dd>
 </dl>
-<p>},</p>
-</div></blockquote>
-<p>}</p>
 </dd>
-</dl>
-</div></blockquote>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="spsa.StochasticProcessSensitivityAnalysis.batchFunction">
-<code class="sig-name descname">batchFunction</code><a class="headerlink" href="#spsa.StochasticProcessSensitivityAnalysis.batchFunction" title="Permalink to this definition">¶</a></dt>
-<dd><p>pythonFunction
-function taking as an input samples of rvs (vectors)
+<dt><strong>batchFunction: pythonFunction</strong></dt><dd><p>function taking as an input samples of rvs (vectors)
 and samples of fields (ndarrays) for multiprocessing)</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="spsa.StochasticProcessSensitivityAnalysis.singleFunction">
-<code class="sig-name descname">singleFunction</code><a class="headerlink" href="#spsa.StochasticProcessSensitivityAnalysis.singleFunction" title="Permalink to this definition">¶</a></dt>
-<dd><p>pythonFunction
-function taking as a input rvs (scalars) and fields</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="spsa.StochasticProcessSensitivityAnalysis.size">
-<code class="sig-name descname">size</code><a class="headerlink" href="#spsa.StochasticProcessSensitivityAnalysis.size" title="Permalink to this definition">¶</a></dt>
-<dd><p>int
-size of the sample for the sensitivity analysis</p>
-</dd></dl>
-
+</dd>
+<dt><strong>singleFunction: pythonFunction</strong></dt><dd><p>function taking as a input rvs (scalars) and fields</p>
+</dd>
+<dt><strong>size: int</strong></dt><dd><p>size of the sample for the sensitivity analysis</p>
+</dd>
+</dl>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
 <table class="longtable docutils align-default">
 <colgroup>
@@ -260,7 +242,7 @@ size of the sample for the sensitivity analysis</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#spsa.StochasticProcessSensitivityAnalysis.KarhunenLoeveSVDAlgorithm" title="spsa.StochasticProcessSensitivityAnalysis.KarhunenLoeveSVDAlgorithm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KarhunenLoeveSVDAlgorithm</span></code></a>(ndarray[, …])</p></td>
-<td><p>Function to get Kahrunen Loeve decomposition from samples stored in array.</p></td>
+<td><p>Function to get Kahrunen Loeve decomposition from samples stored in an array.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#spsa.StochasticProcessSensitivityAnalysis.getMesh" title="spsa.StochasticProcessSensitivityAnalysis.getMesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getMesh</span></code></a>(grid_shape[, dimension])</p></td>
 <td><p>Function to set the grid on which the process will be defined</p></td>
@@ -300,21 +282,42 @@ size of the sample for the sensitivity analysis</p>
 <dl class="py method">
 <dt id="spsa.StochasticProcessSensitivityAnalysis.KarhunenLoeveSVDAlgorithm">
 <code class="sig-name descname">KarhunenLoeveSVDAlgorithm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ndarray</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)">numpy.ndarray</a></span></em>, <em class="sig-param"><span class="n">process_sample</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">threshold</span><span class="o">=</span><span class="default_value">0.0001</span></em>, <em class="sig-param"><span class="n">centeredFlag</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessSensitivityAnalysis.KarhunenLoeveSVDAlgorithm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function to get Kahrunen Loeve decomposition from samples stored in array.
-Allows to get a representation of a field and it’s beahaviour only by looking at samples</p>
+<dd><p>Function to get Kahrunen Loeve decomposition from samples stored in
+an array.
+Allows to get a representation of a field and it’s beahaviour only by
+looking at samples</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="spsa.StochasticProcessSensitivityAnalysis.getMesh">
 <code class="sig-name descname">getMesh</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">grid_shape</span><span class="p">:</span> <span class="n">List<span class="p">[</span>Tuple<span class="p">[</span>float<span class="p">, </span>float<span class="p">, </span>int<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">dimension</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; openturns.geom.Mesh<a class="headerlink" href="#spsa.StochasticProcessSensitivityAnalysis.getMesh" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to set the grid on which the process will be defined</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>grid_shape</strong><span class="classifier">list</span></dt><dd><p>List containing the lower bound, the length and the number of
+elements for each dimension. Ex:
+&gt;&gt;&gt; [[x0 , Lx , Nx], <a href="#id1"><span class="problematic" id="id2">**</span></a>]</p>
+</dd>
+<dt><strong>dimension</strong><span class="classifier">int</span></dt><dd><p>dimension of the mesh</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="spsa.StochasticProcessSensitivityAnalysis.getOutputDesignAndPostprocess">
 <code class="sig-name descname">getOutputDesignAndPostprocess</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessSensitivityAnalysis.getOutputDesignAndPostprocess" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method to evaluate the model on the experiment. Has to be done once the experiment
-is generated</p>
+<dd><p>Method to evaluate the model on the experiment. Has to be done
+once the experiment is generated</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>~ same as .run() method ~</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -327,44 +330,102 @@ As it is a sample we will have a collection of fields</p>
 <dl class="py method">
 <dt id="spsa.StochasticProcessSensitivityAnalysis.getSensitivityAnalysisResults">
 <code class="sig-name descname">getSensitivityAnalysisResults</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">method</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'Saltelli'</span></em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#spsa.StochasticProcessSensitivityAnalysis.getSensitivityAnalysisResults" title="Permalink to this definition">¶</a></dt>
-<dd><p>method to execute the sensitivity analysis and store it’s results in a dictionnary</p>
+<dd><p>method to execute the sensitivity analysis and store it’s results
+in a dictionnary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>method</strong><span class="classifier">str</span></dt><dd><p>string specifying the Sobol’ estimator (default : Saltelli)</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="spsa.StochasticProcessSensitivityAnalysis.prepareSobolIndicesExperiment">
 <code class="sig-name descname">prepareSobolIndicesExperiment</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessSensitivityAnalysis.prepareSobolIndicesExperiment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to generate the experiment for the sensitivity analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>~ same as .run() method ~</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="spsa.StochasticProcessSensitivityAnalysis.run">
 <code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessSensitivityAnalysis.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method to generate the Sobol’ Experiment, solve it and correct the output</p>
+<dd><p>Method to generate the Sobol’ Experiment, solve it and correct the
+output</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>generationType: int, optional</strong></dt><dd><p>order = {1:Random, 2:LHS, 3:LowDiscrepancySequence,
+4:SimulatedAnnealingLHS}</p>
+<blockquote>
+<div><p>Parameter to set the desired sampling strategy</p>
+</div></blockquote>
+</dd>
+<dt><strong>SpaceFilling: str, optional, &lt;1&gt;</strong></dt><dd><p>order = {‘SpaceFillingC2’, ‘SpaceFillingMinDist’,
+‘SpaceFillingPhiP’}</p>
+<blockquote>
+<div><p>Parameter to set the space filling strategy, refer to
+openTURNS documentation</p>
+</div></blockquote>
+</dd>
+<dt><strong>p: int, optional, &lt;1&gt;</strong></dt><dd><p>default 50 =&gt; refer to openTURNS documentation for more details</p>
+</dd>
+<dt><strong>TemperatureProfile: str, optional, &lt;1&gt;</strong></dt><dd><dl class="simple">
+<dt>order = {‘GeometricProfile’, ‘LinearProfile’}</dt><dd><p>Refer to openTURNS documentation for more details</p>
+</dd>
+</dl>
+</dd>
+<dt><strong>sequence: str, optional, &lt;2&gt;</strong></dt><dd><p>order = {‘Sobol’, ‘Faure’, ‘Halton’, ‘ReverseHalton’, ‘Haselgrove’}</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This run method can take a multitude of arguments, according to the
+different sampling strategies.</p>
+<blockquote>
+<div><p>&lt;1&gt; : only SimulatedAnnealingLHS</p>
+<p>&lt;2&gt; : only LowDiscrepancySequence</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
 <dt id="spsa.StochasticProcessSensitivityAnalysis.setBatchFunc">
 <code class="sig-name descname">setBatchFunc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batchFunction</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#spsa.StochasticProcessSensitivityAnalysis.setBatchFunc" title="Permalink to this definition">¶</a></dt>
-<dd><p>method to set a python function taking as an input random variables and fields in batches</p>
+<dd><p>method to set a python function taking as an input random variables
+and fields in batches</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="spsa.StochasticProcessSensitivityAnalysis.setOutput">
 <code class="sig-name descname">setOutput</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">outputDict</span><span class="p">:</span> <span class="n">dict</span></em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#spsa.StochasticProcessSensitivityAnalysis.setOutput" title="Permalink to this definition">¶</a></dt>
-<dd><p>set dictionary containing data about the output variables name, their positions in the functions
-output, as well as their dimension</p>
+<dd><p>set dictionary containing data about the output variables name,
+their positions in the functions output, as well as their dimension</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="spsa.StochasticProcessSensitivityAnalysis.setProcessesDistributions">
 <code class="sig-name descname">setProcessesDistributions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">processesDistributions</span><span class="p">:</span> <span class="n">List</span></em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#spsa.StochasticProcessSensitivityAnalysis.setProcessesDistributions" title="Permalink to this definition">¶</a></dt>
 <dd><p>set list of input processes and distributions.</p>
+<p class="rubric">Notes</p>
+<p>You can use any openTURNS distribution (Normal, Arcsine…), but if
+using Stochastic processes you have to use the class contained in
+StochasticProcessConstructor to create and define them</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="spsa.StochasticProcessSensitivityAnalysis.setSingleFunc">
 <code class="sig-name descname">setSingleFunc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">singleFunction</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#spsa.StochasticProcessSensitivityAnalysis.setSingleFunc" title="Permalink to this definition">¶</a></dt>
-<dd><p>method to set a python function taking as an input random variables and fields</p>
+<dd><p>method to set a python function taking as an input random variables
+and fields</p>
 </dd></dl>
 
 <dl class="py method">

@@ -5,3 +5,4 @@ SobolIndicesStochasticProcessAlgorithm
 
 .. autoclass:: SobolIndicesStochasticProcessAlgorithm(*args)
     :members:
+

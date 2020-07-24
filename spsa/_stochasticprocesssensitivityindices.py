@@ -4,7 +4,7 @@ __date__ = '22.06.20'
 
 __all__ = ['SobolIndicesStochasticProcessAlgorithm']
 
-from typing import Callable, List, Tuple, Optional, Any, Union
+from typing import List, Any, Union
 
 import openturns
 import numpy
@@ -12,7 +12,7 @@ import numpy
 from ._stochasticprocesssobolindicesalgorithmbase import *
 
 class SobolIndicesStochasticProcessAlgorithm(
-                        openturns.SobolIndicesAlgorithmImplementation):
+                               openturns.SobolIndicesAlgorithmImplementation):
     '''Base class for sensitivity analysis, without usage of the inputDesign. 
 
     Note
@@ -22,32 +22,32 @@ class SobolIndicesStochasticProcessAlgorithm(
 
     Parameters
     ----------
-    outputDesign : numpy.array
+    outputDesign: numpy.array
         numpy matriix containing the samples Y_A, Y_B, Y_Ei, Y_En, ...
-    N : int 
+    N: int 
         size of one sample
-    method : str
+    method: str
         string with information about method for the sensitivity analysis 
 
     Attributes
     ----------
-    outputDesign : numpy.array
+    outputDesign: numpy.array
         same as above
-    sampleSize : int
+    sampleSize: int
         sames as N
-    method : str
+    method: str
         same as above
-    confidenceLevel : float (between 0 and 1)
+    confidenceLevel: float (between 0 and 1)
         Confidence level of the estimator, important for plotting
-    inputDescription : List[str]
+    inputDescription: List[str]
         list containing the names of the different input dimensions
-    _FirstOrderIndices : numpy.array
+    _FirstOrderIndices: numpy.array
         data containing the first order Sobol' estimators
-    _TotalOrderIndices : numpy.array
+    _TotalOrderIndices: numpy.array
         data containing the total order Sobol' estimators
-    _varFirstOrder : numpy.array
+    _varFirstOrder: numpy.array
         variance of the First Order Sobol Estimator
-    _varTotalOrder : numpy.array
+    _varTotalOrder: numpy.array
         variance of the Total order Sobol Estimator
 
     Methods 
@@ -69,7 +69,7 @@ class SobolIndicesStochasticProcessAlgorithm(
     getTotalorderIndicesInterval:
         accessor to the variance of the total order Sobol indices
     setDimension: 
-        method to set the dimension of the input. usually deduced automatically
+        method to set the dimension of the input. dDduced automatically
     setConfidenceLevel: 
         set method for confidence level of estimator (default : 0.95)
     getConfidenceLevel:
@@ -104,11 +104,17 @@ class SobolIndicesStochasticProcessAlgorithm(
         self._varTotalOrder = None
 
     def _runAlgorithm(self) -> None:
-        if (self._FirstOrderIndices is None) and (self._TotalOrderIndices is None) \
-           and (self._varFirstOrder is None) and (self._varTotalOrder is None):
-            self._FirstOrderIndices, self._TotalOrderIndices, \
-                self._varFirstOrder, self._varTotalOrder = self.sobolEngine.getSobolIndices(
-                    self.outputDesign, self.sampleSize, self.method)
+        if (self._FirstOrderIndices is None)    \
+            and (self._TotalOrderIndices is None)\
+                and (self._varFirstOrder is None) \
+                    and (self._varTotalOrder is None):
+            self._FirstOrderIndices, \
+              self._TotalOrderIndices,\
+                  self._varFirstOrder, \
+                      self._varTotalOrder = self.sobolEngine.getSobolIndices(
+                                                            self.outputDesign, 
+                                                            self.sampleSize, 
+                                                            self.method)
 
     def setInputDescription(self, names: Union[List[str], str]) -> None:  
         if type(names) is str:
@@ -125,9 +131,9 @@ class SobolIndicesStochasticProcessAlgorithm(
     def getMethod(self) -> str:
         return self.method
 
-    ###########################################################################
-    ################### Overloaded functions ##################################
-    ###########################################################################
+    ##########################################################################
+    ################### Overloaded functions #################################
+    ##########################################################################
 
     def getFirstOrderIndices(self) -> numpy.array:
         assert self.outputDesign is not None, "You need a sample to work on"
@@ -144,7 +150,7 @@ class SobolIndicesStochasticProcessAlgorithm(
         self._runAlgorithm()
         confidence = numpy.sqrt(
             self._varFirstOrder) * openturns.Normal().computeQuantile(
-                                                        self.confidenceLevel)[0]
+                                                      self.confidenceLevel)[0]
         return confidence
 
     def getTotalorderIndicesInterval(self) -> float:
@@ -152,7 +158,7 @@ class SobolIndicesStochasticProcessAlgorithm(
         self._runAlgorithm()
         confidence = numpy.sqrt(
             self._varTotalOrder) * openturns.Normal().computeQuantile(
-                                                        self.confidenceLevel)[0]
+                                                      self.confidenceLevel)[0]
         return confidence
 
     def setDimension(self, dim: int) -> None:

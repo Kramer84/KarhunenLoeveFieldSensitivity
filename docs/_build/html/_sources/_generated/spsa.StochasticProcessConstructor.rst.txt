@@ -5,3 +5,4 @@ StochasticProcessConstructor
 
 .. autoclass:: StochasticProcessConstructor(*args)
     :members:
+

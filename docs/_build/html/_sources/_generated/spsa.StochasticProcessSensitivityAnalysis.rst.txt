@@ -5,3 +5,4 @@ StochasticProcessSensitivityAnalysis
 
 .. autoclass:: StochasticProcessSensitivityAnalysis(*args)
     :members:
+

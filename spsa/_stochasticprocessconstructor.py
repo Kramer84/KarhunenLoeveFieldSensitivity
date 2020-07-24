@@ -37,24 +37,24 @@ class StochasticProcessConstructor(openturns.Process):
 
     Attributes
     ----------
-    dimension : int, >= 1
+    dimension: int, >= 1
         The dimension of the gaussian process
-    covarianceModel : openturns.statistics.{modelName}
+    covarianceModel: openturns.statistics.{modelName}
         openturns model of the covariance
-    mesh : openturns.geom.Mesh
+    mesh: openturns.geom.Mesh
         grid on which the process is built
-    TrendTransform : openturns.func.TrendTransform
+    TrendTransform: openturns.func.TrendTransform
         function to define a trend on the process. If constant
         it is the mean of the process
-    GaussianProcess : openturns.model_process.GaussianProcess
+    GaussianProcess: openturns.model_process.GaussianProcess
         openturns representation of the final stochastic model
-    _covarianceMode : dict
+    _covarianceMode: dict
         dictionary containing the parameters to pass for the model creation.
-    _grid_shape : list
+    _grid_shape: list
         List containing the [[first value, length, number of elements],**] 
-    _trendArgs : list 
+    _trendArgs: list 
         List containg a string variable for each dimension, ex: ['x','y','z']
-    _trendFunc : str / float
+    _trendFunc: str / float
         Argument for the symbolic function
 
     Notes
@@ -107,7 +107,7 @@ class StochasticProcessConstructor(openturns.Process):
         self.TrendTransform                 = None
         self.GaussianProcess                = None
         self.KarhunenLoeveResult            = None
-        self.sample_map                     = None 
+        self.sampleBuffer                   = None 
         self.fieldSampleEigenmodeProjection = None
         self.decompositionAsRandomVector    = None
         self.verbosity                      = verbosity
@@ -170,7 +170,7 @@ class StochasticProcessConstructor(openturns.Process):
 
     def __del__(self):
         del(self.GaussianProcess)
-        del(self.sample_map)
+        del(self.sampleBuffer)
         del(self.KarhunenLoeveResult)
         del(self.fieldSampleEigenmodeProjection)
         del(self.decompositionAsRandomVector)
@@ -189,7 +189,7 @@ class StochasticProcessConstructor(openturns.Process):
         
         Arguments
         ---------
-        grid_shape : list
+        grid_shape: list
             List containing the lower bound, the length and the number of elements
             for each dimension. Ex: [[x0 , Lx , Nx], **]
         '''
@@ -230,31 +230,41 @@ class StochasticProcessConstructor(openturns.Process):
         
         Arguments
         ---------
-        covarianceModelDict : dict
-            Dictionary containing the name of the process and the parameters:
-            {'Model' : str, ,'amplitude':float, 'scale':float, 'nu':float}
-        covarianceModel : openturns.statistics.CovarianceModels*
+        covarianceModelDict: dict
+            Dictionary containing the name of the process and the parameters.
+            The name of the parameter has to be the same as used in openturns.
+            Order, as well as the number of arguments does not matter.
+            
+        covarianceModel: openturns.statistics.CovarianceModels*
             openTURNS covariance model object, already constructed
+
+        Notes
+        -----
+        Only one of the two constructors is necessary. 
         '''
 
-        #This dictionary contains everything 'bout the openturns convariance models. 
-        #The key is the models name as a string, and the values are the model itself, a list of each argument accepted by the covariance model,
-        #a list of ints that contain information about each combination of the arguments and their order. finally a list containing info 'bout 
-        # if the argument should be in form of a list or a float/int or something else... 
+        # This dictionary contains everything 'bout the openturns convariance 
+        # models. 
+        # The key is the models name as a string, and the values are the model 
+        # itself, a list of each argument accepted by the covariance model,
+        # a list of ints that contain information about each combination of 
+        # the arguments and their order. finally a list containing info 'bout 
+        # if the argument should be in form of a list or a float/int or 
+        # something else... 
         ot = openturns
-        OTCovarModels = {'AbsoluteExponential'           : (ot.AbsoluteExponential, ['spatialDim','scale','amplitude'], [1, 2, 23], [0,1,1]),          
-                         'SquaredExponential'            : (ot.SquaredExponential, ['spatialDim','scale','amplitude'],[1, 2, 23], [0,1,1]),    
-                         'MaternModel'                   : (ot.MaternModel, ['spatialDim','scale','amplitude' ,'nu'], [1, 24, 234], [0,1,1,0]),
-                         'ExponentialModel'              : (ot.ExponentialModel, ['spatialDim','scale','amplitude' ,'spatialCorrelation' ,'spatialCovariance'], [1, 23, 234, 235], [0,1,1,2,2]),
-                         'DiracCovarianceModel'          : (ot.DiracCovarianceModel, ['spatialDim','amplitude' ,'spatialCorrelation' ,'spatialCovariance'], [1, 12, 123, 14], [0,1,2,2]),
+        OTCovarModels = {'AbsoluteExponential' : (ot.AbsoluteExponential, ['spatialDim','scale','amplitude'], [1, 2, 23], [0,1,1]),          
+                         'SquaredExponential' : (ot.SquaredExponential, ['spatialDim','scale','amplitude'],[1, 2, 23], [0,1,1]),    
+                         'MaternModel' : (ot.MaternModel, ['spatialDim','scale','amplitude' ,'nu'], [1, 24, 234], [0,1,1,0]),
+                         'ExponentialModel' : (ot.ExponentialModel, ['spatialDim','scale','amplitude' ,'spatialCorrelation' ,'spatialCovariance'], [1, 23, 234, 235], [0,1,1,2,2]),
+                         'DiracCovarianceModel' : (ot.DiracCovarianceModel, ['spatialDim','amplitude' ,'spatialCorrelation' ,'spatialCovariance'], [1, 12, 123, 14], [0,1,2,2]),
                          'ExponentiallyDampedCosineModel': (ot.ExponentiallyDampedCosineModel, ['spatialDim','scale' ,'amplitude' ,'f' ], [1, 234], [0,1,1,0]),     
                          'FractionalBrownianMotionModel' : (ot.FractionalBrownianMotionModel, ['scale' ,'amplitude' ,'exponent' ,'eta' ,'rho'], [123, 12345], [1,1,0,0,0]),
-                         'GeneralizedExponential'        : (ot.GeneralizedExponential, ['spatialDim', 'scale', 'amplitude', 'p'], [1, 24, 234 ], [1,1,1,0]),        
-                         'ProductCovarianceModel'        : (ot.ProductCovarianceModel, ['coll'], [1], [1]),
-                         'RankMCovarianceModel'          : (ot.RankMCovarianceModel, ['inputDimension','variance','basis','covariance'], [1, 23, 42], [-1,-1,-1,-1]),
-                         'SphericalModel'                : (ot.SphericalModel, ['spatialDim','scale','amplitude','radius'], [1, 23, 234], [0,1,1,1]),            
-                         'TensorizedCovarianceModel'     : (ot.TensorizedCovarianceModel, ['coll'], [1],[-1]),
-                         'UserDefinedCovarianceModel'    : (ot.UserDefinedCovarianceModel, ['mesh','matrix'], [12],[2,2])
+                         'GeneralizedExponential' : (ot.GeneralizedExponential, ['spatialDim', 'scale', 'amplitude', 'p'], [1, 24, 234 ], [1,1,1,0]),        
+                         'ProductCovarianceModel' : (ot.ProductCovarianceModel, ['coll'], [1], [1]),
+                         'RankMCovarianceModel' : (ot.RankMCovarianceModel, ['inputDimension','variance','basis','covariance'], [1, 23, 42], [-1,-1,-1,-1]),
+                         'SphericalModel' : (ot.SphericalModel, ['spatialDim','scale','amplitude','radius'], [1, 23, 234], [0,1,1,1]),            
+                         'TensorizedCovarianceModel' : (ot.TensorizedCovarianceModel, ['coll'], [1],[-1]),
+                         'UserDefinedCovarianceModel' : (ot.UserDefinedCovarianceModel, ['mesh','matrix'], [12],[2,2])
                          }
         dataTypes = {0:"int/float", 1:"list", 2:"openTURNS object", -1:"unknown"}
 
@@ -335,9 +345,9 @@ class StochasticProcessConstructor(openturns.Process):
 
         Parameters
         ----------
-        arguments : list 
+        arguments: list 
             List of str, each representing a dimension of the process
-        funcOrConst : str / float
+        funcOrConst: str / float
             Str or Float representing either the symbolic function of the 
             trend or a constant representing the mean
         '''
@@ -408,7 +418,7 @@ class StochasticProcessConstructor(openturns.Process):
 
         Notes
         -----
-        Based on the openturns example : Metamodel of a field function
+        Based on the openturns example: Metamodel of a field function
         '''
         try :
             assert(self.GaussianProcess is not None \
@@ -458,10 +468,10 @@ class StochasticProcessConstructor(openturns.Process):
         '''
         if self.KarhunenLoeveResult is None:
             self.getKarhunenLoeveDecomposition()    
-        assert(self.sample_map is not None or ProcessSample is not None), ""
+        assert(self.sampleBuffer is not None or ProcessSample is not None), ""
         if ProcessSample is None : 
             ProcessSample       = self.getProcessSampleFromNumpyArray(
-                                                              self.sample_map)
+                                                              self.sampleBuffer)
         if type(ProcessSample) == numpy.ndarray :
             ProcessSample = self.getProcessSampleFromNumpyArray(ProcessSample)
         KL_eigenmodes           = self.KarhunenLoeveResult.project(
@@ -485,7 +495,7 @@ class StochasticProcessConstructor(openturns.Process):
         eigenmodesDistribution.setStd(stdDistri)
         self.decompositionAsRandomVector = eigenmodesDistribution
         cleanAtExit() #to remove temporary arrays
-        self.sample_map = None
+        self.sampleBuffer = None
 
     def liftDistributionToField(self, randomVector):
         '''transforms a randomVector or collection of random vectors 
@@ -532,6 +542,11 @@ class StochasticProcessConstructor(openturns.Process):
 
     def getMeanProcess(self):
         '''Generic function to get the mean of the model
+
+        Returns
+        -------
+        mean_process = float 
+            mean of the process, if there is no non-constant trend function
         '''
         try: 
             mean_process = float(*self._trendFunc)
@@ -542,35 +557,52 @@ class StochasticProcessConstructor(openturns.Process):
     # overloading of methods
     def getCovarianceModel(self):
         '''Accessor to the covariance model.
+
+        Returns
+        -------
+        self.covarianceModel: openturns.CovarianceModel
+            covariance model of the stochastic process
         '''
         return self.covarianceModel
     
     def getSample(self, size : int,  getAsArray = False):
         '''Get n realizations of the process.
+
+        Parameters
+        ----------
+        getAsArray: bool
+            if flag is set to True, returns the realization as a ndarray and
+            not a openturns object
         '''
         assert(self.GaussianProcess is not None),""
         sample_ot = self.GaussianProcess.getSample(size)
-        self.sample_map = numpy.asarray(sample_ot)
+        self.sampleBuffer = numpy.asarray(sample_ot)
         if len(self.extent)==2*len(self.shape):
             self.extent.pop()
             self.extent.pop()
-            self.extent.append(self.sample_map.min())
-            self.extent.append(self.sample_map.max())
+            self.extent.append(self.sampleBuffer.min())
+            self.extent.append(self.sampleBuffer.max())
         if getAsArray == True : 
-            array = numpy.asarray(self.sample_map)
+            array = numpy.asarray(self.sampleBuffer)
             array = numpy.reshape(array,[size,*self.shape],order='F')
             return array
         else :
             return sample_ot
 
     def setSample(self, npSample : numpy.array):
-        '''Set a sample, used to construct the random vector
-        of Karhunen Loeve coefficients
+        '''Set a sample, used to construct the random vector of Karhunen Loeve 
+        coefficients.
         '''
-        self.sample_map = npSample
+        self.sampleBuffer = npSample
 
     def getRealization(self, getAsArray = False):
         '''Get a realization of the process.
+
+        Parameters
+        ----------
+        getAsArray: bool
+            if flag is set to True, returns the realization as a ndarray and
+            not a openturns object
         '''
         assert(self.GaussianProcess is not None and self.shape is not None),\
                                         "first initialize process or set grid"
@@ -588,16 +620,30 @@ class StochasticProcessConstructor(openturns.Process):
 
     def getTrend(self):
         '''Accessor to the trend.
+
+
+        Returns
+        -------
+        self.TrendTransform: openturns.TrendTransform       
         '''
         return self.TrendTransform
 
     def getMesh(self):
         '''Get the mesh.
+
+        Returns
+        -------
+        self.mesh: openturns.Mesh
         '''
         return self.mesh
 
     def getDimension(self):
         '''Get the dimension of the domain D.
+
+        Returns
+        -------
+        self.dimension : int
+            dimension of the process
         '''
         return self.dimension 
 

@@ -104,6 +104,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">SobolIndicesStochasticProcessAlgorithm</a></li>
 <li class="toctree-l3"><a class="reference internal" href="spsa.StochasticProcessSensitivityAnalysis.html">StochasticProcessSensitivityAnalysis</a></li>
 <li class="toctree-l3"><a class="reference internal" href="spsa.StochasticProcessSensitivityExperiment.html">StochasticProcessSensitivityExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spsa.OpenturnsPythonFunctionWrapper.html">OpenturnsPythonFunctionWrapper</a></li>
 </ul>
 </li>
 </ul>
@@ -191,33 +192,33 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>outputDesign</strong><span class="classifier">numpy.array</span></dt><dd><p>numpy matriix containing the samples Y_A, Y_B, Y_Ei, Y_En, …</p>
+<dt><strong>outputDesign: numpy.array</strong></dt><dd><p>numpy matriix containing the samples Y_A, Y_B, Y_Ei, Y_En, …</p>
 </dd>
-<dt><strong>N</strong><span class="classifier">int</span></dt><dd><p>size of one sample</p>
+<dt><strong>N: int</strong></dt><dd><p>size of one sample</p>
 </dd>
-<dt><strong>method</strong><span class="classifier">str</span></dt><dd><p>string with information about method for the sensitivity analysis</p>
+<dt><strong>method: str</strong></dt><dd><p>string with information about method for the sensitivity analysis</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Attributes</dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>outputDesign</strong><span class="classifier">numpy.array</span></dt><dd><p>same as above</p>
+<dt><strong>outputDesign: numpy.array</strong></dt><dd><p>same as above</p>
 </dd>
-<dt><strong>sampleSize</strong><span class="classifier">int</span></dt><dd><p>sames as N</p>
+<dt><strong>sampleSize: int</strong></dt><dd><p>sames as N</p>
 </dd>
-<dt><strong>method</strong><span class="classifier">str</span></dt><dd><p>same as above</p>
+<dt><strong>method: str</strong></dt><dd><p>same as above</p>
 </dd>
-<dt><strong>confidenceLevel</strong><span class="classifier">float (between 0 and 1)</span></dt><dd><p>Confidence level of the estimator, important for plotting</p>
+<dt><strong>confidenceLevel: float (between 0 and 1)</strong></dt><dd><p>Confidence level of the estimator, important for plotting</p>
 </dd>
-<dt><strong>inputDescription</strong><span class="classifier">List[str]</span></dt><dd><p>list containing the names of the different input dimensions</p>
+<dt><strong>inputDescription: List[str]</strong></dt><dd><p>list containing the names of the different input dimensions</p>
 </dd>
-<dt><strong>_FirstOrderIndices</strong><span class="classifier">numpy.array</span></dt><dd><p>data containing the first order Sobol’ estimators</p>
+<dt><strong>_FirstOrderIndices: numpy.array</strong></dt><dd><p>data containing the first order Sobol’ estimators</p>
 </dd>
-<dt><strong>_TotalOrderIndices</strong><span class="classifier">numpy.array</span></dt><dd><p>data containing the total order Sobol’ estimators</p>
+<dt><strong>_TotalOrderIndices: numpy.array</strong></dt><dd><p>data containing the total order Sobol’ estimators</p>
 </dd>
-<dt><strong>_varFirstOrder</strong><span class="classifier">numpy.array</span></dt><dd><p>variance of the First Order Sobol Estimator</p>
+<dt><strong>_varFirstOrder: numpy.array</strong></dt><dd><p>variance of the First Order Sobol Estimator</p>
 </dd>
-<dt><strong>_varTotalOrder</strong><span class="classifier">numpy.array</span></dt><dd><p>variance of the Total order Sobol Estimator</p>
+<dt><strong>_varTotalOrder: numpy.array</strong></dt><dd><p>variance of the Total order Sobol Estimator</p>
 </dd>
 </dl>
 </dd>
@@ -225,8 +226,8 @@
 <p class="rubric">Methods</p>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 32%" />
-<col style="width: 68%" />
+<col style="width: 34%" />
+<col style="width: 66%" />
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><strong>setInputDescription:</strong></p></td>
@@ -254,7 +255,7 @@
 <td><p>accessor to the variance of the total order Sobol indices</p></td>
 </tr>
 <tr class="row-odd"><td><p><strong>setDimension:</strong></p></td>
-<td><p>method to set the dimension of the input. usually deduced automatically</p></td>
+<td><p>method to set the dimension of the input. dDduced automatically</p></td>
 </tr>
 <tr class="row-even"><td><p><strong>setConfidenceLevel:</strong></p></td>
 <td><p>set method for confidence level of estimator (default : 0.95)</p></td>

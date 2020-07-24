@@ -42,6 +42,7 @@
         <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="spsa 0.1 documentation" href="../index.html"/>
         <link rel="up" title="Documentation of the API" href="../user_manual.html"/>
+        <link rel="next" title="OpenturnsPythonFunctionWrapper" href="spsa.OpenturnsPythonFunctionWrapper.html"/>
         <link rel="prev" title="StochasticProcessSensitivityAnalysis" href="spsa.StochasticProcessSensitivityAnalysis.html"/> 
 
   
@@ -103,6 +104,7 @@
 <li class="toctree-l3"><a class="reference internal" href="spsa.SobolIndicesStochasticProcessAlgorithm.html">SobolIndicesStochasticProcessAlgorithm</a></li>
 <li class="toctree-l3"><a class="reference internal" href="spsa.StochasticProcessSensitivityAnalysis.html">StochasticProcessSensitivityAnalysis</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">StochasticProcessSensitivityExperiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spsa.OpenturnsPythonFunctionWrapper.html">OpenturnsPythonFunctionWrapper</a></li>
 </ul>
 </li>
 </ul>
@@ -169,6 +171,8 @@
   
   <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
       
+        <a href="spsa.OpenturnsPythonFunctionWrapper.html" class="btn btn-neutral float-right" title="OpenturnsPythonFunctionWrapper" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
       
         <a href="spsa.StochasticProcessSensitivityAnalysis.html" class="btn btn-neutral" title="StochasticProcessSensitivityAnalysis" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
@@ -194,10 +198,11 @@ decomposed variables.</p>
 sample of size 2*N that we decompose in two samples A and B of size N.
 This generation can be done entirely randomely, or using specific sampling
 methods, as LHS, LowDiscrepancySequence or SimulatedAnnealingLHS.</p>
-<p>The difference lies in the way we ‘shuffle’ our two samples. For a classical
-RV representing a mono-dimensional physical quantitiy, we take the column
-representing this quantity in the matrix B and replace the correspoding
-values in A, thus creating a new matrix, that we append to our samples.
+<p>The difference lies in the way we ‘shuffle’ our two samples.
+For a classical RV representing a mono-dimensional physical quantitiy,
+we take the column representing this quantity in the matrix B and replace
+the correspoding values in A, thus creating a new matrix, that we append
+to our samples.
 But in the case of a gaussian field represented by a series of random
 variables, we take all those variables in B and put them in A, but we do
 not take them individually, as in a classical experiment.</p>
@@ -301,6 +306,8 @@ belong to RVs or Fields</p>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="spsa.OpenturnsPythonFunctionWrapper.html" class="btn btn-neutral float-right" title="OpenturnsPythonFunctionWrapper" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="spsa.StochasticProcessSensitivityAnalysis.html" class="btn btn-neutral" title="StochasticProcessSensitivityAnalysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

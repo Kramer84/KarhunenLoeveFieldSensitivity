@@ -7,17 +7,17 @@ __all__ = ['StochasticProcessSensitivityExperiment']
 import openturns
 import numpy
 
-'''Codes for generating samples for the Monte-Carlo experiement. The generation
-is done with the prior knowledge about which of the variables is a field or
-scalar.
+'''Codes for generating samples for the Monte-Carlo experiement. 
+The generation is done with the prior knowledge about which of the variables 
+is a field or scalar.
 
 This has little implication on the Latin Hypercube sampling itself, but will 
 change the way we shuffle to retrieve the conditional variances.
 
 To know which variable belongs to which type of physical quantity, this class 
 works will work exclusively with the 
-NdGaussianProcessSensitivity.OpenturnsPythonFunctionWrapper, from which we need 
-the KLComposedDistribution attribute, as well as the  inputVarNames and 
+NdGaussianProcessSensitivity.OpenturnsPythonFunctionWrapper, from which we 
+need the KLComposedDistribution attribute, as well as the  inputVarNames and 
 inputVarNamesKL. 
 
 This can later be modified to work with other inputs as well.
@@ -38,10 +38,11 @@ class StochasticProcessSensitivityExperiment(object):
     This generation can be done entirely randomely, or using specific sampling 
     methods, as LHS, LowDiscrepancySequence or SimulatedAnnealingLHS.
 
-    The difference lies in the way we 'shuffle' our two samples. For a classical 
-    RV representing a mono-dimensional physical quantitiy, we take the column 
-    representing this quantity in the matrix B and replace the correspoding 
-    values in A, thus creating a new matrix, that we append to our samples. 
+    The difference lies in the way we 'shuffle' our two samples. 
+    For a classical RV representing a mono-dimensional physical quantitiy, 
+    we take the column representing this quantity in the matrix B and replace 
+    the correspoding values in A, thus creating a new matrix, that we append 
+    to our samples. 
     But in the case of a gaussian field represented by a series of random 
     variables, we take all those variables in B and put them in A, but we do 
     not take them individually, as in a classical experiment.
@@ -134,7 +135,7 @@ class StochasticProcessSensitivityExperiment(object):
             timesInList = 0
             jump = self.ramp(sum(self.dataMixSamples) - i)
             while self.inputVarNamesKL[i + k + jump].startswith(
-                                                        self.inputVarNames[i]):
+                                                       self.inputVarNames[i]):
                 timesInList += 1
                 k += 1
                 if i + k + jump == n_vars_KL:
@@ -152,7 +153,7 @@ class StochasticProcessSensitivityExperiment(object):
         jumpDim = 0
         for i in range(n_vars):
             self.experimentSample[jump + N*i:jump + N*(i+1), jumpDim:jumpDim + self.dataMixSamples[i]] = \
-                self.sample_B[...,                   jumpDim:jumpDim + self.dataMixSamples[i]]
+                self.sample_B[..., jumpDim:jumpDim + self.dataMixSamples[i]]
             jumpDim += self.dataMixSamples[i]
 
     def ramp(self, X):
@@ -201,7 +202,8 @@ class StochasticProcessSensitivityExperiment(object):
                     spaceFill = openturns.SpaceFillingC2
                 if 'TemperatureProfile' in kwargs:
                     if kwargs['TemperatureProfile'] is 'GeometricProfile':
-                        geomProfile = openturns.GeometricProfile(10.0, 0.95, 2000)  # Default value
+                        geomProfile = openturns.GeometricProfile(
+                                                             10.0, 0.95, 2000)  # Default value
                     if kwargs['TemperatureProfile'] is 'LinearProfile':
                         geomProfile = openturns.LinearProfile(10.0, 100)
                 else:
