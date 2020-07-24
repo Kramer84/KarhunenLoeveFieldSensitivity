@@ -333,8 +333,8 @@ class StochasticProcessConstructor(openturns.Process):
            process
         2. The grid and the dimension have to be already defined
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         arguments : list 
             List of str, each representing a dimension of the process
         funcOrConst : str / float
