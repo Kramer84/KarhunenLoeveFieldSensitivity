@@ -1,4 +1,4 @@
-# StochasticProcessSensitivityAnalysis
+# SPSA : StochasticProcessSensitivityAnalysis
 
 This repository contains codes used for sensitity analysis on models governed by stochastic processes and random input variables. 
 They were done in the frame of an internship at [PHIMECA](http://www.phimeca.com/) in Clermont-Ferrand.
@@ -28,9 +28,9 @@ Important packages used:
 
 ### Installing
 
-The environment installation is simple, just have conda install and paste that line in your terminal
+To install the module, clone the repository and execute: 
 ```
-conda env create -f  sensitivityEnv.yml
+python setup.py -install 
 ```
 
 
@@ -39,7 +39,7 @@ conda env create -f  sensitivityEnv.yml
 #### Creating stochastic processes:
 
 ```python
-import StochasticProcessConstructor as SPC
+from spsa import StochasticProcessConstructor as SPC
 import matplotlib.pyplot as plt
 
 stochasticProcess = SPC.StochasticProcessConstructor() 
@@ -58,8 +58,8 @@ This is in the case where you have a function that takes as an input fields and 
 The general case would be to have a function **F(X,Y) = U,V**, where **X** and **Y** would be a collection of fields and scalars, and the the outputs **U** and **V** would also be fields and scalars. 
 
 ```python
-import StochasticProcessConstructor as SPC
-import StochasticProcessSensitivity as SPS
+from spsa import StochasticProcessConstructor as SPC
+from spsa import StochasticProcessSensitivity as SPS
 import openturns as ot
 
 RV0 = ot.Normal()        #Centered and reduced normal law
