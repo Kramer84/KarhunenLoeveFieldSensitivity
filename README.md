@@ -33,7 +33,7 @@ To install the module, clone the repository and execute:
 python setup.py -install 
 ```
 ### Documentation
-[documentation](spsa/docs/_build/html/index.html)
+[documentation](https://htmlpreview.github.io/?https://raw.githubusercontent.com/Kramer84/spsa/master/docs/_build/html/index.html)
 
 ## Usage
 
