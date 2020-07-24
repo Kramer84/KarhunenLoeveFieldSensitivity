@@ -1,0 +1,376 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Welcome to spsa’s documentation! &mdash; spsa 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/jquery.fancybox.min.css" type="text/css" />
+  
+    <link rel="stylesheet" href="_static/glpi.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="spsa 0.1 documentation" href="#"/>
+        <link rel="next" title="Documentation of the API" href="user_manual.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> spsa
+          
+
+          
+          </a>
+
+          
+            
+              <div class="version">
+                0.1
+
+                
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="user_manual.html">Documentation of the API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">spsa</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>Welcome to spsa’s documentation!</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="user_manual.html" class="btn btn-neutral float-right" title="Documentation of the API" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="welcome-to-spsa-s-documentation">
+<h1>Welcome to spsa’s documentation!<a class="headerlink" href="#welcome-to-spsa-s-documentation" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="spsa-stochastic-process-sensitivity-analysis">
+<h1>SPSA : Stochastic Process Sensitivity Analysis<a class="headerlink" href="#spsa-stochastic-process-sensitivity-analysis" title="Permalink to this headline">¶</a></h1>
+<p>This repository contains codes used for sensitity analysis on models governed by stochastic processes and random input variables.
+They were done in the frame of an internship at <a class="reference external" href="http://www.phimeca.com/">PHIMECA</a> in Clermont-Ferrand.</p>
+<div class="section" id="aim-of-the-project">
+<h2>Aim of the project<a class="headerlink" href="#aim-of-the-project" title="Permalink to this headline">¶</a></h2>
+<p>It is of common practice today to carry out sensitivity analysis on the item we desire to produce. It allows to get a beter understanding of the products behaviour during and after manufacture, and to master the uncertain nature of reality. This method allows us to know which parameter uncertainty will have the most influence on the products outcome, and <em>in fine</em>, know where to invest the most effort to reduce uncertainties.</p>
+<p>Sensitivity analysis itself is, although being almost 30 years old, a rather new discipline with it’s limitations. In fact, sensitivity analysis is usually carried out on scalar uncertainties (like a length, a diameter, a frequency…) and not so often on more complex random structures, as random fields. The aim of this project is to develop a set of usable codes, that will allow to carry out sensitivity analysis on models where the input uncertainty is not only scalar, but can also occur under the form of random fields.</p>
+<p>The methodology was based on different research papers, with the principal idea gotten from a 2017 paper called <strong>“Time-variant global reliability sensitivity analysis of structures with both input random variables and stochastic processes”</strong> from <strong>P. Wei, Y. Wang &amp; C. Tang</strong>. The methodology is explained in the report (in <em>French</em>…).</p>
+</div>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>To use the codes, please install the virtual environment provided in the yaml file. A throughout example can be found in the
+“Demo Analyse de sensibilité poutre” notebook, but for the moment only in french (Sorry).</p>
+<div class="section" id="prerequisites">
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h3>
+<p>Works with python 3.6, but should work with other versions of python through the intensive usage of numpy.</p>
+<p>Important packages used:</p>
+<ul class="simple">
+<li><p>openTURNS</p></li>
+<li><p>NumPy</p></li>
+<li><p>Numba (not really used, but acceleration could be intersting)</p></li>
+<li><p>anastruct (for the random beam example)</p></li>
+</ul>
+</div>
+<div class="section" id="installing">
+<h3>Installing<a class="headerlink" href="#installing" title="Permalink to this headline">¶</a></h3>
+<p>To install the module, clone the repository and execute:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">install</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spsa</span> <span class="kn">import</span> <span class="n">StochasticProcessConstructor</span> <span class="k">as</span> <span class="n">SPC</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">stochasticProcess</span> <span class="o">=</span> <span class="n">SPC</span><span class="o">.</span><span class="n">StochasticProcessConstructor</span><span class="p">()</span>
+<span class="n">stochasticProcess</span><span class="o">.</span><span class="n">setDimension</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">stochasticProcess</span><span class="o">.</span><span class="n">setGrid</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">],])</span>
+<span class="n">stochasticProcess</span><span class="o">.</span><span class="n">setCovarianceModel</span><span class="p">({</span><span class="s1">&#39;Model&#39;</span><span class="p">:</span><span class="s1">&#39;MaternModel&#39;</span><span class="p">,</span><span class="s1">&#39;scale&#39;</span><span class="p">:[</span><span class="mi">25</span><span class="p">,</span><span class="mi">25</span><span class="p">],</span><span class="s1">&#39;amplitude&#39;</span><span class="p">:[</span><span class="mi">5</span><span class="p">],</span><span class="s1">&#39;nu&#39;</span><span class="p">:</span><span class="mf">3.</span><span class="p">})</span>
+<span class="n">realization</span> <span class="o">=</span> <span class="n">stochasticProcess</span><span class="o">.</span><span class="n">getRealization</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span> <span class="c1">#True to get it as a reshaped numpy array and not a openturns object</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">realization</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><em>Realization of a two dimensional stochastic process</em></p>
+<p><span class="raw-html-m2r"><img src="Rapport_Latex/fieldGenPics/processRealization.png" alt="Realization of a two dimensional stochastic process" width="300"></span></p>
+<p>This is in the case where you have a function that takes as an input fields and random variables, but also random variables alone or only fields.
+The general case would be to have a function <strong>F(X,Y) = U,V</strong>, where <strong>X</strong> and <strong>Y</strong> would be a collection of fields and scalars, and the the outputs <strong>U</strong> and <strong>V</strong> would also be fields and scalars.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spsa</span> <span class="kn">import</span> <span class="n">StochasticProcessConstructor</span> <span class="k">as</span> <span class="n">SPC</span>
+<span class="kn">from</span> <span class="nn">spsa</span> <span class="kn">import</span> <span class="n">StochasticProcessSensitivity</span> <span class="k">as</span> <span class="n">SPS</span>
+<span class="kn">import</span> <span class="nn">openturns</span> <span class="k">as</span> <span class="nn">ot</span>
+
+<span class="n">RV0</span> <span class="o">=</span> <span class="n">ot</span><span class="o">.</span><span class="n">Normal</span><span class="p">()</span>        <span class="c1">#Centered and reduced normal law</span>
+<span class="n">SP0</span> <span class="o">=</span> <span class="n">stochasticProcess</span>  <span class="c1">#The stochastic process from above</span>
+<span class="n">outputs</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;U&#39;</span><span class="p">,</span><span class="s1">&#39;position&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;shape&#39;</span><span class="p">:(</span><span class="mi">1</span><span class="p">,)},</span><span class="mi">2</span><span class="p">:{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span><span class="s1">&#39;position&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;shape&#39;</span><span class="p">:(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">)}}</span> <span class="c1">#We have to know the name, the position in the output tuple, as well as the dimension</span>
+<span class="n">size</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c1">#size of the sobol experiment</span>
+<span class="n">singleFunc</span> <span class="o">=</span> <span class="n">Fsingle</span> <span class="c1">#Function doing single evaluations</span>
+<span class="n">sampleFunc</span> <span class="o">=</span> <span class="n">Fsample</span> <span class="c1">#Function doing multiple evaluations</span>
+
+<span class="n">sensitivityAnalysis</span> <span class="o">=</span> <span class="n">SPS</span><span class="o">.</span><span class="n">StochasticProcessSensitivityAnalysis</span><span class="p">([</span><span class="n">RV0</span><span class="p">,</span> <span class="n">SP0</span><span class="p">],</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">sampleFunc</span><span class="p">,</span> <span class="n">singleFunc</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+<span class="n">sensitivityAnalysis</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">generationType</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">sensitivityAnalysis</span><span class="o">.</span><span class="n">getSensitivityAnalysisResults</span><span class="p">()</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">sensitivityAnalysis</span><span class="o">.</span><span class="n">SensitivityAnalysisResults</span>
+<span class="n">resutls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+<span class="c1">#This is a dummy example</span>
+</pre></div>
+</div>
+<p><em>Example of sobol indices (not relevant to the example)</em></p>
+<p><span class="raw-html-m2r"><img src="Rapport_Latex/sensibiliteDeflection10K.png" alt="Example of sobol indices (not relevant to the example)" width="300"></span></p>
+</div>
+<div class="section" id="built-with">
+<h2>Built With<a class="headerlink" href="#built-with" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/openturns/openturns">openTURNS</a> - Codes and methods for efficient sensitivity analysis</p></li>
+<li><p><a class="reference external" href="https://github.com/ritchie46/anaStruct">anaStruct</a> - 2D efficient finite element analysis in Python</p></li>
+<li><p><a class="reference external" href="https://numba.pydata.org/">Numba</a>                  - Easy code acceleration</p></li>
+</ul>
+</div>
+<div class="section" id="contributing">
+<h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h2>
+<p>As this project is done in the frame of an internship with the company PHIMECA in Clermont-Ferrand, France, i should be the only one commiting for now.</p>
+</div>
+<div class="section" id="authors">
+<h2>Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Kristof S.</strong> - <em>Initial work</em></p></li>
+</ul>
+</div>
+<div class="section" id="acknowledgments">
+<h2>Acknowledgments<a class="headerlink" href="#acknowledgments" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>A lot of thanks to Ritchie Vink and the superb anastruct library : <a class="reference external" href="https://www.ritchievink.com/">https://www.ritchievink.com/</a></p></li>
+<li><p>Also a lot of thanks to PHIMECA and the team working on openTURNS, for their really efficient sensitivity analysis library</p></li>
+</ul>
+</div>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_manual.html">Documentation of the API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_manual.html#spsa">spsa</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="_generated/spsa.StochasticProcessConstructor.html">StochasticProcessConstructor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_generated/spsa.SobolIndicesStochasticProcessAlgorithm.html">SobolIndicesStochasticProcessAlgorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_generated/spsa.StochasticProcessSensitivityAnalysis.html">StochasticProcessSensitivityAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_generated/spsa.StochasticProcessSensitivityExperiment.html">StochasticProcessSensitivityExperiment</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="user_manual.html" class="btn btn-neutral float-right" title="Documentation of the API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Kristof Simady.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/language_data.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="_static/jquery.fancybox.min.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+  
+  <script type="text/javascript">
+    $(function(){
+      $('.image-reference').fancybox();
+    })
+  </script>
+
+</body>
+</html>
