@@ -37,7 +37,8 @@ extensions = [
   'sphinx.ext.intersphinx',
   'numpydoc',
   'sphinx.ext.mathjax',
-  'sphinxarg.ext']
+  'sphinxarg.ext',
+  'sphinx.ext.napoleon']
 
 autodoc_default_flags = ['members', 'inherited-members']
 autosummary_generate = True
@@ -53,7 +54,7 @@ templates_path = ['_templates']
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = ['.rst','.py','.md']
+source_suffix = ['.rst',]
 
 
 # The master toctree document.

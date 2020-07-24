@@ -704,32 +704,11 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
 
         Note
         ----
-    ²   These functions are now using the Karhunen-Loeve decomposition
+        These functions are now using the Karhunen-Loeve decomposition
         '''
         inputProcessNRVs = self.liftFieldFromKLDistribution(X)
         return self.PythonBatchFunction(*inputProcessNRVs)
 
 
-#######################################################################################
-#######################################################################################
-#######################################################################################
-
-@atexit.register
-def cleanAtExit() :
-    dirName = './tempNpArrayMaps'
-    try :
-        if os.path.isdir(dirName) == True:
-            shutil.rmtree(dirName, ignore_errors=True)
-        gc.collect()
-    except :
-        gc.collect()
-
 class FunctionError(Exception):
     pass
-
-
-'''
-import NdGaussianProcessSensitivity as ngps
-
-'''
-

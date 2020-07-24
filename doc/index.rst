@@ -14,10 +14,8 @@ Contents
 
 .. toctree::
     :maxdepth: 3
-    :glob:
 
     user_manual
-    spsa/*
 
 
 Indices and tables
