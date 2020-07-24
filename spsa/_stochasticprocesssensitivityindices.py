@@ -2,14 +2,14 @@ __version__ = '0.1'
 __author__ = 'Kristof Attila S.'
 __date__ = '22.06.20'
 
+__all__ = ['SobolIndicesStochasticProcessAlgorithm']
+
 from typing import Callable, List, Tuple, Optional, Any, Union
 
 import openturns
 import numpy
 
 from ._stochasticprocesssobolindicesalgorithmbase import *
-
-__all__ = ['SobolIndicesStochasticProcessAlgorithm']
 
 class SobolIndicesStochasticProcessAlgorithm(
                         openturns.SobolIndicesAlgorithmImplementation):

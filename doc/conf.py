@@ -30,13 +30,14 @@ sys.path.insert(0, os.path.abspath('../'))
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
-              'sphinx.ext.doctest',
-              'sphinx.ext.autosummary',
-              'sphinx.ext.intersphinx',
-              'numpydoc',
-              'sphinx.ext.mathjax',
-              'sphinxarg.ext']
+extensions = [
+  'sphinx.ext.autodoc',
+  'sphinx.ext.doctest',
+  'sphinx.ext.autosummary',
+  'sphinx.ext.intersphinx',
+  'numpydoc',
+  'sphinx.ext.mathjax',
+  'sphinxarg.ext']
 
 autodoc_default_flags = ['members', 'inherited-members']
 autosummary_generate = True
@@ -52,13 +53,14 @@ templates_path = ['_templates']
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = ['.rst','.py','.md']
+
 
 # The master toctree document.
 master_doc = 'index'
 
 # General information about the project.
-project = u'StochasticProcessSensitivityAnalysis'
+project = u'spsa'
 copyright = u'2020, Kristof Simady'
 author = u'Kristof Simady'
 
@@ -69,6 +71,7 @@ author = u'Kristof Simady'
 # The short X.Y version.
 with open("../VERSION", 'r') as fic:
     read_version = fic.read()
+
 version = read_version
 # The full version, including alpha/beta/rc tags.
 release = read_version
@@ -109,7 +112,7 @@ html_theme = 'classic'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = []
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -127,46 +130,22 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'powerdoc'
+htmlhelp_basename = 'spsadoc'
 
-
-# -- Options for LaTeX output ---------------------------------------------
-
-latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
-    #
-    # 'papersize': 'letterpaper',
-
-    # The font size ('10pt', '11pt' or '12pt').
-    #
-    # 'pointsize': '10pt',
-
-    # Additional stuff for the LaTeX preamble.
-    #
-    # 'preamble': '',
-
-    # Latex figure (float) alignment
-    #
-    # 'figure_align': 'htbp',
-}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'StochasticProcessSensitivityAnalysis.tex', u'StochasticProcessSensitivityAnalysis Documentation',
-     u'Kristof Simady', 'manual'),
-]
+    (master_doc, 'spsa.tex', u'spsa Documentation',
+     u'Kristof Simady', 'manual')]
 
 
 # -- Options for manual page output ---------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'StochasticProcessSensitivityAnalysis', u'StochasticProcessSensitivityAnalysis Documentation',
-     [author], 1)
-]
+man_pages = [(master_doc, 'spsa', u'spsa Documentation',[author], 1)]
 
 
 # -- Options for Texinfo output -------------------------------------------
@@ -174,9 +153,7 @@ man_pages = [
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
-texinfo_documents = [
-    (master_doc, 'StochasticProcessSensitivityAnalysis', u'StochasticProcessSensitivityAnalysis Documentation',
-     author, 'StochasticProcessSensitivityAnalysis', 'Sensitivity analysis on models governed by random variables and stochastic processes',
-     'Miscellaneous'),
-]
+texinfo_documents = [(master_doc, 'spsa', u'spsa Documentation',
+    author, 'spsa', 'Sensitivity analysis on models governed by random variables and stochastic processes',
+    'Miscellaneous')]
 

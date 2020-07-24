@@ -2,6 +2,8 @@ __version__ = '0.1'
 __author__ = 'Kristof Attila S.'
 __date__  = '22.06.20'
 
+__all__ = ['StochasticProcessSensitivityAnalysis']
+
 import atexit
 import gc
 import uuid 
@@ -13,8 +15,6 @@ import numpy
 
 import StochasticProcessExperimentGeneration as SPEG
 import StochasticProcessSensitivityIndices   as SPSI 
-
-__all__ = ['StochasticProcessSensitivityAnalysis']
 
 class StochasticProcessSensitivityAnalysis(object):
     '''Custom class to do sensitivity analysis on complex models

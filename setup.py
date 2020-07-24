@@ -11,17 +11,17 @@ with open('README.md') as f:
     readme = f.read()
 
 # set the parameter of the setup
-setup(name='StochasticProcessSensitivityAnalysis',
+setup(name='spsa',
       version=version,
-      description='Module for sensitivity analysis on stochastic fields',
+      description='Sensitivity analysis on stochastic fields',
       author='Kristof Simady',
       author_email='ksimady@sigma-clermont.fr',
-      url = "https://github.com/Kramer84/StochasticProcessSensitivityAnalysis",
+      url = "https://github.com/Kramer84/spsa",
       license = 'MIT',
       # define packages which can be imported
-      packages=['StochasticProcessSensitivityAnalysis'],
+      packages=['spsa'],
       package_dir={
-      'StochasticProcessSensitivityAnalysis': 'src'},
+      'spsa': 'spsa'},
       long_description=readme,
       # set the executable scripts
       # List of dependancies
@@ -34,11 +34,3 @@ setup(name='StochasticProcessSensitivityAnalysis',
                    "License :: OSI Approved :: MIT License",
                    "Natural Language :: English"]
       )
-
-
-'''
-StochasticProcessSensitivityAnalysis.StochasticProcessConstructor':'src.StochasticProcessConstructor', 
-                'StochasticProcessSensitivityAnalysis.StochasticProcessSensitivity':'src.StochasticProcessSensitivity',
-                'StochasticProcessExperimentGeneration.StochasticProcessSensitivityIndices':'src.StochasticProcessSensitivityIndices',
-                'StochasticProcessExperimentGeneration.StochasticProcessSensitivityIndices.StochasticProcessSobolIndicesAlgorithmBase':'src.StochasticProcessSobolIndicesAlgorithmBase'
-                '''

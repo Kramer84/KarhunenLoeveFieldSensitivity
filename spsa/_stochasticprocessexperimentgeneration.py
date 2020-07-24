@@ -2,9 +2,10 @@ __version__ = '0.1'
 __author__ = 'Kristof Attila S.'
 __date__ = '22.06.20'
 
+__all__ = ['StochasticProcessSensitivityExperiment']
+
 import openturns
 import numpy
-
 
 '''Codes for generating samples for the Monte-Carlo experiement. The generation
 is done with the prior knowledge about which of the variables is a field or
@@ -22,7 +23,6 @@ inputVarNamesKL.
 This can later be modified to work with other inputs as well.
 '''
 
-__all__ = ['StochasticProcessSensitivityExperiment']
 
 class StochasticProcessSensitivityExperiment(object):
     '''Class to generate experiments for the sensitivity analysis.

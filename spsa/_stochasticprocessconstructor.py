@@ -2,16 +2,17 @@ __version__ = '0.1'
 __author__  = 'Kristof Attila S.'
 __date__    = '22.06.20'
 
+__all__ = ['StochasticProcessConstructor']
+
 import os
 import gc
-import tempfile     #for storing the samples as temporary memmaps
+import tempfile
 import shutil
 from   joblib import  Parallel, delayed, cpu_count
 
 import openturns
 import numpy 
 
-__all__ = ['StochasticProcessConstructor']
 
 class StochasticProcessConstructor(openturns.Process):
     '''Class to create up to 4-dimensional gaussian processes.
