@@ -12,7 +12,6 @@ spsa
 .. autosummary::
     :toctree: _generated/
     :template: class.rst_t
-    :nosignatures:
 
     StochasticProcessConstructor
     SobolIndicesStochasticProcessAlgorithm

@@ -1,0 +1,445 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StochasticProcessConstructor &#8212; spsa 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SobolIndicesStochasticProcessAlgorithm" href="spsa.SobolIndicesStochasticProcessAlgorithm.html" />
+    <link rel="prev" title="Documentation of the API" href="../user_manual.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="spsa.SobolIndicesStochasticProcessAlgorithm.html" title="SobolIndicesStochasticProcessAlgorithm"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../user_manual.html" title="Documentation of the API"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">spsa 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../user_manual.html" accesskey="U">Documentation of the API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">StochasticProcessConstructor</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="stochasticprocessconstructor">
+<h1>StochasticProcessConstructor<a class="headerlink" href="#stochasticprocessconstructor" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="spsa.StochasticProcessConstructor">
+<em class="property">class </em><code class="sig-prename descclassname">spsa.</code><code class="sig-name descname">StochasticProcessConstructor</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class to create up to 4-dimensional gaussian processes.</p>
+<p>It has a bit more flexibility than the low level openturns classes,
+as we can set the different covariance models, the shape of the grid
+and the trend function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>dimension</strong><span class="classifier">int, &gt;= 1</span></dt><dd><p>The dimension of the gaussian process</p>
+</dd>
+<dt><strong>covariance_model</strong><span class="classifier">dict</span></dt><dd><p>dictionary containing the parameters to pass for the model creation.</p>
+</dd>
+<dt><strong>grid_shape</strong><span class="classifier">list, len(grid_shape) = dimension</span></dt><dd><p>List containing the [[first value, length, number of elements],**]
+for each dimension</p>
+</dd>
+<dt><strong>trend_arguments</strong><span class="classifier">list</span></dt><dd><p>List containg a string variable for each dimension
+Ex : for 3 dimensions, trend_arguments = [‘x’,’y’,’z’]</p>
+</dd>
+<dt><strong>trend_function</strong><span class="classifier">str / float</span></dt><dd><p>Argument for the symbolic function, using the arguments defined above.</p>
+</dd>
+<dt><strong>verbosity</strong><span class="classifier">int or else</span></dt><dd><p>0 to display message on class instance</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The class can be created without any arguments in the __init__ function
+and then be set through the different .set methods.</p>
+<p class="rubric">Examples</p>
+<p>2 ways of constructing the process.
+- Through the .__init__ method :</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># In the case of a 1D process</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">P_1D</span> <span class="o">=</span> <span class="n">BuildNdGaussianProcess</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">dimension</span>        <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">grid_shape</span>       <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">100</span><span class="p">],],</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">covariance_model</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Model&#39;</span><span class="p">:</span><span class="s1">&#39;MaternModel&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                     <span class="s1">&#39;amplitude&#39;</span><span class="p">:</span><span class="mf">10000.</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                     <span class="s1">&#39;scale&#39;</span><span class="p">:</span><span class="mf">1.5</span><span class="p">,</span> <span class="s1">&#39;nu&#39;</span><span class="p">:</span><span class="mi">5</span><span class="o">/</span><span class="mi">2</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">trend_arguments</span>  <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">trend_function</span>   <span class="o">=</span> <span class="mi">210000</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Through the constructor methods:</p></li>
+</ul>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">P_1D</span> <span class="o">=</span> <span class="n">BuildNdGaussianProcess</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">P_1D</span><span class="o">.</span><span class="n">setDimension</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">P_1D</span><span class="o">.</span><span class="n">setGrid</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">100</span><span class="p">],])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">P_1D</span><span class="o">.</span><span class="n">setCovarianceModel</span><span class="p">({</span><span class="s1">&#39;Model&#39;</span><span class="p">:</span><span class="s1">&#39;MaternModel&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                        <span class="s1">&#39;amplitude&#39;</span><span class="p">:</span><span class="mf">10000.</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                        <span class="s1">&#39;scale&#39;</span><span class="p">:</span><span class="mf">1.5</span><span class="p">,</span><span class="s1">&#39;nu&#39;</span><span class="p">:</span><span class="mi">5</span><span class="o">/</span><span class="mi">2</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># constant trend == mean of process</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">P_1D</span><span class="o">.</span><span class="n">setTrend</span><span class="p">([</span><span class="s1">&#39;x&#39;</span><span class="p">],</span><span class="mi">210000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">P_1D</span><span class="o">.</span><span class="n">setGaussianProcess</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>dimension</strong><span class="classifier">int, &gt;= 1</span></dt><dd><p>The dimension of the gaussian process</p>
+</dd>
+<dt><strong>covarianceModel</strong><span class="classifier">openturns.statistics.{modelName}</span></dt><dd><p>openturns model of the covariance</p>
+</dd>
+<dt><strong>mesh</strong><span class="classifier">openturns.geom.Mesh</span></dt><dd><p>grid on which the process is built</p>
+</dd>
+<dt><strong>TrendTransform</strong><span class="classifier">openturns.func.TrendTransform</span></dt><dd><p>function to define a trend on the process. If constant
+it is the mean of the process</p>
+</dd>
+<dt><strong>GaussianProcess</strong><span class="classifier">openturns.model_process.GaussianProcess</span></dt><dd><p>openturns representation of the final stochastic model</p>
+</dd>
+<dt><strong>_covarianceMode</strong><span class="classifier">dict</span></dt><dd><p>dictionary containing the parameters to pass for the model creation.</p>
+</dd>
+<dt><strong>_grid_shape</strong><span class="classifier">list</span></dt><dd><p>List containing the [[first value, length, number of elements],**]</p>
+</dd>
+<dt><strong>_trendArgs</strong><span class="classifier">list</span></dt><dd><p>List containg a string variable for each dimension, ex: [‘x’,’y’,’z’]</p>
+</dd>
+<dt><strong>_trendFunc</strong><span class="classifier">str / float</span></dt><dd><p>Argument for the symbolic function</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getClassName</span></code>()</p></td>
+<td><p>Accessor to the object’s name.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getContinuousRealization</span></code>()</p></td>
+<td><p>Get a continuous realization.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.getCovarianceModel" title="spsa.StochasticProcessConstructor.getCovarianceModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getCovarianceModel</span></code></a>()</p></td>
+<td><p>Accessor to the covariance model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.getDecompositionAsRandomVector" title="spsa.StochasticProcessConstructor.getDecompositionAsRandomVector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getDecompositionAsRandomVector</span></code></a>([optName])</p></td>
+<td><p>Builds a random vector representative of the gaussian process</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getDescription</span></code>()</p></td>
+<td><p>Get the description of the process.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.getDimension" title="spsa.StochasticProcessConstructor.getDimension"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getDimension</span></code></a>()</p></td>
+<td><p>Get the dimension of the domain D.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.getFieldProjectionOnEigenmodes" title="spsa.StochasticProcessConstructor.getFieldProjectionOnEigenmodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getFieldProjectionOnEigenmodes</span></code></a>([ProcessSample])</p></td>
+<td><p>for each element of a field sample get the corresponding set of random variables</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getFuture</span></code>(*args)</p></td>
+<td><p>Prediction of the <span class="math notranslate nohighlight">\(N\)</span> future iterations of the process.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getId</span></code>()</p></td>
+<td><p>Accessor to the object’s id.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getImplementation</span></code>()</p></td>
+<td><p>Accessor to the underlying implementation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getInputDimension</span></code>()</p></td>
+<td><p>Get the dimension of the domain <span class="math notranslate nohighlight">\(\cD\)</span>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.getKarhunenLoeveDecomposition" title="spsa.StochasticProcessConstructor.getKarhunenLoeveDecomposition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getKarhunenLoeveDecomposition</span></code></a>([method, …])</p></td>
+<td><p>Function to get the Karhunen Loève decomposition of the gaussian process, using the P1 approximation</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getMarginal</span></code>(*args)</p></td>
+<td><p>Get the <span class="math notranslate nohighlight">\(k^{th}\)</span> marginal of the random process.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.getMeanProcess" title="spsa.StochasticProcessConstructor.getMeanProcess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getMeanProcess</span></code></a>()</p></td>
+<td><p>Generic function to get the mean of the model</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.getMesh" title="spsa.StochasticProcessConstructor.getMesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getMesh</span></code></a>()</p></td>
+<td><p>Get the mesh.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getName</span></code>()</p></td>
+<td><p>Accessor to the object’s name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getOutputDimension</span></code>()</p></td>
+<td><p>Get the dimension of the domain <span class="math notranslate nohighlight">\(\cD\)</span>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.getProcessSampleFromNumpyArray" title="spsa.StochasticProcessConstructor.getProcessSampleFromNumpyArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getProcessSampleFromNumpyArray</span></code></a>([ndarray])</p></td>
+<td><p>Transform an numpy array containing samples into openturns ProcessSample objects</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.getRealization" title="spsa.StochasticProcessConstructor.getRealization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getRealization</span></code></a>([getAsArray])</p></td>
+<td><p>Get a realization of the process.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.getSample" title="spsa.StochasticProcessConstructor.getSample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSample</span></code></a>(size[, getAsArray])</p></td>
+<td><p>Get n realizations of the process.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getTimeGrid</span></code>()</p></td>
+<td><p>Get the time grid of observation of the process.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.getTrend" title="spsa.StochasticProcessConstructor.getTrend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getTrend</span></code></a>()</p></td>
+<td><p>Accessor to the trend.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isComposite</span></code>()</p></td>
+<td><p>Test whether the process is composite or not.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isNormal</span></code>()</p></td>
+<td><p>Test whether the process is normal or not.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isStationary</span></code>()</p></td>
+<td><p>Test whether the process is stationary or not.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.liftDistributionToField" title="spsa.StochasticProcessConstructor.liftDistributionToField"><code class="xref py py-obj docutils literal notranslate"><span class="pre">liftDistributionToField</span></code></a>(randomVector)</p></td>
+<td><p>transforms a randomVector or collection of random vectors into one or multiple gaussian fields</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.setCovarianceModel" title="spsa.StochasticProcessConstructor.setCovarianceModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setCovarianceModel</span></code></a>([covarianceModelDict, …])</p></td>
+<td><p>Function to set the covariance model of the stochastic process.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDescription</span></code>(description)</p></td>
+<td><p>Set the description of the process.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.setDimension" title="spsa.StochasticProcessConstructor.setDimension"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDimension</span></code></a>(dim)</p></td>
+<td><p>Function to set the dimension of the process, has to be set first either here or through the __init__ arguments</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.setGaussianProcess" title="spsa.StochasticProcessConstructor.setGaussianProcess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setGaussianProcess</span></code></a>()</p></td>
+<td><p>Function to set the Gaussian Process</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.setGrid" title="spsa.StochasticProcessConstructor.setGrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setGrid</span></code></a>(grid_shape)</p></td>
+<td><p>Function to set the grid on which the process will be defined</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.setMesh" title="spsa.StochasticProcessConstructor.setMesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMesh</span></code></a>(mesh)</p></td>
+<td><p>Sets the openturns mesh.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setName</span></code>(name)</p></td>
+<td><p>Accessor to the object’s name.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.setSample" title="spsa.StochasticProcessConstructor.setSample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setSample</span></code></a>(npSample)</p></td>
+<td><p>Set a sample, used to construct the random vector of Karhunen Loeve coefficients</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setTimeGrid</span></code>(timeGrid)</p></td>
+<td><p>Set the time grid of observation of the process.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#spsa.StochasticProcessConstructor.setTrend" title="spsa.StochasticProcessConstructor.setTrend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setTrend</span></code></a>(arguments[, funcOrConst])</p></td>
+<td><p>Function to set the trend transform of the process</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.getCovarianceModel">
+<code class="sig-name descname">getCovarianceModel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor.getCovarianceModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the covariance model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.getDecompositionAsRandomVector">
+<code class="sig-name descname">getDecompositionAsRandomVector</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">optName</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor.getDecompositionAsRandomVector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a random vector representative of the gaussian process</p>
+<p class="rubric">Notes</p>
+<p>Random vector is from the class : RandomNormalVector defined below</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.getDimension">
+<code class="sig-name descname">getDimension</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor.getDimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the dimension of the domain D.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.getFieldProjectionOnEigenmodes">
+<code class="sig-name descname">getFieldProjectionOnEigenmodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ProcessSample</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor.getFieldProjectionOnEigenmodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>for each element of a field sample get the corresponding set of
+random variables</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.getKarhunenLoeveDecomposition">
+<code class="sig-name descname">getKarhunenLoeveDecomposition</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'P1Algorithm'</span></em>, <em class="sig-param"><span class="n">threshold</span><span class="o">=</span><span class="default_value">0.0001</span></em>, <em class="sig-param"><span class="n">getResult</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor.getKarhunenLoeveDecomposition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to get the Karhunen Loève decomposition of the gaussian
+process, using the P1 approximation</p>
+<p class="rubric">Notes</p>
+<p>Based on the openturns example : Metamodel of a field function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.getMeanProcess">
+<code class="sig-name descname">getMeanProcess</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor.getMeanProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generic function to get the mean of the model</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.getMesh">
+<code class="sig-name descname">getMesh</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor.getMesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the mesh.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.getProcessSampleFromNumpyArray">
+<code class="sig-name descname">getProcessSampleFromNumpyArray</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ndarray</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.19)">numpy.ndarray</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; openturns.func.ProcessSample<a class="headerlink" href="#spsa.StochasticProcessConstructor.getProcessSampleFromNumpyArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform an numpy array containing samples into openturns
+ProcessSample objects</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.getRealization">
+<code class="sig-name descname">getRealization</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">getAsArray</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor.getRealization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a realization of the process.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.getSample">
+<code class="sig-name descname">getSample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">getAsArray</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor.getSample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get n realizations of the process.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.getTrend">
+<code class="sig-name descname">getTrend</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor.getTrend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accessor to the trend.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.liftDistributionToField">
+<code class="sig-name descname">liftDistributionToField</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">randomVector</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor.liftDistributionToField" title="Permalink to this definition">¶</a></dt>
+<dd><p>transforms a randomVector or collection of random vectors
+into one or multiple gaussian fields</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.setCovarianceModel">
+<code class="sig-name descname">setCovarianceModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">covarianceModelDict</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">covarianceModel</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor.setCovarianceModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to set the covariance model of the stochastic process.
+Two possible constructors, one with a dictionary of keys representing
+the model and its parameters, or directly one of openTURNS models</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.setDimension">
+<code class="sig-name descname">setDimension</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dim</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor.setDimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to set the dimension of the process, has to be set first
+either here or through the __init__ arguments</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.setGaussianProcess">
+<code class="sig-name descname">setGaussianProcess</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor.setGaussianProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to set the Gaussian Process</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.setGrid">
+<code class="sig-name descname">setGrid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">grid_shape</span><span class="p">:</span> <span class="n">list</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor.setGrid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to set the grid on which the process will be defined</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.setMesh">
+<code class="sig-name descname">setMesh</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mesh</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor.setMesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the openturns mesh.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.setSample">
+<code class="sig-name descname">setSample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">npSample</span><span class="p">:</span> <span class="n">numpy.array</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor.setSample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a sample, used to construct the random vector
+of Karhunen Loeve coefficients</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.StochasticProcessConstructor.setTrend">
+<code class="sig-name descname">setTrend</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arguments</span><span class="p">:</span> <span class="n">list</span></em>, <em class="sig-param"><span class="n">funcOrConst</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.StochasticProcessConstructor.setTrend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to set the trend transform of the process</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>arguments</strong><span class="classifier">list</span></dt><dd><p>List of str, each representing a dimension of the process</p>
+</dd>
+<dt><strong>funcOrConst</strong><span class="classifier">str / float</span></dt><dd><p>Str or Float representing either the symbolic function of the
+trend or a constant representing the mean</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ol class="arabic simple">
+<li><p>If the trend function is constant it only sets the mean of the
+process</p></li>
+<li><p>The grid and the dimension have to be already defined</p></li>
+</ol>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../user_manual.html"
+                        title="previous chapter">Documentation of the API</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="spsa.SobolIndicesStochasticProcessAlgorithm.html"
+                        title="next chapter">SobolIndicesStochasticProcessAlgorithm</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="spsa.SobolIndicesStochasticProcessAlgorithm.html" title="SobolIndicesStochasticProcessAlgorithm"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../user_manual.html" title="Documentation of the API"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">spsa 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../user_manual.html" >Documentation of the API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">StochasticProcessConstructor</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Kristof Simady.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+  </body>
+</html>

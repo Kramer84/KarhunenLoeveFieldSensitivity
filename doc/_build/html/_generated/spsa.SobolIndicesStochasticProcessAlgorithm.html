@@ -1,0 +1,298 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SobolIndicesStochasticProcessAlgorithm &#8212; spsa 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="StochasticProcessSensitivityAnalysis" href="spsa.StochasticProcessSensitivityAnalysis.html" />
+    <link rel="prev" title="StochasticProcessConstructor" href="spsa.StochasticProcessConstructor.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="spsa.StochasticProcessSensitivityAnalysis.html" title="StochasticProcessSensitivityAnalysis"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="spsa.StochasticProcessConstructor.html" title="StochasticProcessConstructor"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">spsa 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../user_manual.html" accesskey="U">Documentation of the API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">SobolIndicesStochasticProcessAlgorithm</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="sobolindicesstochasticprocessalgorithm">
+<h1>SobolIndicesStochasticProcessAlgorithm<a class="headerlink" href="#sobolindicesstochasticprocessalgorithm" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="spsa.SobolIndicesStochasticProcessAlgorithm">
+<em class="property">class </em><code class="sig-prename descclassname">spsa.</code><code class="sig-name descname">SobolIndicesStochasticProcessAlgorithm</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.SobolIndicesStochasticProcessAlgorithm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for sensitivity analysis, without usage of the inputDesign.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>outputDesign</strong><span class="classifier">numpy.array</span></dt><dd><p>numpy matriix containing the samples Y_A, Y_B, Y_Ei, Y_En, …</p>
+</dd>
+<dt><strong>N</strong><span class="classifier">int</span></dt><dd><p>size of one sample</p>
+</dd>
+<dt><strong>method</strong><span class="classifier">str</span></dt><dd><p>string with information about method for the sensitivity analysis</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>outputDesign</strong><span class="classifier">numpy.array</span></dt><dd><p>same as above</p>
+</dd>
+<dt><strong>sampleSize</strong><span class="classifier">int</span></dt><dd><p>sames as N</p>
+</dd>
+<dt><strong>method</strong><span class="classifier">str</span></dt><dd><p>same as above</p>
+</dd>
+<dt><strong>confidenceLevel</strong><span class="classifier">float (between 0 and 1)</span></dt><dd><p>Confidence level of the estimator, important for plotting</p>
+</dd>
+<dt><strong>inputDescription</strong><span class="classifier">List[str]</span></dt><dd><p>list containing the names of the different input dimensions</p>
+</dd>
+<dt><strong>_FirstOrderIndices</strong><span class="classifier">numpy.array</span></dt><dd><p>data containing the first order Sobol’ estimators</p>
+</dd>
+<dt><strong>_TotalOrderIndices</strong><span class="classifier">numpy.array</span></dt><dd><p>data containing the total order Sobol’ estimators</p>
+</dd>
+<dt><strong>_varFirstOrder</strong><span class="classifier">numpy.array</span></dt><dd><p>variance of the First Order Sobol Estimator</p>
+</dd>
+<dt><strong>_varTotalOrder</strong><span class="classifier">numpy.array</span></dt><dd><p>variance of the Total order Sobol Estimator</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 68%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>setInputDescription:</strong></p></td>
+<td><p>sets the name of each dimension of the input</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>getInputDescription:</strong></p></td>
+<td><p>accessor to the input dimension names</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>setMethod:</strong></p></td>
+<td><p>method to set the estimator calculus strategy</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>getMethod:</strong></p></td>
+<td><p>accessor to the method (default : saltelli)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>getFirstOrderIndices:</strong></p></td>
+<td><p>accessor to the first order indices of the modeol</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>getTotalOrderIndices:</strong></p></td>
+<td><p>accessor to the total order indices</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>getFirstOrderIndicesInterval:</strong></p></td>
+<td><p>accessor to the variance of the first order Sobol indices</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>getTotalorderIndicesInterval:</strong></p></td>
+<td><p>accessor to the variance of the total order Sobol indices</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>setDimension:</strong></p></td>
+<td><p>method to set the dimension of the input. usually deduced automatically</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>setConfidenceLevel:</strong></p></td>
+<td><p>set method for confidence level of estimator (default : 0.95)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>getConfidenceLevel:</strong></p></td>
+<td><p>accessor to the confidence level</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>draw:</strong></p></td>
+<td><p>method to draw the indices, in up to three dimensions</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="spsa.SobolIndicesStochasticProcessAlgorithm.draw">
+<code class="sig-name descname">draw</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span></em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#spsa.SobolIndicesStochasticProcessAlgorithm.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw sensitivity indices.</p>
+<dl>
+<dt>Usage:</dt><dd><p>draw()</p>
+<p>draw(<em>marginalIndex</em>)</p>
+</dd>
+</dl>
+<p>With the first usage, draw the aggregated first and total order indices.
+With the second usage, draw the first and total order indices of a specific marginal in case of vectorial output</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>marginalIndex: int</strong></dt><dd><p>marginal of interest (case of second usage)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl>
+<dt><strong>Graph</strong><span class="classifier"><a class="reference external" href="http://openturns.github.io/openturns/latest/user_manual/_generated/openturns.Graph.html#openturns.Graph" title="(in OpenTURNS v1.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code></a></span></dt><dd><p>A graph containing the aggregated first and total order indices.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If number of bootstrap sampling is not 0, and confidence level associated &gt; 0,
+the graph includes confidence interval plots in the first usage.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.SobolIndicesStochasticProcessAlgorithm.getConfidenceLevel">
+<code class="sig-name descname">getConfidenceLevel</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#spsa.SobolIndicesStochasticProcessAlgorithm.getConfidenceLevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the confidence interval level for confidence intervals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>confidenceLevel</strong><span class="classifier">float</span></dt><dd><p>Confidence level for confidence intervals</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.SobolIndicesStochasticProcessAlgorithm.getFirstOrderIndices">
+<code class="sig-name descname">getFirstOrderIndices</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; numpy.array<a class="headerlink" href="#spsa.SobolIndicesStochasticProcessAlgorithm.getFirstOrderIndices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get first order Sobol indices.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>i</strong><span class="classifier">int, optional</span></dt><dd><p>Index of the marginal of the function, equals to <span class="math notranslate nohighlight">\(0\)</span> by default.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl>
+<dt><strong>indices</strong><span class="classifier"><a class="reference external" href="http://openturns.github.io/openturns/latest/user_manual/_generated/openturns.Point.html#openturns.Point" title="(in OpenTURNS v1.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Point</span></code></a></span></dt><dd><p>Sequence containing first order Sobol indices.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.SobolIndicesStochasticProcessAlgorithm.getFirstOrderIndicesInterval">
+<code class="sig-name descname">getFirstOrderIndicesInterval</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#spsa.SobolIndicesStochasticProcessAlgorithm.getFirstOrderIndicesInterval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get interval for the aggregated first order Sobol indices.</p>
+<dl class="field-list">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl>
+<dt><strong>interval</strong><span class="classifier"><a class="reference external" href="http://openturns.github.io/openturns/latest/user_manual/_generated/openturns.Interval.html#openturns.Interval" title="(in OpenTURNS v1.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Interval</span></code></a></span></dt><dd><p>Interval for first order Sobol indices for each component.
+Computed marginal by marginal (not from the joint distribution).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.SobolIndicesStochasticProcessAlgorithm.getTotalOrderIndices">
+<code class="sig-name descname">getTotalOrderIndices</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; numpy.array<a class="headerlink" href="#spsa.SobolIndicesStochasticProcessAlgorithm.getTotalOrderIndices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get total order Sobol indices.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>i</strong><span class="classifier">int, optional</span></dt><dd><p>Index of the marginal of the function, equals to <span class="math notranslate nohighlight">\(0\)</span> by default.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl>
+<dt><strong>indices</strong><span class="classifier"><a class="reference external" href="http://openturns.github.io/openturns/latest/user_manual/_generated/openturns.Point.html#openturns.Point" title="(in OpenTURNS v1.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Point</span></code></a></span></dt><dd><p>Sequence containing total order Sobol indices.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.SobolIndicesStochasticProcessAlgorithm.setConfidenceLevel">
+<code class="sig-name descname">setConfidenceLevel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">confidenceLevel</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.975</span></em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#spsa.SobolIndicesStochasticProcessAlgorithm.setConfidenceLevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>method to set desired confidence level for the
+plot</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.SobolIndicesStochasticProcessAlgorithm.setDimension">
+<code class="sig-name descname">setDimension</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dim</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#spsa.SobolIndicesStochasticProcessAlgorithm.setDimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dimension of the inputs =&gt; how many different
+sobol indices we will calculate</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="spsa.StochasticProcessConstructor.html"
+                        title="previous chapter">StochasticProcessConstructor</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="spsa.StochasticProcessSensitivityAnalysis.html"
+                        title="next chapter">StochasticProcessSensitivityAnalysis</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="spsa.StochasticProcessSensitivityAnalysis.html" title="StochasticProcessSensitivityAnalysis"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="spsa.StochasticProcessConstructor.html" title="StochasticProcessConstructor"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">spsa 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../user_manual.html" >Documentation of the API</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">SobolIndicesStochasticProcessAlgorithm</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Kristof Simady.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.2.
+    </div>
+  </body>
+</html>
