@@ -14,6 +14,7 @@
 \usepackage{hyperref}
 \usepackage{amsmath}
 \usepackage{mathtools}
+\usepackage{gensymb}
 
 \begin{document}
 %
@@ -462,7 +463,7 @@ Les codes ayant montré leur utilisabilité, il était enfin possible d'essayer 
 
 Comme nous l'avions mentionné avant, la finalité de ce travail de quasi-recherche et développement de codes, était de parvenir à induire des défauts stochastiques dans un modèle numérique, et de mesurer la sensibilité de ce modèle à ces perturbations. 
 
-Le modèle en question est celui d'un échangeur thermique d'utilisation aéronautique. Cette pièce doit être  capable de supporter et échanger la température de deux flux d'air perpendiculaires, l'un a température ambiante et l'autre a des températures allant jusqu'à 600C. \\
+Le modèle en question est celui d'un échangeur thermique d'utilisation aéronautique. Cette pièce doit être  capable de supporter et échanger la température de deux flux d'air perpendiculaires, l'un à la température de l'air en haute altitude - jusqu'à -50\degree - et l'autre aux températures moteurs allant jusqu'à 600C. \\
 
 \begin{figure}[H]
    \centering   
@@ -471,9 +472,9 @@ Le modèle en question est celui d'un échangeur thermique d'utilisation aérona
          \label{principleExchanger}
 \end{figure}
 
-Ce projet est financé par l'union européenne, et la fabrication est assurée par le fabricant allemand \textbf{LIEBHERR}. Ce dernier sous-traite certaines étapes de l'étude, comme les essais physiques sur des échantillons de l'échangeur, tâche réalisée par \textbf{Lortek}, la construction d'un modèle paramétrique numérique de l'échangeur, tâche réalisée par \textbf{Epsilon}, et enfin la partie analyse de sensibilité réalisée par \textbf{Phimeca}. \\
+Ce projet est financé par l'union européenne, et la fabrication est assurée par le fabricant allemand \textbf{LIEBHERR}. Ce dernier sous-traite certaines étapes de l'étude, comme les essais physiques sur des échantillons de l'échangeur, tâche réalisée par \textbf{Lortek}, la construction d'un modèle paramétrique numérique de l'échangeur, tâche réalisée par \textbf{Epsilon}, et enfin la partie analyse de sensibilité et déformation moteur réalisée par \textbf{Phimeca}. \\
 
-Ce projet à donc impliqué l'étroite collaboration de ces différents acteurs, vu que pour l'analyse de sensibilité il nous fallait utiliser le modèle contruit par \textbf{Epsilon}, et introduire des incertitudes dans les paramètres, récuperées dans les mesures faites par \textbf{Lortek}.
+Ce projet à donc impliqué l'étroite collaboration de ces différents acteurs, vu que pour l'analyse de sensibilité il nous fallait utiliser le modèle contruit par \textbf{Epsilon}, et introduire des incertitudes dans les paramètres, dont la nature et les paramètres ont été récuperées dans les mesures faites par \textbf{Lortek}.
 
 
 \begin{figure}[H]
@@ -491,7 +492,7 @@ Numériquement, la rupture se traduit par une contrainte maximale superieure à 
 
 \begin{figure}[H]
    \centering   
-   \includegraphics[scale=0.3]{SchemaAilettes.png}
+   \includegraphics[scale=0.45]{SchemaAilettes.png}
       \caption{Ailettes d'un échangeur de chaleur}
          \label{SchemaAilettes}
 \end{figure}
@@ -505,6 +506,18 @@ Pour parvenir à introduire ces variabilités différentes approches et modèles
       \caption{Impacte d'un paramètre sur, un champ}
          \label{maternNu}
 \end{figure}
+
+En deux dimensions, un champ stochastique peut être vu comme un maillage uniforme, ou une valeur est associée à chaque noeud, et ou la valeur à chaque noeud est colérée à la distance et valeur des noeuds proches. La première idée aurait donc été d'appliquer directement une déformation génerée par un champ de la même taille que le maillage d'une ailette aux noeuds constituant l'ailette, et donc de simuler
+une déformation stochastique par ailette, mais en écartant du coup toute corrélation inter-ailettes.
+La déformation se serait fait par translation de chaque noeud suivant l'axe normal au plan de l'ailette.
+Cette méthode a vite été écartée, puisque la génération de champs sur des maillages sous forme de long rectangle étiré était bien moins précise et controlables, allant jusqu'à des réalisation quasi constantes. De plus le nombre de champs genéré par plaque serait très important, alors qu'il serait plus simple de ne genérér qu'un seul champ par plaque et d'user de déformation paramétriques. \\
+
+Cette seconde approche est inspirée d'un travail par CITEGOKA, qui traite de la modélisation des déformations réelles de pièces mécaniques. Il découle de son travail, que la déformation d'une pièce physique peut être représenté par une sommes de modes de déformation primaires, et qui similairement à une décompositin de fourrier, peut finalement représenter toute déformation de pièce. \\
+
+En éxprimant la déformation de chaque arc de neuds colinéaire à la direction normale aux deux flux d'air, comme une fonction mathématique représentant cette déformation basique, par exemple un polynôme du second degré possédant comme racines les deux positions extrêmes de l'arc, et en rendant cette fonction pilotée par un unique paramètre, l'on peut appliquer facilement une déformation à chaque arc de la plaque crénelée. Cette déformaiton, en plus d'être physique, possède une corrélation intra-ailettes, et ne nécessite que la génération d'un seul champ par plaque crénelée. De plus on peut facielement superposer les déformations par sommation.
+
+Un exemple de déformation qu'il est possible d'obtenir avec cette méthode (un seul mode de déformation): 
+
 
 \begin{verbatim}
         PROGRAM area
