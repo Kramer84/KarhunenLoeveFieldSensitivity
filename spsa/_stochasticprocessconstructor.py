@@ -432,13 +432,13 @@ class StochasticProcessConstructor(openturns.Process):
                 self.setGaussianProcess()
         assert method in ['P1Algorithm', 'QuadratureAlgorithm'], \
                     "Methods available : 'P1Algorithm', 'QuadratureAlgorithm'"
-        if method is 'P1Algorithm' :
+        if method == 'P1Algorithm' :
             KarhunenLoeveAlgorithm = openturns.KarhunenLoeveP1Algorithm(
                                                     self.mesh,
                                                     self.getCovarianceModel(),
                                                     threshold)
 
-        if method is 'QuadratureAlgorithm' :
+        if method == 'QuadratureAlgorithm' :
             domain = openturns.MeshDomain(self.mesh)
             bounds = openturns.Interval(
                                  list(zip(*list(zip(*self.grid_shape))[:-1])))
