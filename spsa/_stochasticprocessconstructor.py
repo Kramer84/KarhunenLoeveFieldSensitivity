@@ -111,11 +111,13 @@ class StochasticProcessConstructor(openturns.Process):
         self.fieldSampleEigenmodeProjection = None
         self.decompositionAsRandomVector    = None
         self.verbosity                      = verbosity
+        # threshold for the SVD algorithm
+        self.threshold                      = 1e-3 
         self._buildIfArgsInInit()
 
     def _buildIfArgsInInit(self):
-        '''To instanciate the function if the arguments are passed through __init__
-        '''
+        '''To instanciate the function if the arguments are passed through 
+        __init__'''
         if self._grid_shape is not None and self.dimension is not None:
             self.setGrid(self._grid_shape)
         if self._covarianceModelDict is not None \
@@ -190,8 +192,8 @@ class StochasticProcessConstructor(openturns.Process):
         Arguments
         ---------
         grid_shape: list
-            List containing the lower bound, the length and the number of elements
-            for each dimension. Ex: [[x0 , Lx , Nx], **]
+            List containing the lower bound, the length and the number of 
+            elements for each dimension. Ex: [[x0 , Lx , Nx], **]
         '''
         assert self.dimension is not None, \
                            'first set dimension with self.setDimension method'
@@ -412,7 +414,7 @@ class StochasticProcessConstructor(openturns.Process):
 ##############################################################################
 
     def getKarhunenLoeveDecomposition(self, method = 'P1Algorithm',  
-                                        threshold = 1e-4, getResult = False, **kwargs):
+                               threshold = 1e-4, getResult = False, **kwargs):
         '''Function to get the Karhunen Loève decomposition of the gaussian 
         process, using the P1 approximation
 
@@ -462,20 +464,40 @@ class StochasticProcessConstructor(openturns.Process):
         if getResult == True :
             return KL_algo_results
 
+    def getKarhunenLoeveSVDAlgorithmOnSampleResults(self, 
+                                              processSample, getResult=False):
+        '''Build the Karhunen Loeve decomposition using a sample, without
+        prior knowledge about the covariance function of the Process'''
+        assert self.mesh is not None, "first instanciate dimension and mesh"
+        if isinstance(processSample, numpy.ndarray):
+            processSample = self.getProcessSampleFromNumpyArray(processSample)
+        assert isinstance(processSample,openturns.ProcessSample)
+        self.sampleBuffer = processSample
+        klDecomposition = openturns.KarhunenLoeveSVDAlgorithm(
+                                               processSample, self.threshold)
+        klDecomposition.run()
+        klDecompositionResult = klDecomposition.getResult()
+        self.KarhunenLoeveResult = klDecompositionResult
+        klDecompositionEigenmodes = self.KarhunenLoeveResult.project(
+                                                               processSample)
+        self.fieldSampleEigenmodeProjection = numpy.array(
+                                                   klDecompositionEigenmodes)
+        self.getDecompositionAsRandomVector('Unnamed process decomposition')
+        if getResult == True:
+            return klDecompositionResult
+
     def getFieldProjectionOnEigenmodes(self, ProcessSample=None):
         ''' for each element of a field sample get the corresponding set of 
-        random variables
-        '''
+        random variables'''
         if self.KarhunenLoeveResult is None:
             self.getKarhunenLoeveDecomposition()    
-        assert(self.sampleBuffer is not None or ProcessSample is not None), ""
+        assert(self.sampleBuffer is not None or ProcessSample is not None)
         if ProcessSample is None : 
             ProcessSample       = self.getProcessSampleFromNumpyArray(
-                                                              self.sampleBuffer)
-        if type(ProcessSample) == numpy.ndarray :
+                                                            self.sampleBuffer)
+        if isinstance(ProcessSample,numpy.ndarray):
             ProcessSample = self.getProcessSampleFromNumpyArray(ProcessSample)
-        KL_eigenmodes           = self.KarhunenLoeveResult.project(
-                                                                ProcessSample)
+        KL_eigenmodes     = self.KarhunenLoeveResult.project(ProcessSample)
         self.fieldSampleEigenmodeProjection = numpy.array(KL_eigenmodes)
 
     def getDecompositionAsRandomVector(self, optName = None):
@@ -494,7 +516,6 @@ class StochasticProcessConstructor(openturns.Process):
         eigenmodesDistribution.setMean(meanDistri)
         eigenmodesDistribution.setStd(stdDistri)
         self.decompositionAsRandomVector = eigenmodesDistribution
-        cleanAtExit() #to remove temporary arrays
         self.sampleBuffer = None
 
     def liftDistributionToField(self, randomVector):
@@ -574,20 +595,39 @@ class StochasticProcessConstructor(openturns.Process):
             if flag is set to True, returns the realization as a ndarray and
             not a openturns object
         '''
-        assert(self.GaussianProcess is not None),""
-        sample_ot = self.GaussianProcess.getSample(size)
-        self.sampleBuffer = numpy.asarray(sample_ot)
-        if len(self.extent)==2*len(self.shape):
-            self.extent.pop()
-            self.extent.pop()
-            self.extent.append(self.sampleBuffer.min())
-            self.extent.append(self.sampleBuffer.max())
-        if getAsArray == True : 
-            array = numpy.asarray(self.sampleBuffer)
-            array = numpy.reshape(array,[size,*self.shape],order='F')
-            return array
-        else :
-            return sample_ot
+        if self.GaussianProcess is not None : 
+            sample_ot = self.GaussianProcess.getSample(size)
+            self.sampleBuffer = numpy.asarray(sample_ot)
+            if len(self.extent)==2*len(self.shape):
+                self.extent.pop()
+                self.extent.pop()
+                self.extent.append(self.sampleBuffer.min())
+                self.extent.append(self.sampleBuffer.max())
+            if getAsArray == True : 
+                array = numpy.asarray(self.sampleBuffer)
+                array = numpy.reshape(array,[size,*self.shape],order='F')
+                return array
+            else :
+                return sample_ot
+        elif self.KarhunenLoeveResult is not None:
+            if self.decompositionAsRandomVector is not None :
+                rvRea = self.decompositionAsRandomVector.getSample(size)
+                sample_ot= self.liftDistributionToField(rvRea)
+                self.sampleBuffer = numpy.asarray(sample_ot)
+                if len(self.extent)==2*len(self.shape):
+                    self.extent.pop()
+                    self.extent.pop()
+                    self.extent.append(self.sampleBuffer.min())
+                    self.extent.append(self.sampleBuffer.max())
+                if getAsArray == True : 
+                    array = numpy.asarray(self.sampleBuffer)
+                    array = numpy.reshape(array,[size,*self.shape],order='F')
+                    return array
+                else :
+                    return sample_ot
+            else:
+                print(
+                 'The process has not been decomposed through Karhunen Loeve')
 
     def setSample(self, npSample : numpy.array):
         '''Set a sample, used to construct the random vector of Karhunen Loeve 
@@ -604,19 +644,38 @@ class StochasticProcessConstructor(openturns.Process):
             if flag is set to True, returns the realization as a ndarray and
             not a openturns object
         '''
-        assert(self.GaussianProcess is not None and self.shape is not None),\
-                                        "first initialize process or set grid"
-        realization = self.GaussianProcess.getRealization()
-        if len(self.extent)==2*len(self.shape):
-            self.extent.pop()
-            self.extent.pop()
-            self.extent.append(realization.getValues().getMin()[0])
-            self.extent.append(realization.getValues().getMax()[0])
-        if getAsArray == True : 
-            array = numpy.asarray(realization.getValues())
-            return numpy.reshape(array,self.shape,order='F')
-        else :
-            return realization
+        if self.GaussianProcess is not None and self.shape is not None:
+            realization = self.GaussianProcess.getRealization()
+            if len(self.extent)==2*len(self.shape):
+                self.extent.pop()
+                self.extent.pop()
+                self.extent.append(realization.getValues().getMin()[0])
+                self.extent.append(realization.getValues().getMax()[0])
+            if getAsArray == True : 
+                array = numpy.asarray(realization.getValues())
+                return numpy.reshape(array,self.shape,order='F')
+            else :
+                return realization
+        elif self.KarhunenLoeveResult is not None:
+            if self.decompositionAsRandomVector is not None :
+                rvRea = self.decompositionAsRandomVector.getRealization()
+                sample_ot= self.liftDistributionToField(rvRea)
+                self.sampleBuffer = numpy.asarray(sample_ot)
+                if len(self.extent)==2*len(self.shape):
+                    self.extent.pop()
+                    self.extent.pop()
+                    self.extent.append(self.sampleBuffer.min())
+                    self.extent.append(self.sampleBuffer.max())
+                if getAsArray == True : 
+                    array = numpy.asarray(self.sampleBuffer)
+                    array = numpy.reshape(array,[size,*self.shape],order='F')
+                    return array
+                else :
+                    return sample_ot
+            else:
+                print(
+                 'The process has not been decomposed through Karhunen Loeve')
+
 
     def getTrend(self):
         '''Accessor to the trend.
