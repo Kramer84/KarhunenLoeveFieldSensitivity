@@ -660,15 +660,15 @@ class StochasticProcessConstructor(openturns.Process):
             if self.decompositionAsRandomVector is not None :
                 rvRea = self.decompositionAsRandomVector.getRealization()
                 sample_ot= self.liftDistributionToField(rvRea)
-                self.sampleBuffer = numpy.asarray(sample_ot)
+                sample_np = numpy.asarray(sample_ot)
                 if len(self.extent)==2*len(self.shape):
                     self.extent.pop()
                     self.extent.pop()
-                    self.extent.append(self.sampleBuffer.min())
-                    self.extent.append(self.sampleBuffer.max())
+                    self.extent.append(sample_np.min())
+                    self.extent.append(sample_np.max())
                 if getAsArray == True : 
-                    array = numpy.asarray(self.sampleBuffer)
-                    array = numpy.reshape(array,[size,*self.shape],order='F')
+                    array = numpy.asarray(sample_np)
+                    array = numpy.reshape(array,self.shape,order='F')
                     return array
                 else :
                     return sample_ot
