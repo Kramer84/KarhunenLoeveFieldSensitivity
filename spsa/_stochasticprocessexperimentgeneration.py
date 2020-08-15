@@ -168,26 +168,26 @@ class StochasticProcessSensitivityExperiment(object):
         distribution = self.composedDistribution
         method = self._genType
         N2 = 2 * self.N
-        if method is 1:
+        if method == 1:
             sample = distribution.getSample(N2)
-        elif (method is 2) or (method is 4):
+        elif (method == 2) or (method == 4):
             lhsExp = openturns.LHSExperiment(distribution,
                                              N2,
                                              False,  # alwaysShuffle
                                              True)  # randomShift
-            if method is 2:
+            if method == 2:
                 sample = lhsExp.generate()
-            if method is 4:
+            if method == 4:
                 lhsExp.setAlwaysShuffle(True)
                 if 'SpaceFilling' in kwargs:
-                    if kwargs['SpaceFilling'] is 'SpaceFillingC2':
+                    if kwargs['SpaceFilling'] == 'SpaceFillingC2':
                         spaceFill = openturns.SpaceFillingC2
-                    if kwargs['SpaceFilling'] is 'SpaceFillingMinDist':
+                    if kwargs['SpaceFilling'] == 'SpaceFillingMinDist':
                         spaceFill = openturns.SpaceFillingMinDist
-                    if kwargs['SpaceFilling'] is 'SpaceFillingPhiP':
+                    if kwargs['SpaceFilling'] == 'SpaceFillingPhiP':
                         spaceFill = openturns.SpaceFillingPhiP
                         if 'p' in kwargs:
-                            if (type(kwargs['p']) is int) or (type(kwargs['p']) is float):
+                            if isinstance(kwargs['p'],int) or isinstance(kwargs['p'], float):
                                 p = int(kwargs['p'])
                             else:
                                 print(
@@ -201,10 +201,10 @@ class StochasticProcessSensitivityExperiment(object):
                     print("undefined parameter 'SpaceFilling', setting to default 'SpaceFillingC2'")
                     spaceFill = openturns.SpaceFillingC2
                 if 'TemperatureProfile' in kwargs:
-                    if kwargs['TemperatureProfile'] is 'GeometricProfile':
+                    if kwargs['TemperatureProfile'] == 'GeometricProfile':
                         geomProfile = openturns.GeometricProfile(
                                                              10.0, 0.95, 2000)  # Default value
-                    if kwargs['TemperatureProfile'] is 'LinearProfile':
+                    if kwargs['TemperatureProfile'] == 'LinearProfile':
                         geomProfile = openturns.LinearProfile(10.0, 100)
                 else:
                     print("undefined parameter 'TemperatureProfile', setting default GeometricProfile")
@@ -212,7 +212,7 @@ class StochasticProcessSensitivityExperiment(object):
                 optimalLHSAlgorithm = openturns.SimulatedAnnealingLHS(
                     lhsExp, geomProfile, spaceFill())
                 sample = optimalLHSAlgorithm.generate()
-        elif method is 3:
+        elif method == 3:
             restart = True
             if 'sequence' in kwargs:
                 if kwargs['sequence'] == 'Faure':

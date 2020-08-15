@@ -597,7 +597,7 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         for i, inp in enumerate(inputList) :
             if isinstance(inp, openturns.DistributionImplementation):
                 name = inp.getName()
-                assert name is not 'Unnamed',"Please give a name to your distributions through the setName() method..."
+                assert name != 'Unnamed',"Please give a name to your distributions through the setName() method..."
                 if name in listNames:
                     print('Possible duplicata of 2 variable names...')
                     newName = name+str(i)+'_'+str(uuid.uuid4())
@@ -610,7 +610,7 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
 
             if isinstance(inp, openturns.Process) :
                 name = inp.getName()
-                assert name is not 'Unnamed', "Please give a name to your Processes through the setName() method..."
+                assert name != 'Unnamed', "Please give a name to your Processes through the setName() method..."
                 if name in listNames:
                     print('Possible duplicata of 2 variable names...')
                     newName = name+str(i)+'_'+str(uuid.uuid4())

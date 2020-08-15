@@ -62,7 +62,7 @@ class StochasticProcessSobolIndicesAlgorithmBase(object):
               'dimensions with', SobolExperiment[0].size, 'elements')
         SobolExperiment, inputListParallel \
         = StochasticProcessSobolIndicesAlgorithmBase._centerSobolExp(SobolExperiment, N)
-        if method is 'Saltelli':
+        if method == 'Saltelli':
 
             SobolIndices = [StochasticProcessSobolIndicesAlgorithmBase.SaltelliIndices(
                 *inputListParallel[i]) for i in range(nIndices)]
@@ -341,7 +341,7 @@ def plotSobolIndicesWithErr(S, errS, varNames, n_dims, Stot=None, errStot=None):
             raise NotImplementedError
 
         graphList = list()
-        if case is 1:
+        if case == 1:
             colspan = 5
             rowspan = 2
             colTot = 5
@@ -368,7 +368,7 @@ def plotSobolIndicesWithErr(S, errS, varNames, n_dims, Stot=None, errStot=None):
             fig.canvas.draw()
             plt.show()
 
-        if case is 2:
+        if case == 2:
             colspan = 5
             rowspan = 2
             colTot = 5 * 2
