@@ -146,7 +146,7 @@ class StochasticProcessConstructor(openturns.Process):
         helpStr = '''
 HELP:
 
-This class allows for the creation of multi dimensional stochastic processes\n
+This class allows for the creation of multi dimensional stochastic processes.
 The process is defined through the specification of:
   - The mesh on top of wich the model is built.
   - The covariance model
