@@ -148,26 +148,27 @@ HELP:
 
 This class allows for the creation of multi dimensional stochastic processes\n
 The process is defined through the specification of:
-    - The mesh on top of wich the model is built.
-    - The covariance model
-    - A trend function (optional), default is '0'
-Usage is as following: \n
+  - The mesh on top of wich the model is built.
+  - The covariance model
+  - A trend function (optional), default is '0'
 
-0. Create the process:
+Usage is as follows:
 
- >>> import spsa
- >>> process=spsa.StochasticProcessConstructor()
+ 0. Create the process:
 
-1. Set the dimension of the process with the self.setDimension() method:\n
+  >>> import spsa
+  >>> process=spsa.StochasticProcessConstructor()
 
- >>> process.setDimension(2)
+ 1. Set the dimension of the process with the self.setDimension() method:
 
-2. Set the processes grid shape  with the self.setGrid() method:\n
+  >>> process.setDimension(2)
 
- >>> #2 dimensional grid with  10 x 10 elements of 1 x 1 unit size: \n'
- >>> process.setGrid([[0,1,10],[0,1,10],])
+ 2. Set the processes grid shape  with the self.setGrid() method:
 
-3. Set Covariance model through the self.setCovarianceModel() method: \n
+  >>> # 2 dimensional grid with  10 x 10 elements of 1 x 1 unit size:
+  >>> process.setGrid([[0,1,10],[0,1,10],])
+
+ 3. Set Covariance model through the self.setCovarianceModel() method:
 
 Note
 ----
@@ -178,27 +179,27 @@ openTURNS documentation. https://openturns.github.io/
 The covariance model can also be passed as an already constructed openturns
 CovarianceModel object
 
- >>> process.setCovarianceModel(
- >>>   {"Model":"MaternModel",
- >>>   "amplitude": float,
- >>>   "scale": float,
- >>>   "nu": float})
+  >>> process.setCovarianceModel(
+  >>>   {"Model":"MaternModel",
+  >>>   "amplitude": float,
+  >>>   "scale": float,
+  >>>   "nu": float})
 
-4. Optional. Set trend function through the setTrend() method.
+ 4. Optional. Set trend function through the setTrend() method.
 
- >>> process.setTrend(arguments = ['X','Y'],
- >>>   trendOrFunc = '-0.5*X+0.5*Y+1')
+  >>> process.setTrend(arguments = ['X','Y'],
+  >>>   trendOrFunc = '-0.5*X+0.5*Y+1')
 
-5. Set the gaussian process using the self.setGaussianProcess() method
+ 5. Set the gaussian process using the self.setGaussianProcess() method
 
- >>> process.setGaussianProcess()
+  >>> process.setGaussianProcess()
 
-6. Generate single realizations or get samples:
+ 6. Generate single realizations or get samples:
 
- >>> otField = process.getRealization()
- >>> npField = process.getRealization(True) #output as numpy array
- >>> otSample = process.getSample(N)
- >>> npSample = process.getSample(N,True) #output as numpy array
+  >>> otField = process.getRealization()
+  >>> npField = process.getRealization(True) #output as numpy array
+  >>> otSample = process.getSample(N)
+  >>> npSample = process.getSample(N,True) #output as numpy array
 '''
         reprStr = ' '.join(['Stochastic',
                             'Process',
@@ -239,12 +240,12 @@ CovarianceModel object
             List containing the lower bound, the length and the number of
             elements for each dimension. Ex: [[x0 , Lx , Nx], **]
         '''
-        assert (self.dimension is not None,
+        assert self.dimension is not None, (
                 'first set dimension with self.setDimension method')
         assert type(grid_shape) == list, 'the grids shape has to be in a list'
-        assert(len(grid_shape) == self.dimension
-               and isinstance(grid_shape[0], list),
-               'check self.printHelp method')
+        assert (len(grid_shape) == self.dimension
+                and isinstance(grid_shape[0], Iterable)), (
+                'check self.printHelp method')
 
         self._grid_shape = grid_shape
         n_intervals = [int(grid_shape[i][2]) for i in range(
