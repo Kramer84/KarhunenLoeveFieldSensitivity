@@ -54,7 +54,7 @@ class StochasticProcessSensitivityExperiment(object):
     4 : SimulatedAnnealingLHS
     '''
     genTypes = {1: 'Random', 2: 'LHS', 3: 'LowDiscrepancySequence', 
-                                                    4: 'SimulatedAnnealingLHS'}
+                4: 'SimulatedAnnealingLHS'}
 
     def __init__(self, size=None, OTPyFunctionWrapper=None, generationType=1):
         self.OTPyFunctionWrapper = None

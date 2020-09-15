@@ -546,27 +546,26 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
 
 
     """
-    def __init__(self, batchFunction          : Optional[Callable] = None, 
-                       singleFunction         : Optional[Callable] = None,
-                       processesDistributions : Optional[list]     = None , 
-                       outputDict             : Optional[dict]     = None):
+    def __init__(self, batchFunction : Optional[Callable] = None, 
+                       singleFunction : Optional[Callable] = None,
+                       processesDistributions : Optional[list] = None, 
+                       outputDict : Optional[dict] = None):
         self.processesDistributions = processesDistributions
-        self.outputDict             = outputDict
-        self.PythonBatchFunction    = batchFunction
-        self.PythonSingleFunction   = singleFunction
+        self.outputDict = outputDict
+        self.PythonBatchFunction = batchFunction
+        self.PythonSingleFunction = singleFunction
 
-        self.StochasticProcessList  = list()
-        self.inputVarNames          = list()
-        self.outputVarNames         = list()
+        self.StochasticProcessList = list()
+        self.inputVarNames = list()
+        self.outputVarNames = list()
         self.getInputVariablesName()
         self.getOutputVariablesName()
-        self.inputDim               = len(self.inputVarNames)
-        self.outputDim              = len(self.outputVarNames)
+        self.inputDim = len(self.inputVarNames)
+        self.outputDim = len(self.outputVarNames)
         self.KLComposedDistribution = self.composeFromProcessAndDistribution(
-                                                   self.processesDistributions
-                                                                            )
-        self.inputVarNamesKL        = self.getKLDecompositionVarNames()
-        self.inputDimKL             = len(self.inputVarNamesKL)
+                                        self.processesDistributions)
+        self.inputVarNamesKL = self.getKLDecompositionVarNames()
+        self.inputDimKL = len(self.inputVarNamesKL)
         super(OpenturnsPythonFunctionWrapper, self).__init__(
                                               self.inputDimKL, self.outputDim)
         self.setInputDescription(self.inputVarNamesKL)
@@ -575,10 +574,10 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
     def composeFromProcessAndDistribution(self, 
                                           processesDistributions : list,
                                           ntemp : int = 1750):
-        r"""Using a list of ordered openturns distributions and custom defined Process
-        with the StochasticProcessConstructor class we construct a vector of scalar 
-        distributions, according to the distributions and the Karhunen-Loeve decomposition
-        of the processes.
+        r"""Using a list of ordered openturns distributions and custom defined 
+        Process with the StochasticProcessConstructor class we construct a 
+        vector of scalar distributions, according to the distributions and the 
+        Karhunen-Loeve decomposition of the processes.
 
         Parameters
         ----------
@@ -589,7 +588,8 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         -------
         composedDistribution: openturns.ComposedDistribution
             random vector of various probabilistic distributions, in the order 
-            of the input list and with Processes decomposed as random variables
+            of the input list and with Processes decomposed as random 
+            variables
         """
         listNames = list()
         listProbabilisticDistributions = list()
@@ -597,7 +597,8 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         for i, inp in enumerate(inputList) :
             if isinstance(inp, openturns.DistributionImplementation):
                 name = inp.getName()
-                assert name != 'Unnamed',"Please give a name to your distributions through the setName() method..."
+                assert name != 'Unnamed',\
+                    "give a name to distributions through setName() method"
                 if name in listNames:
                     print('Possible duplicata of 2 variable names...')
                     newName = name+str(i)+'_'+str(uuid.uuid4())
@@ -610,7 +611,8 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
 
             if isinstance(inp, openturns.Process) :
                 name = inp.getName()
-                assert name != 'Unnamed', "Please give a name to your Processes through the setName() method..."
+                assert name != 'Unnamed',\
+                    "Give a name to Processes through setName() method"
                 if name in listNames:
                     print('Possible duplicata of 2 variable names...')
                     newName = name+str(i)+'_'+str(uuid.uuid4())

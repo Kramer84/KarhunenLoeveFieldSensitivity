@@ -11,7 +11,7 @@ __date__ = '22.06.20'
 __all__ = ['StochasticProcessConstructor']
 
 
-class StochasticProcessConstructor(openturns.Process):
+class StochasticProcessConstructor(openturns.ProcessImplementation):
     '''Class to create up to 4-dimensional gaussian processes.
 
     It has a bit more flexibility than the low level openturns classes,
@@ -201,17 +201,8 @@ CovarianceModel object
   >>> otSample = process.getSample(N)
   >>> npSample = process.getSample(N,True) #output as numpy array
 '''
-        reprStr = ' '.join(['Stochastic',
-                            'Process',
-                            'on',
-                            'grid',
-                            'of',
-                            'shape',
-                            shape,
-                            'and',
-                            covaModel,
-                            'covariance',
-                            'Model',
+        reprStr = ' '.join(['Stochastic','Process','on','grid','of','shape',
+                            shape, 'and', covaModel,'covariance','Model',
                             helpStr])
         return reprStr
 
@@ -260,7 +251,7 @@ CovarianceModel object
         mesh.setName(str(self.dimension)+'D_Grid')
         self.mesh = mesh
         self.setMesh(mesh)
-        shape = numpy.squeeze(n_intervals)+1
+        shape = numpy.atleast_1d(numpy.squeeze(n_intervals)+1)
         self.shape = shape.tolist()
         self.extent = numpy.ravel(numpy.asarray(
                                   list(zip(low_bounds,
@@ -422,8 +413,8 @@ CovarianceModel object
             constructor = list()
             # Beacause a string is an iterator and we iterate over each letter
             for i in str(dictValues[2][choice]):
-                constructor.append([covarianceModelDict[
-                                                    dictValues[1][int(i)-1]]])
+                constructor.append(covarianceModelDict[
+                                                    dictValues[1][int(i)-1]])
             try:
                 if self.verbosity > 1:
                     print('Choosen constructor is: (',
