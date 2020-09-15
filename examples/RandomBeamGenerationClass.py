@@ -2,10 +2,8 @@ __version__ = '0.1'
 __author__ = 'Kristof Attila S.'
 __date__  = '15.03.20'
 
-import  io
-import  os
 import  pickle
-from    joblib import  Parallel, delayed, cpu_count
+from    joblib import  Parallel, delayed
 
 from    PIL    import  Image
 import  numpy
@@ -16,7 +14,7 @@ from    anastruct.fem.system import  SystemElements, Vertex
 '''analysis of model in tutorial : notebook/Demo_Analyse_Sensibilite_poutre.ipynb
 '''
 
-class RandomBeam_anastruct(object):
+class RandomBeamClass(object):
     '''Class to create a finite element beam where each parameter is random 
 
     The beam in this class has each one of it's elements diameter and young 
@@ -166,7 +164,7 @@ class RandomBeam_anastruct(object):
         density       = float(density)
         forcePosition = float(forcePosition)
         forceNorm     = float(forceNorm)
-        BeamObj_MP, youngModu, diam, density, forcePosition, forceNorm = RandomBeam_anastruct.instantiateRandomBeam_MP(youngModu, diam, density, forcePosition, forceNorm, vertex_list, l_element)
+        BeamObj_MP, youngModu, diam, density, forcePosition, forceNorm = RandomBeamClass.instantiateRandomBeam_MP(youngModu, diam, density, forcePosition, forceNorm, vertex_list, l_element)
         try :
             solution                  = BeamObj_MP.solve(force_linear           = False,
                                                          verbosity              = 0,
@@ -175,7 +173,7 @@ class RandomBeam_anastruct(object):
                                                          naked                  = False)
             points_range              = numpy.asarray(BeamObj_MP.nodes_range('x'))
             elem_length_range         = points_range[1:]-(points_range[1]-points_range[0])/2
-            deflection, shear, moment = RandomBeam_anastruct.postprecess_beam_MP(BeamObj_MP)
+            deflection, shear, moment = RandomBeamClass.postprecess_beam_MP(BeamObj_MP)
             element_results           = numpy.vstack([elem_length_range,youngModu, diam, numpy.asarray(shear), numpy.asarray(moment)])
             node_results              = numpy.vstack([points_range, deflection])
             global_beamParams         = numpy.array([forceNorm, density, forcePosition])
@@ -213,7 +211,7 @@ class RandomBeam_anastruct(object):
     
     @staticmethod
     def instantiateRandomBeam_MP( youngModu, diam, density, forcePosition, forceNorm, vertex_list, l_element):
-        a, b, c=RandomBeam_anastruct.anastruct_beam_MP(youngModu, diam, density, forcePosition, forceNorm, vertex_list, l_element)
+        a, b, c=RandomBeamClass.anastruct_beam_MP(youngModu, diam, density, forcePosition, forceNorm, vertex_list, l_element)
         return a, b, c, density, forcePosition, forceNorm
 
     @staticmethod
@@ -225,7 +223,7 @@ class RandomBeam_anastruct(object):
                                 E       = float(youngModu[k]),
                                 gamma   = density)
         
-        nodeID, system, random_diameter, random_young_modulus = RandomBeam_anastruct.nodeChecksAndVertsInsertion_MP(system, forcePosition, diam, youngModu, vertex_list, l_element)
+        nodeID, system, random_diameter, random_young_modulus = RandomBeamClass.nodeChecksAndVertsInsertion_MP(system, forcePosition, diam, youngModu, vertex_list, l_element)
         system.point_load(nodeID, Fy = -forceNorm)   # in kN
         system.add_support_hinged(node_id=min(system.node_map.keys()))
         system.add_support_roll(node_id=system.id_last_node , direction='x')
@@ -244,7 +242,7 @@ class RandomBeam_anastruct(object):
             random_young_modulus = numpy.insert(random_young_modulus, nodeID_F+1, random_young_modulus[nodeID_F+1])
             return nodeID_F, system, random_diameter, random_young_modulus
         else :
-            elemNumber, factor = RandomBeam_anastruct.getElemIdAndFactor_MP(forcePosition, l_element)
+            elemNumber, factor = RandomBeamClass.getElemIdAndFactor_MP(forcePosition, l_element)
             system.insert_node(element_id = elemNumber, factor=factor)
             newNodeID = system.nearest_node('x',forcePosition)
             # as we inserted a node we have one more element so we add it 
@@ -320,7 +318,7 @@ class RandomBeam_anastruct(object):
     def multiprocessBatchField(self, random_young_modulus, random_diameter, random_density, random_forcePos, random_forceNorm):
         var1, var2, var3, var4, var5, var6, var7 = random_young_modulus, random_diameter, random_density, random_forcePos, random_forceNorm, self.vertex_list, self.l_element
         result_list = Parallel(n_jobs=-1, verbose=10)(
-                        delayed(RandomBeam_anastruct.experience)(
+                        delayed(RandomBeamClass.experience)(
                             var1[i], var2[i], var3[i], var4[i], var5[i], var6, var7) for i in range(len(var5)))
         monteCarloResults_elem = numpy.stack(numpy.asarray(result_list)[...,0])
         monteCarloResults_node = numpy.stack(numpy.asarray(result_list)[...,1])
@@ -329,7 +327,7 @@ class RandomBeam_anastruct(object):
         
     def experienceBeam(self, random_young_modulus, random_diameter, random_density, random_forcePos, random_forceNorm):
         var1, var2, var3, var4, var5, var6, var7 = random_young_modulus, random_diameter, random_density, random_forcePos, random_forceNorm, self.vertex_list, self.l_element
-        result = RandomBeam_anastruct.experience(var1, var2, var3, var4, var5, var6, var7) 
+        result = RandomBeamClass.experience(var1, var2, var3, var4, var5, var6, var7) 
         monteCarloResults_elem = numpy.stack(numpy.asarray(result)[...,0])
         monteCarloResults_node = numpy.stack(numpy.asarray(result)[...,1])
         monteCarloResults_glob = numpy.stack(numpy.asarray(result)[...,2])
@@ -424,9 +422,6 @@ class RandomBeam_anastruct(object):
         file = open("./monteCarloExperimentRandomBeam2.pkl",'wb')
         pickle.dump(finalDictionnary, file)
         file.close()
-
-        if shutdown :
-            os.system('shutdown now')
 
     def plot_monte_carlo_res_mult(self, monteCarloResults_elem=None, monteCarloResults_node=None, monteCarloResults_glob=None, t_plt = 0.1):
         assert((self.monteCarloResults_elem is not None and self.monteCarloResults_node is not None and self.monteCarloResults_glob is not None) or \
@@ -575,7 +570,7 @@ def fig2img (fig):
 
 class OpenturnsFunctionWrapperRandomBeam(openturns.OpenTURNSPythonFunction):
     def __init__(self, n_outputs=1):
-        self.RandomBeamObject = RandomBeam_anastruct()
+        self.RandomBeamObject = RandomBeamClass()
         self.inputDim    = None
         inputVariables   = self.prepareInputVarNames()
         self.n_outputs   = n_outputs 
@@ -642,9 +637,9 @@ class OpenturnsFunctionWrapperRandomBeam(openturns.OpenTURNSPythonFunction):
 
 
 
-class sampleAndSoloFunctionWrapper(object):
+class RandomBeam(object):
     def __init__(self, process_E, process_D, RV_Rho, RV_FPos, RV_FNorm):
-        self.RandomBeamObject = RandomBeam_anastruct(process_E,
+        self.RandomBeamObject = RandomBeamClass(process_E,
                                                      process_D,
                                                      RV_Rho,
                                                      RV_FPos,
@@ -652,40 +647,46 @@ class sampleAndSoloFunctionWrapper(object):
         self.results = None
 
     
-    def randomBeamFunctionSample(self,
-                                 random_young_modulus, 
-                                 random_diameter, 
-                                 random_density, 
-                                 random_forcePos, 
-                                 random_forceNorm):
-        result         = self.RandomBeamObject.multiprocessBatchField(random_young_modulus, random_diameter, random_density, random_forcePos, random_forceNorm )
+    def batchProcessing(self,
+                        random_young_modulus, 
+                        random_diameter, 
+                        random_density, 
+                        random_forcePos, 
+                        random_forceNorm):
+        result = self.RandomBeamObject.multiprocessBatchField(random_young_modulus, 
+                                                              random_diameter, 
+                                                              random_density, 
+                                                              random_forcePos, 
+                                                              random_forceNorm)
         monteCarloResults_elem, monteCarloResults_node, monteCarloResults_glob = result
-        deflection     = monteCarloResults_node[:,1,:]
+        deflection = monteCarloResults_node[:,1,:]
         print('shape deflection: ', deflection.shape, ' should be [N,10X] something')
         vonMisesStress = self.RandomBeamObject.getVonMisesStress(monteCarloResults_elem)
-        maxDeflection  = numpy.amax(numpy.abs(deflection), 1)
+        maxDeflection = numpy.amax(numpy.abs(deflection), 1)
         print('deflection std deviation ',numpy.std(maxDeflection))
-        self.results   = result
+        self.results = result
         return vonMisesStress, maxDeflection
 
     
-    def randomBeamFunctionSolo(self,
-                               random_young_modulus, 
-                               random_diameter, 
-                               random_density, 
-                               random_forcePos, 
-                               random_forceNorm):
+    def singleEval(self,
+                   random_young_modulus, 
+                   random_diameter, 
+                   random_density, 
+                   random_forcePos, 
+                   random_forceNorm):
         Result = self.RandomBeamObject.experienceBeam(random_young_modulus,
                                                       random_diameter,
                                                       random_density,
                                                       random_forcePos,
                                                       random_forceNorm)
         deflection, shear, moment = self.RandomBeamObject.postprecess_beam(returnStuff = True)
-        inertia, area             = self.RandomBeamObject.moment_inertia_PlainRoundBeam(numpy.squeeze(numpy.asarray(field_diam)))
-        maxbendingStress          = self.RandomBeamObject.getMaximumBendingStress(moment, inertia, numpy.squeeze(numpy.asarray(field_diam)))
-        shearStress               = (4/3)*numpy.divide(shear, area)  
-        vonMisesCriteria          = numpy.sqrt(numpy.square(maxbendingStress) + numpy.multiply(numpy.square(shearStress), 3))
-        maxDeflection             = numpy.abs(np.min(deflection))
+        inertia, area = self.RandomBeamObject.moment_inertia_PlainRoundBeam(numpy.squeeze(numpy.asarray(field_diam)))
+        maxbendingStress = self.RandomBeamObject.getMaximumBendingStress(moment,
+                                                                         inertia,
+                                                                         numpy.squeeze(numpy.asarray(field_diam)))
+        shearStress = (4/3)*numpy.divide(shear, area)  
+        vonMisesCriteria = numpy.sqrt(numpy.square(maxbendingStress) + numpy.multiply(numpy.square(shearStress), 3))
+        maxDeflection = numpy.abs(np.min(deflection))
         return vonMisesCriteria, maxDeflection     
 
 
