@@ -40,10 +40,10 @@ python setup.py -install
 #### Creating stochastic processes:
 
 ```python
-from spsa import StochasticProcessConstructor as SPC
+import spsa
 import matplotlib.pyplot as plt
 
-stochasticProcess = SPC.StochasticProcessConstructor() 
+stochasticProcess = spsa.StochasticProcessConstructor() 
 stochasticProcess.setDimension(2)
 stochasticProcess.setGrid([[0,100,100],[0,100,100],])
 stochasticProcess.setCovarianceModel({'Model':'MaternModel','scale':[25,25],'amplitude':[5],'nu':3.})
@@ -59,8 +59,7 @@ This is in the case where you have a function that takes as an input fields and 
 The general case would be to have a function **F(X,Y) = U,V**, where **X** and **Y** would be a collection of fields and scalars, and the the outputs **U** and **V** would also be fields and scalars. 
 
 ```python
-from spsa import StochasticProcessConstructor as SPC
-from spsa import StochasticProcessSensitivity as SPS
+import spsa
 import openturns as ot
 
 RV0 = ot.Normal()        #Centered and reduced normal law
@@ -70,7 +69,7 @@ size = 1000 #size of the sobol experiment
 singleFunc = Fsingle #Function doing single evaluations
 sampleFunc = Fsample #Function doing multiple evaluations
 
-sensitivityAnalysis = SPS.StochasticProcessSensitivityAnalysis([RV0, SP0], outputs, sampleFunc, singleFunc, size)
+sensitivityAnalysis = spsa.StochasticProcessSensitivityAnalysis([RV0, SP0], outputs, sampleFunc, singleFunc, size)
 sensitivityAnalysis.run(generationType = 1)
 sensitivityAnalysis.getSensitivityAnalysisResults()
 results = sensitivityAnalysis.SensitivityAnalysisResults
