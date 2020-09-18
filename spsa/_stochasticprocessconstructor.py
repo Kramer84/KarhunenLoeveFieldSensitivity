@@ -11,7 +11,7 @@ __date__ = '22.06.20'
 __all__ = ['StochasticProcessConstructor']
 
 
-class StochasticProcessConstructor(openturns.ProcessImplementation):
+class StochasticProcessConstructor(openturns.GaussianProcess):
     '''Class to create up to 4-dimensional gaussian processes.
 
     It has a bit more flexibility than the low level openturns classes,
@@ -94,7 +94,7 @@ class StochasticProcessConstructor(openturns.ProcessImplementation):
                  dimension: int = None, covariance_model: str = None,
                  grid_shape: list = None, trend_arguments: list = None,
                  trend_function: str = None, verbosity: int = 0):
-        super().__init__()
+        super(StochasticProcessConstructor, self).__init__()
         self.dimension = dimension
         self._covarianceModelDict = covariance_model
         self._grid_shape = grid_shape
@@ -144,6 +144,7 @@ class StochasticProcessConstructor(openturns.ProcessImplementation):
         else:
             covaModel = 'UNKNOWN'
         helpStr = '''
+
 HELP:
 
 This class allows for the creation of multi dimensional stochastic processes.
@@ -675,7 +676,7 @@ the same as the dimension of the process: ''',
         arr_shape = list(ndarray[0, ...].shape)
         dimension = len(arr_shape)
         assert(dimension < 5), (
-            "dimension can not be greater than 4 \n=> NotImplementedError")
+            "openTURNS does not support more than 4 dimensions")
         field_list = list()
         for i in range(ndarray.shape[0]):
             field_list.append(openturns.Field(
