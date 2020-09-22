@@ -1,11 +1,11 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.12.7)  7 AUG 2020 13:40
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2020.3.3)  18 SEP 2020 11:13
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
 **Rapport_PHIMECA_Simady.tex
 (./Rapport_PHIMECA_Simady.tex
 LaTeX2e <2017-04-15>
-Babel <3.18> and hyphenation patterns for 5 language(s) loaded.
+Babel <3.18> and hyphenation patterns for 35 language(s) loaded.
 (/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
 (/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo
@@ -1176,33 +1176,33 @@ LaTeX Warning: There were multiply-defined labels.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 593.
  ) 
 Here is how much of TeX's memory you used:
- 7898 strings out of 494880
- 113444 string characters out of 6179601
- 316616 words of memory out of 5000000
- 10977 multiletter control sequences out of 15000+600000
+ 7898 strings out of 494226
+ 113444 string characters out of 6161814
+ 318233 words of memory out of 5000000
+ 11020 multiletter control sequences out of 15000+600000
  18615 words of font info for 45 fonts, out of 8000000 for 9000
- 36 hyphenation exceptions out of 8191
+ 417 hyphenation exceptions out of 8191
  28i,16n,30p,947b,357s stack positions out of 5000i,500n,10000p,200000b,80000s
- </home/kramer84/.texlive2017/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt1000.
-600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbi1
-000.600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/ljfour/jknappen/ec/e
-cti1000.600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/ljfour/jknappen/
-ec/ecbx1200.600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/ljfour/jknap
-pen/ec/ecrm1000.600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/ljfour/j
-knappen/ec/ecbx1000.600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/ljfo
-ur/jknappen/ec/ecbx1440.600pk> </home/kramer84/.texlive2017/texmf-var/fonts/pk/
-ljfour/jknappen/ec/ecrm1200.600pk> </home/kramer84/.texlive2017/texmf-var/fonts
-/pk/ljfour/jknappen/ec/ecrm1728.600pk></usr/share/texlive/texmf-dist/fonts/type
-1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
-ic/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi
-7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><
-/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/sha
-re/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texli
-ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/share/texlive/texmf-dist
-/fonts/type1/public/amsfonts/cm/cmsy7.pfb>
+ </home/simady/.texlive2017/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt1000.60
+0pk> </home/simady/.texlive2017/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbi1000.
+600pk> </home/simady/.texlive2017/texmf-var/fonts/pk/ljfour/jknappen/ec/ecti100
+0.600pk> </home/simady/.texlive2017/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1
+200.600pk> </home/simady/.texlive2017/texmf-var/fonts/pk/ljfour/jknappen/ec/ecr
+m1000.600pk> </home/simady/.texlive2017/texmf-var/fonts/pk/ljfour/jknappen/ec/e
+cbx1000.600pk> </home/simady/.texlive2017/texmf-var/fonts/pk/ljfour/jknappen/ec
+/ecbx1440.600pk> </home/simady/.texlive2017/texmf-var/fonts/pk/ljfour/jknappen/
+ec/ecrm1200.600pk> </home/simady/.texlive2017/texmf-var/fonts/pk/ljfour/jknappe
+n/ec/ecrm1728.600pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cme
+x10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pf
+b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr
+/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/
+texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-d
+ist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/font
+s/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmsy7.pfb>
 Output written on Rapport_PHIMECA_Simady.pdf (23 pages, 1885728 bytes).
 PDF statistics:
  806 PDF objects out of 1000 (max. 8388607)
