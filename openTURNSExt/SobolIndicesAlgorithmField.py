@@ -1,5 +1,5 @@
-__version__ = '0.1'
 __author__ = 'Kristof Attila S.'
+__version__ = '0.1'
 __date__  = '17.09.20'
 
 __all__ = ['AggregatedKarhunenLoeveResults']
@@ -50,9 +50,9 @@ class AggregatedKarhunenLoeveResults(ot.KarhunenLoeveResult):
     '''
     def __init__(self, KLResList):
         self._KLRL = atLeastList(KLResList) #KLRL : Karhunen Loeve Result List
-        self._KLLift = [ot.KarhunenLoeveLifting(self._KLRL[i]) for i in range(self._N)]
         assert len(self._KLRL)>0
         self._N = len(self._KLRL)
+        self._KLLift = [ot.KarhunenLoeveLifting(self._KLRL[i]) for i in range(self._N)]
         self._homogenMesh = all_same([self._KLRL[i].getMesh() for i in range(self._N)])
         self._homogenDim = (all_same([self._KLRL[i].getCovarianceModel().getOutputDimension() for i in range(self._N)])  \
                             and all_same([self._KLRL[i].getCovarianceModel().getInputDimension() for i in range(self._N)]))
@@ -105,12 +105,44 @@ class AggregatedKarhunenLoeveResults(ot.KarhunenLoeveResult):
         '''Function to check if the vector passed has the right number of 
         elements'''
         nModes = sum(self._modesPerProcess)
-        if len(coefficients) == nModes:
+        if (isinstance(coefficients, ot.Point), len(coefficients) == nModes):
+            return True
+        elif (isinstance(coefficients, (ot.Sample, ot.SampleImplementation)) and len(coefficients[0]) == nModes):
             return True
         else : 
             print('The vector passed has not the right number of elements.')
             print('n° elems: {} != {}'.format(str(len(coefficients)), str(nModes)))
             return False
+
+    def _fieldsToProcessSamples(self, listOfFields, _mesh = None):
+        assert isinstance(listOfFields, Iterable)
+        if isinstance(listOfFields[0],Iterable):
+            assert all_same([len(listOfFields[i]) for i in range(len(listOfFields))])
+            assert len(listOfFields) == self._N
+            meshes = self.getMesh()
+
+            if isinstance(listOfFields[0][0],ot.Field):
+                processSamples = [ot.ProcessSample(mesh, 0, listOfFields[0][0].getOutputDimension()) for mesh in meshes]
+                for i in range(self._N):
+                    [processSamples[i].add(listOfFields[i][j]) for j in range(len(listOfFields[i]))]
+                return processSamples
+
+            elif isinstance(listOfFields[0][0],ot.Sample):
+                processSamples = [ot.ProcessSample(mesh, 0, listOfFields[0][0].getDimension()) for mesh in meshes]
+                for i in range(self._N):
+                    [processSamples[i].add(ot.Field(meshes[i],listOfFields[i][j])) for j in range(len(listOfFields[i]))]
+                return processSamples
+
+        if isinstance(listOfFields[0],ot.Field):
+            processSample = ot.ProcessSample(listOfFields[0].getMesh(), 0, listOfFields[0].getOutputDimension())
+            [processSample.add(listOfFields[j]) for j in range(len(listOfFields))]
+            return processSample
+
+        elif isinstance(listOfFields[0],ot.Sample):
+            assert _mesh is not None, 'please give mesh'
+            processSample = ot.ProcessSample(_mesh, 0, listOfFields[0].getDimension())
+            [processSample.add(ot.Field(_mesh, listOfFields[j])) for j in range(len(listOfFields))]
+            return processSample
 
     def getClassName(self):
         '''returns list of class names
@@ -203,22 +235,26 @@ class AggregatedKarhunenLoeveResults(ot.KarhunenLoeveResult):
             return process_sample
 
     def liftAsField(self, coefficients):
-        '''
+        '''function lifting a vector of coefficients into a field.
+        A sample of multiple vectors can also be passed and are lifted into
+        a list of process samples (as the processes can have different 
+        dimensions)
         '''
         valid = self._checkCoefficients(coefficients)
         modes = self._modesPerProcess
         if valid :
             if isinstance(coefficients, ot.Point):
                 return [self._KLRL[i].liftAsField(coefficients[i*modes[i]:(i+1)*modes[i]]) for i in range(self._N)]
+            
             elif isinstance(coefficients, (ot.Sample, ot.SampleImplementation)):
-                #In this case we want to return a process sample
-                dim = coefficients.getSize()
-                process_sample = ot.ProcessSample(self._KLRL[0].getMesh(), 0, dim)
-                container = list()
-                for i in range(self._N):
-                    field_list = list()
-                    for j in range(dim):
-                        
+                #In this case we want to return a list of process sample
+                field_list = list()
+                for j in range(coefficients.getSize()):
+                    field_list.append([self._KLRL[i].liftAsField(coefficients[j][i*modes[i]:(i+1)*modes[i]]) for i in range(self._N)])
+                field_list = list(zip(*field_list))
+                processes = self._fieldsToProcessSamples(field_list)
+                return processes
+
         else : 
             raise Exception('DimensionError : the vector of coefficient has the wrong shape')
 
@@ -228,20 +264,34 @@ class AggregatedKarhunenLoeveResults(ot.KarhunenLoeveResult):
         valid = self._checkCoefficients(coefficients)
         modes = self._modesPerProcess
         if valid :
+            print('Coeffs seem valid')
             if self._aggregFlag :
-                if isinstance(coefficients, ot.SampleImplementation):
+                print('Is aggregated!')
+                print('Look at that! : \n',type(coefficients),'\n',coefficients)
+                if isinstance(coefficients, Iterable):
+                    if isinstance(coefficients[0], (ot.SampleImplementation, ot.Sample)):
+                        return [self._KLLift[i](coefficients[i]) for i in range(self._N)]
                     print('Pass coefficients OAT not as a Sample')
                     raise NotImplementedError
                 else:
                     sample = self._KLRL[0].liftAsSample(coefficients)
                     #sample.setDescription(self._modeDescription)
                 return sample
-            else : 
-                if isinstance(coefficients, ot.SampleImplementation):
-                    print('Pass coefficients OAT not as a Sample')
-                    raise NotImplementedError
-                else:
+            else :
+                print('type coeffs',type(coefficients))
+                if isinstance(coefficients, (ot.SampleImplementation, ot.Sample)):
+                    sample_list = list()
+                    for j in range(coefficients.getSize()):
+                        sample_list.append([self._KLRL[i].liftAsSample(coefficients[j][i*modes[i]:(i+1)*modes[i]]) for i in range(self._N)])
+                    sample_list = list(zip(*sample_list))
+                    processes = sample_list
+                    return processes
+
+                elif isinstance(coefficients, ot.Point):
                     return [self._KLRL[i].liftAsSample(coefficients[i*modes[i]:(i+1)*modes[i]]) for i in range(self._N)]
+                elif isinstance(coefficients, Iterable):
+                    if len(coefficients)==self._N and isinstance(coefficients[0], ot.SampleImplementation):
+                        return [self._KLLift[i](coefficients[i]) for i in range(self._N)]
         else : 
             raise Exception('DimensionError : the vector of coefficient has the wrong shape')
 
@@ -394,6 +444,12 @@ method is choosen.''')
                         print('Shape broadcasting failed')
                         raise Exception('InvalidDimensionException')
 
+                elif isinstance(args[0], ot.ProcessSample):
+                    ###########
+                    ###########
+                                        ###########
+                                                            ###########
+                                                                                ###########
             elif homogenMesh :
                 print('''
 As all your processes are homogenous, you could have passed them as an

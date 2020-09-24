@@ -123,17 +123,14 @@ class TestAggregatedKarhunenLoeve(unittest.TestCase):
         self.struct2 = KLResultLists.getKLResultHeterogenous()
         self.AggrKL0 = siaf.AggregatedKarhunenLoeveResults(self.struct0[0])
         self.AggrKL0.setName('AggKL0')
-        print('\n',self.AggrKL0.__repr__())
         print('\n',self.AggrKL0._modesPerProcess)
         print('\n',self.AggrKL0._modeDescription)
         self.AggrKL1 = siaf.AggregatedKarhunenLoeveResults(self.struct1[0])
         self.AggrKL1.setName('AggKL1')
-        print('\n',self.AggrKL1.__repr__())
         print('\n',self.AggrKL1._modesPerProcess)
         print('\n',self.AggrKL1._modeDescription)
         self.AggrKL2 = siaf.AggregatedKarhunenLoeveResults(self.struct2[0])
         self.AggrKL2.setName('AggKL2')
-        print('\n',self.AggrKL2.__repr__())
         print('\n',self.AggrKL2._modesPerProcess)
         print('\n',self.AggrKL2._modeDescription)
         print('\n\n     ################### SETUP DONE ####################" \n\n\n')
@@ -181,11 +178,14 @@ Testing Karhunen-Loeve result gotten from aggregated process.''')
         fldAggKL1_o = self.struct1[0].liftAsField(AgKL1PrjRea_n)
 
         self.assertEqual( fldAggKL1[0], fldAggKL1_o)
-        print('\n\nlifting sample causes error\n\n')
+        print(' lifting sample - aggregated process')
+        proSmpAggKL1 = self.AggrKL1.liftAsField(AgKL1PrjSamp_n)
+        #self.assertEqual(proSmpAggKL1, self.struct1[2])
+
 
 ################################################################
-        print('''
-Testing Karhunen-Loeve result gotten from list of processes.''')
+        print('''\n\n
+Testing Karhunen-Loeve result gotten from list of homogen processes.\n''')
         print('Projectig samples and fields:')
         AgKL0PrjRea_n = self.AggrKL0.project(self.struct0[1])
         AgKL0PrjSamp_n = self.AggrKL0.project(self.struct0[2])
@@ -196,19 +196,50 @@ Testing Karhunen-Loeve result gotten from list of processes.''')
         print('checking behaviour:')
         print('Short correction:')
         AgKL0PrjRea_o = [item for sublist in AgKL0PrjRea_o for item in sublist]
-        #AgKL0PrjSamp_o = [item for sublist in AgKL0PrjSamp_o for item in sublist]
+        AgKL0PrjSamp_o = [item for sublist in AgKL0PrjSamp_o for item in sublist]
 
-        print('AgKL0PrjRea_n :\n',AgKL0PrjRea_n )
+        print('AgKL0PrjSamp_n :\n',AgKL0PrjSamp_n )
         self.assertEqual(AgKL0PrjRea_n ,AgKL0PrjRea_o)
         #self.assertEqual(AgKL0PrjSamp_n ,AgKL0PrjSamp_o)
 
-        print('     OK ! ')
+        print('  OK ! ')
         print('\n\nNow checking lifting - aggregated process:')
         fldAggKL0 = self.AggrKL0.liftAsField(AgKL0PrjRea_n)
-        smpAggKL0 = self.AggrKL0.liftAsSample(AgKL0PrjSamp_o)
+        smpAggKL0 = self.AggrKL0.liftAsSample(AgKL0PrjSamp_n)
+        proSmpAggKL0 = self.AggrKL0.liftAsField(AgKL0PrjSamp_n)
 
         
-        print(fldAggKL0)
+        print('smpAggKL0',smpAggKL0)
+        print('self.struct0[2]',self.struct0[2])
+
+        print('''\n\n
+Testing Karhunen-Loeve result gotten from list of heterogen processes.\n''')
+        print('Projectig samples and fields:')
+        AgKL2PrjRea_n = self.AggrKL2.project(self.struct2[1])
+        AgKL2PrjSamp_n = self.AggrKL2.project(self.struct2[2])
+        print('AgKL2PrjSamp_n :\n',len(self.struct2[2]) )
+
+
+        print('Projecting with old object:')
+        AgKL2PrjRea_o = [self.struct2[0][i].project(self.struct2[1][i]) for i in range(len(self.struct2[0]))]
+        AgKL2PrjSamp_o =[self.struct2[0][i].project(self.struct2[2][i]) for i in range(len(self.struct2[0]))]
+        print('checking behaviour:')
+        print('Short correction:')
+        AgKL2PrjRea_o = [item for sublist in AgKL2PrjRea_o for item in sublist]
+        AgKL2PrjSamp_o = [item for sublist in AgKL2PrjSamp_o for item in sublist]
+
+        self.assertEqual(AgKL2PrjRea_n ,AgKL2PrjRea_o)
+        #self.assertEqual(AgKL0PrjSamp_n ,AgKL0PrjSamp_o)
+
+        print('  OK ! ')
+        print('\n\nNow checking lifting - aggregated process:')
+        fldAggKL2 = self.AggrKL2.liftAsField(AgKL2PrjRea_n)
+        smpAggKL2 = self.AggrKL2.liftAsSample(AgKL2PrjSamp_n)
+        proSmpAggKL2 = self.AggrKL2.liftAsField(AgKL2PrjSamp_n)
+
+        
+        print('smpAggKL0',smpAggKL2)
+        print('self.struct0[2]',self.struct2[2])
 
 
 
@@ -216,6 +247,7 @@ if __name__ == '__main__':
     unittest.main()
 
 """
+
 import SobolIndicesAlgorithmField as siaf
 import SobolIndicesAlgorithmField_unittest as siaft
 
@@ -230,6 +262,5 @@ coefSmp = test.project(Smp)
 
 Fld0 = test.liftAsField(coefFld)
 Smp0 = test.liftAsSample(coefSmp)
-
 
 """
