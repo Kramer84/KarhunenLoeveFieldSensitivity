@@ -179,7 +179,7 @@ Testing Karhunen-Loeve result gotten from aggregated process.''')
 
         self.assertEqual( fldAggKL1[0], fldAggKL1_o)
         print(' lifting sample - aggregated process')
-        proSmpAggKL1 = self.AggrKL1.liftAsField(AgKL1PrjSamp_n)
+        proSmpAggKL1 = self.AggrKL1.liftAsProcessSample(AgKL1PrjSamp_n)
         #self.assertEqual(proSmpAggKL1, self.struct1[2])
 
 
@@ -205,8 +205,8 @@ Testing Karhunen-Loeve result gotten from list of homogen processes.\n''')
         print('  OK ! ')
         print('\n\nNow checking lifting - aggregated process:')
         fldAggKL0 = self.AggrKL0.liftAsField(AgKL0PrjRea_n)
-        smpAggKL0 = self.AggrKL0.liftAsSample(AgKL0PrjSamp_n)
-        proSmpAggKL0 = self.AggrKL0.liftAsField(AgKL0PrjSamp_n)
+        smpAggKL0 = self.AggrKL0.liftAsProcessSample(AgKL0PrjSamp_n)
+        proSmpAggKL0 = self.AggrKL0.liftAsProcessSample(AgKL0PrjSamp_n)
 
         
         print('smpAggKL0',smpAggKL0)
@@ -217,7 +217,7 @@ Testing Karhunen-Loeve result gotten from list of heterogen processes.\n''')
         print('Projectig samples and fields:')
         AgKL2PrjRea_n = self.AggrKL2.project(self.struct2[1])
         AgKL2PrjSamp_n = self.AggrKL2.project(self.struct2[2])
-        print('AgKL2PrjSamp_n :\n',len(self.struct2[2]) )
+        print('AgKL2PrjSamp_n :\n',AgKL2PrjSamp_n )
 
 
         print('Projecting with old object:')
@@ -234,8 +234,8 @@ Testing Karhunen-Loeve result gotten from list of heterogen processes.\n''')
         print('  OK ! ')
         print('\n\nNow checking lifting - aggregated process:')
         fldAggKL2 = self.AggrKL2.liftAsField(AgKL2PrjRea_n)
-        smpAggKL2 = self.AggrKL2.liftAsSample(AgKL2PrjSamp_n)
-        proSmpAggKL2 = self.AggrKL2.liftAsField(AgKL2PrjSamp_n)
+        smpAggKL2 = self.AggrKL2.liftAsProcessSample(AgKL2PrjSamp_n)
+        proSmpAggKL2 = self.AggrKL2.liftAsProcessSample(AgKL2PrjSamp_n)
 
         
         print('smpAggKL0',smpAggKL2)
