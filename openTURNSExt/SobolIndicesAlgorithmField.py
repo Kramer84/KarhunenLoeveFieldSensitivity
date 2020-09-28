@@ -2,7 +2,9 @@ __author__ = 'Kristof Attila S.'
 __version__ = '0.1'
 __date__  = '17.09.20'
 
-__all__ = ['AggregatedKarhunenLoeveResults']
+__all__ = ['AggregatedKarhunenLoeveResults', 
+           'KarhunenLoeveGeneralizedFunctionWrapper',
+           'KarhunenLoeveSobolIndicesExperiment']
 
 import openturns as ot 
 import math 
@@ -10,6 +12,10 @@ import uuid
 from collections import Iterable
 from copy import copy,deepcopy
 from joblib import Parallel, delayed
+
+
+
+
 
 ##############################################################################
 
@@ -282,11 +288,19 @@ class AggregatedKarhunenLoeveResults(ot.KarhunenLoeveResult):
     def getSizeModes(self):
         return sum(self._modesPerProcess)
 
+
+
+
+
 ##############################################################################
 
 def all_same(items):
     #Checks if all items of a list are the same
     return all(x == items[0] for x in items)
+
+
+
+
 
 ##############################################################################
 
@@ -295,6 +309,10 @@ def atLeastList(elem):
         return list(elem)
     else : 
         return [elem]
+
+
+
+
 
 ##############################################################################
 
@@ -310,17 +328,16 @@ class KarhunenLoeveGeneralizedFunctionWrapper(ot.OpenTURNSPythonPointToFieldFunc
     function. The input dimension of this function is dependent of the 
     order of the Karhunen Loeve decomposition. 
     '''
-    def __init__(self, AggregatedKarhunenLoeveResults, func=None, 
-        func_sample=None, outputMesh=None, outputDim=None):
+    def __init__(self, AggregatedKarhunenLoeveResults=None, func=None, 
+        func_sample=None, outputDim=None):
         self.func = func
         self.func_sample = func_sample
         self.AKLR = AggregatedKarhunenLoeveResults
         inputDim = self.AKLR.getSizeModes()
-        outputMesh = outputMesh
-        outputDim = outputDim
         super(KarhunenLoeveGeneralizedFunctionWrapper,self).__init__(inputDim,
-                                                                  outputMesh,
+                                                                  ot.Mesh(),
                                                                   outputDim)
+        self.setInputDescription(self.AKLR._modeDescription)
 
     def _exec(self, X):
         assert len(X)==self.getInputDimension()
@@ -329,15 +346,17 @@ class KarhunenLoeveGeneralizedFunctionWrapper(ot.OpenTURNSPythonPointToFieldFunc
         result = self.func(inputFields)
         return result
 
-
     def _exec_sample(self, X):
         assert len(X[0])==self.getInputDimension()
         inputProcessSamples = self.AKLR.liftAsProcessSample(X)
         try :
-            result = self.func_sample(X)
+            result = self.func_sample(inputProcessSamples)
             return X
         except Exception as e:
             raise e
+
+
+
 
 
 ##############################################################################
@@ -346,27 +365,21 @@ class KarhunenLoeveSobolIndicesExperiment(object):
     def __init__(self, AggregatedKarhunenLoeveResults=None, size=None, second_order=False):
         self.AKLR = AggregatedKarhunenLoeveResults
         self.size = None
-        self._genType = generationType
 
         self.composedDistribution = None
         self.inputVarNames = list()
         self.inputVarNamesKL = list()
+        self._dataMixSamples = list()
 
-        print('Generation types are:\n1 : Random (default)\n2 : LHS\n\
-            3 : LowDiscrepancySequence\n4 : SimulatedAnnealingLHS')
-        print('You choose', self.genTypes[self._genType], 'generation')
         if size is not None:
             self.setSize(size)
-        if AKLR is not None:
-            self._setKaruhnenLoeveResults(AKLR)
-        if generationType is not None:
-            self.setGenType(generationType)
+        if AggregatedKarhunenLoeveResults is not None:
+            self._setKaruhnenLoeveResults(AggregatedKarhunenLoeveResults)
 
         # here we come to the samples (our outputs)
-        self.sample_A = None
-        self.sample_B = None
-        self.dataMixSamples = list()
-        self.experimentSample = None
+        self._sample_A = None
+        self._sample_B = None
+        self._experimentSample = None
 
     def generate(self, **kwargs):
         '''generate final sample with A and b mixed
@@ -374,21 +387,21 @@ class KarhunenLoeveSobolIndicesExperiment(object):
         assert (self.AKLR is not None) and \
                (self.size is not None), \
                     "Please intialise sample size and PythonFunction wrapper"
-        self.generateSample(**kwargs)
-        self.getDataFieldAndRV()
-        self.getExperiment()
-        return self.experimentSample
+        self._generateSample(**kwargs)
+
+        self._mixSamples()
+        return self._experimentSample
 
     def setSize(self, N):
         '''set size of the samples 
         '''
-        assert (type(N) is int) and (N > 0), \
-                                    "Sample size can only be positive integer"
+        assert isinstance(N,int) and N>0, \
+                "Sample size can only be positive integer"
         if self.size is None:
             self.size = N
         else:
             self.size = N
-            self.sample_A = self.sample_B = self.experimentSample = None
+            self._sample_A = self._sample_B = self._experimentSample = None
 
     def _setKaruhnenLoeveResults(self, AKLR):
         '''set the wrapped function from the NdGaussianProcessSensitivity;
@@ -397,109 +410,52 @@ class KarhunenLoeveSobolIndicesExperiment(object):
         self.inputVarNames = self.AKLR._subNames
         self.inputVarNamesKL = self.AKLR._modeDescription
         self.composedDistribution = ot.ComposedDistribution([ot.Normal()]*self.AKLR.getSizeModes())
-        self.getDataFieldAndRV()
+        self._dataMixSamples = self.AKLR._modesPerProcess
 
-    def setGenType(self, arg):
-        '''set type of experiment generation
-        '''
-        arg = int(arg)
-        if arg not in [1, 2, 3, 4]:
-            print('Generation types are :\n1 : Random (default)\n2 : LHS\n\
-                3 : LowDiscrepancySequence\n4 : SimulatedAnnealingLHS')
-            print('Please pick one.')
-            raise TypeError
-        self._genType = arg
 
-    def getDataFieldAndRV(self):
-        '''Here we analyse the names of the variables, to know which columns
-        belong to RVs or Fields
-        '''
-        n_vars = len(self.inputVarNames)
-        n_vars_KL = len(self.inputVarNamesKL)
-        self.dataMixSamples = list()
-        for i in range(n_vars):
-            k = 0
-            timesInList = 0
-            jump = self.ramp(sum(self.dataMixSamples) - i)
-            while self.inputVarNamesKL[i + k + jump].startswith(
-                                                       self.inputVarNames[i]):
-                timesInList += 1
-                k += 1
-                if i + k + jump == n_vars_KL:
-                    break
-            self.dataMixSamples.append(timesInList)
-
-    def getExperiment(self):
+    def _mixSamples(self):
         '''Here we mix the samples together 
         '''
-        n_vars = len(self.inputVarNames)
+        n_vars = self.AKLR._N
         N = self.size
-        self.experimentSample = numpy.tile(self.sample_A, [2 + n_vars, 1])
-        self.experimentSample[N:2 * N, ...] = self.sample_B
+        self._experimentSample = deepcopy(self._sample_A)
+        print(self._sample_A)
+        [[self._experimentSample.add(self._sample_A[j]) for j in range(len(self._sample_A))] for _ in range(2+n_vars)]
+        print(self._experimentSample)
+        print(self._sample_B)
+        self._experimentSample[:,N:2 * N] = self._sample_B
         jump = 2 * N
         jumpDim = 0
         for i in range(n_vars):
-            self.experimentSample[jump + N*i:jump + N*(i+1), jumpDim:jumpDim + self.dataMixSamples[i]] = \
-                self.sample_B[..., jumpDim:jumpDim + self.dataMixSamples[i]]
-            jumpDim += self.dataMixSamples[i]
+            self._experimentSample[jump + N*i:jump + N*(i+1), 
+              jumpDim:jumpDim+self._dataMixSamples[i]] = \
+                self._sample_B[:,jumpDim:jumpDim + self._dataMixSamples[i]]
+            jumpDim += self._dataMixSamples[i]
 
-    def ramp(self, X):
-        '''simple ramp function
+    def _ramp(self, X):
+        '''simple _ramp function
         '''
-        if X >= 0: return X
-        else: return 0
+        if X >= 0 : return X
+        else : return 0
 
-    def generateSample(self, **kwargs):
+    def _generateSample(self, **kwargs):
         '''Generation of two samples A and B using diverse methods
         '''
         distribution = self.composedDistribution
-        method = self._genType
+        if 'method' in kwargs :
+            method = method
+        else : 
+            method = 'MonteCarlo'
         N2 = 2 * self.size
-        if method == 1:
+        if method == 'MonteCarlo':
             sample = distribution.getSample(N2)
-        elif (method == 2) or (method == 4):
+        elif method == 'LHS':
             lhsExp = openturns.LHSExperiment(distribution,
                                              N2,
                                              False,  # alwaysShuffle
                                              True)  # randomShift
-            if method == 2:
-                sample = lhsExp.generate()
-            if method == 4:
-                lhsExp.setAlwaysShuffle(True)
-                if 'SpaceFilling' in kwargs:
-                    if kwargs['SpaceFilling'] == 'SpaceFillingC2':
-                        spaceFill = openturns.SpaceFillingC2
-                    if kwargs['SpaceFilling'] == 'SpaceFillingMinDist':
-                        spaceFill = openturns.SpaceFillingMinDist
-                    if kwargs['SpaceFilling'] == 'SpaceFillingPhiP':
-                        spaceFill = openturns.SpaceFillingPhiP
-                        if 'p' in kwargs:
-                            if isinstance(kwargs['p'],int) or isinstance(kwargs['p'], float):
-                                p = int(kwargs['p'])
-                            else:
-                                print(
-                                    'Wrong type for p parameter in SpaceFillingPhiP algorithm, setting to default p = 50')
-                                p = 50
-                        else:
-                            print(
-                                'undefined parameter p in SpaceFillingPhiP algorithm, setting to default p = 50')
-                            p = 50
-                else:
-                    print("undefined parameter 'SpaceFilling', setting to default 'SpaceFillingC2'")
-                    spaceFill = openturns.SpaceFillingC2
-                if 'TemperatureProfile' in kwargs:
-                    if kwargs['TemperatureProfile'] == 'GeometricProfile':
-                        geomProfile = openturns.GeometricProfile(
-                                                             10.0, 0.95, 2000)  # Default value
-                    if kwargs['TemperatureProfile'] == 'LinearProfile':
-                        geomProfile = openturns.LinearProfile(10.0, 100)
-                else:
-                    print("undefined parameter 'TemperatureProfile', setting default GeometricProfile")
-                    geomProfile = openturns.GeometricProfile(10.0, 0.95, 2000)
-                optimalLHSAlgorithm = openturns.SimulatedAnnealingLHS(
-                    lhsExp, geomProfile, spaceFill())
-                sample = optimalLHSAlgorithm.generate()
-        elif method == 3:
+            sample = lhsExp.generate()
+        elif method == 'QMC':
             restart = True
             if 'sequence' in kwargs:
                 if kwargs['sequence'] == 'Faure':
@@ -521,18 +477,11 @@ class KarhunenLoeveSobolIndicesExperiment(object):
                                                               distribution,
                                                               N2,
                                                               True)
+            LDExperiment.setRandomize(False)
             sample = LDExperiment.generate()
-        sample = numpy.array(sample)
-        self.sample_A = sample[:self.size, :]
-        self.sample_B = sample[self.size:, :]
-
-
-
-
-
-
-
-
+        sample = ot.Sample(sample)
+        self._sample_A = sample[:self.size, :]
+        self._sample_B = sample[self.size:, :]
 
 
 '''
