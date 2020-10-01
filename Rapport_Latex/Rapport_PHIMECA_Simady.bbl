@@ -5,6 +5,12 @@ Dumas, A. (2017).
 \newblock Lois asymptotiques des estimateurs des indices de sobol.
 \newblock {\em confidentiel EDF}.
 
+\bibitem[Goka, 2019]{Goka2019Jun}
+Goka, E. (2019).
+\newblock {Analyse des tolérances des systèmes complexes {\textendash}
+  Modélisation des imperfections de fabrication pour une analyse réaliste et
+  robuste du comportement des systèmes}.
+
 \bibitem[Lilburne and Tarantola, 2009]{Lilburne2009Feb}
 Lilburne, L. and Tarantola, S. (2009).
 \newblock {Sensitivity analysis of spatial models}.

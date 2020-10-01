@@ -15,6 +15,7 @@
 \usepackage{amsmath}
 \usepackage{mathtools}
 \usepackage{gensymb}
+\usepackage[toc,page]{appendix}
 
 \begin{document}
 %
@@ -31,29 +32,33 @@
   \newpage
     
 \section*{Avant propos}
-% When adding * to \section, \subsection, etc... LaTeX will not assign
-% a number to the section
-Le cadre d'étude offert par SIGMA Clermont à donné la possibilité d’effectuer
-une année supplémentaire de stage pour étoffer nos connaissances scientifiques, 
-et découvrir le monde industriel comme des cultures étrangères.
-De par mon appétence pour la recherche et l'informatique, j'ai eu la chance de
-pouvoir venir effectuer mon stage au sein de l'entreprise \textbf{PHIMECA}, 
-située à Clermont-Ferrand, et depuis longtemps en partenariat avec SIGMA.
 
-Ce stage aura été l'occasion pour moi ... (à suivre) 
+Le cadre d'étude offert par SIGMA Clermont a donné la possibilité d’effectuer une année supplémentaire de stages pour étoffer nos connaissances scientifiques et techniques  et découvrir le monde industriel comme des culture étrangères.
+De par mon appétence pour la recherche et l'informatique, j'ai eu la chance de pouvoir venir effectuer mon stage au sein de l'entreprise \textbf{PHIMECA}, située à Clermont-Ferrand, et depuis longtemps en partenariat avec SIGMA. \\
 
-Je souhaite remercier ... (à suivre)
+Il aura été l'occasion pour moi de développer un ensemble de savoir pointus sur l'analyse fiabiliste et les différents outils employés, tout comme d'avoir pu travailler sur un projet de recherche industriel complexe et s'étalant sur une multitude de domaines scientifiques. En plus d'avoir pu me servir des connaissances acquises au cours de ma formation, et approfondir ces dernières, l'utilisation de l'outil informatique et son harmonisation avec les méthodes d'analyse a permis d'acquérir de la fluidité de travail et d'ouvrir l'accès à un grand nombre d'outils, puisque plus on travaille avec des outils informatiques différents, plus l'acquisition d'une nouvelle compétence informatique devient rapide et peu coûteuse en énergie. \\
+
+Bien sur, tout cela n'aurait pas été possible sans le cadre offert par Phimeca et la liberté d'action dont on jouit en travaillant ici. En effet, bien qu'ayant un sujet assez défini, la responsabilité quant à l'avancement sur le projet, ou encore le choix des outils a utiliser et la méthodologie a employer était des choix à faire soi même. Ce type de liberté d'action implique d'avoir suffisamment de connaissances pour envisager les différentes méthodes de résolution possibles et parvenir à choisir la bonne, et cela implique encore plus d'arriver a rapidement se familiariser seul avec un outil ou domaine de recherche et acquérir suffisamment d'informations sur celui-ci pour parvenir soit à l'employer, soit a juger de sa pertinence dans le projet. \\
+
+En plus de ce cadre de travail et ce projet formateur, l'ambiance agréable au sein de \textbf{PHIMECA} et la présence d'une équipe assez jeune ont rendu ce stage très agréable et motivant. \\
+
+Je souhaite donc avant tout remercier Mr. Nicolas GAYTON, qui a rendu ce stage possible grâce a ses nombreuses années d'échange et de collaboration avec \textbf{PHIMECA}, et la confiance qu'il a porté en mes capacités à évoluer dans ce milieu de travail et m'avoir proposé en tant que stagiaire.\\
+
+Je souhaite ensuite remercier Mr. Antoine DUMAS, mon tuteur et responsable de l'équipe FIC (Fiabilité Incertitudes Cournon), qui a su trouver un sujet de stage intéressant et formateur, me mettre sur les bonnes pistes
+des que des difficultés apparaissaient et qui a su enfin m'accorder suffisamment de confiance pour aller représenter l'implication de \textbf{PHIMECA} dans ce projet face aux autres acteurs impliqués. \\
+
+Mes remerciements vont ensuite à Mr. Thierry YALAMAS, qui a su m'introduire à l'équipe et la philosophie d'entreprise, et qui a veillé à ce que l'ambiance de travail soit toujours la plus propice aux idées innovatrices et à l'épanouissement de chacun, même dans le cas de force majeure qu'a été cette épidémie de COVID-19. \\
+
+Je remercie enfin le reste de l'équipe, Oussama B., Fabien T., Julien S. Marc G., Rémi P., Guillaume G., Céline D. , Nathalie G., et tout les autres ... (à suivre)
 
 \paragraph{Note:}
-Ce document est autant un rapport de stage qu'une note à qui voudrait se 
-servir des différentes méthodes explorées et codes développés.
+Ce document est autant un rapport de stage qu'une note à qui voudrait se servir des différentes méthodes explorées et codes développés.
+
+\newpage
 
 \section{Introduction}
-Dans le cadre d'analyse probabiliste et fiabiliste, il est d'usage d’effectuer 
-des analyses de sensibilité sur une ou plusieurs grandeurs d’intérêt, grâce
-à divers moyens comme les indices de Sobol' ou les analyses de corrélation. \\
-Ces analyses sont néanmoins souvent cantonnées à des modèles n'ayant en sortie et entrée que des
-grandeurs scalaires, pour lesquelles de nombreuses méthodes existent dans la littérature.\\
+Dans le cadre d'analyse probabiliste et fiabiliste, il est d'usage d’effectuer des analyses de sensibilité sur une ou plusieurs grandeurs d’intérêt, grâce à divers moyens comme les indices de Sobol' ou les analyses de corrélation. \\
+Ces analyses sont néanmoins souvent cantonnées à des modèles n'ayant en sortie et entrée que des grandeurs scalaires, pour lesquelles de nombreuses méthodes existent dans la littérature.\\
 L'objectif du travail présenté ici, est d’effectuer ce type d'analyse sur des modèles ayant en entrée plusieurs champs aléatoires et des variables aléatoires scalaires et en sortie aussi des champs et grandeurs scalaires. \\ Pour compléter cela, il était bien sûr aussi demandé de d'abord créer un modèle simple gouverné par des champs stochastiques et de faire de l'analyse de sensibilité sur ce modèle. \\
 Il sera d'abord présenté différentes méthodes présentes dans la littérature, avec leurs potentiels avantages et défauts. \\ 
 Cette approche des l'analyse de sensibilité nous renvoie aussi sur des champs de recherche bien différents, car les méthodes peuvent autant venir du champ de la mécanique que de la géologie ou l'étude environnementale.
@@ -72,14 +77,14 @@ Etant donné que les missions d'analyse de sensibilité et d'incertitudes se fon
 L'ensemblde des codes ont été écrits dans le langage \textit{Python}, en se servant majoritairement des bibliothèques a caractère scientifique (\textit{SciPy, NumPy}) et la bibliothèque développée en partie par \textbf{PHIMECA :} \textit{openTURNS} (\emph{open treatment of Uncertainties and Risk \& Statistics })\cite{OpenTURNS}.\\
 \textbf{PHIMECA} a fourni un poste de travail Linux, tout comme un accès au serveur de calcul pour les modèles un peu plus conséquents. \\
 
-\subsection[Prémices]{Analyse de la problématique, premier tests et prise en main des outils}
+\section{Analyse de la problématique, premier tests et prise en main des outils}
 
-\subsubsection{Mission confiée et tâches associées}
+\subsection{Mission confiée et tâches associées}
 L'objectif du stage était de développer une méthodologie pour l'analyse de sensibilité sur des modèles gouvernés par des champs aléatoires (Champs Stochastiques) et des variables aléatoires, et qui en sortie sont aussi représentables par une collection de champs et variables aléatoires. \\
 Plus spécifiquement, cette méthodologie était à appliquer à un modèle d'échangeur de chaleur air-air commercialisé par \textbf{LIEBHERR} et utilisé pour la régulation thermique de l'air ambiant dans les avions de ligne.\\\\
 Comme la mission confiée au sein de \textbf{PHIMECA} se rapprochait d'un travail de recherche, celui -ci était bien sur accompagné de nombreuses étapes distinctes. En effet, en plus du développement des codes et de l'application analytique, une recherche bibliographique a du être menée en amont pour parvenir a lister les différentes méthodes d'analyse existantes et tester celles qui pourraient convenir au mieux. De plus, une phase d'apprentissage et de tests a du d'abord être nécessaire pour parvenir à prendre en main les différents outils, et comprendre la théorie et les mathématiques sous-jacentes.\\
 
-\subsubsection{Prise en main d'openTURNS et de la théorie sur les champs stochastiques}
+\subsection{Prise en main d'openTURNS et de la théorie sur les champs stochastiques}
 \paragraph{Champs Stochastiques\\} 
 Un champ stochastique est un champ de variables aléatoires toutes corrélées entre elles, et dont l'intensité de la corrélation est déterminée par leur proximité dans l'espace. Par exemple la position de tout objet est corrélée à sa position aux intervalles de temps proches (continuité du temps), ou bien les températures au dessus d'un pays sont corrélés à faible distance mais l'effet aléatoire est plus présent lorsque les distances sont importantes. \\
 Ce type de modélisation des champs est couramment utilisée pour modéliser des propriétés présentant des variabilités gaussiennes mais une continuité dans leur espace de définition. \\ Lorsque la corrélation est seulement dépendante de la distance entre deux points de l'espace et non d'une position absolue, on parle d'un champ stationnaire. Lors de cette étude, on se place dans ce cas.\\ 
@@ -134,7 +139,7 @@ Néanmoins, la librairie reste quand même extrêmement bien documentée, avec l
 
 
 
-\subsection{Exemple théorique simple, premiers codes}
+\section{Exemple théorique simple, premiers codes}
 Pour parvenir a tester les méthodes trouvées lors de la recherche bibliographique, et avoir un modèle simple et rapide à exécuter, un exemple simple a été développé : 
 Il s'agit d'un modèle de poutre en appui sur ses deux extrémités
 \begin{figure}[H]
@@ -172,7 +177,7 @@ Pour pouvoir tester ceci, l'exemple de la poutre en éléments fins à été cod
 Pour parvenir à bien controller les processus stochastiques, une classe a été écrite \textit{NdGaussianProcessConstructor}, qui permet de définir entièrement un processus stochastique, et possède de nombreuses méthodes pour créer des échantillons, faire les décompositions de Karhunen-Loeve, ou encore reconstituer un champ à partir de la dite décomposition. Enfin, comme les échantillons sont nécessaires pour la décomposition de Karhunen-Loeve, et que ceux-ci peuvent être de taille plutôt importante, ils sont enregistrés sous form de \textit{numpy.memmap} dans un fichier temporaire, pour relacher un peu de pression sur la mémoire vive.\\
 
 En interne, le modèle fonction de champs stochastiques, passe par un wrapper qui fait qu'on peut la considerer comme seulement fonction de variables aléatoires gaussiennes. Cela permet d'utiliser les méthodes internes à openturns comme l'algorithme de Saltelli pour estimer les indices de sobol. \\
-
+\newpage
 Néanmoins, pour pallier certaines difficultées comme les fonctions qui par moment renvoient des \textbf{\textit{np.nan}} (donc lorsqu'il y a eu une erreur), on passe d'abord par une étape de correction:  l'ensemble des valeurs de sortie contenant des \textit{nan} sont regénérées, et comme les entrées de l'étude sont des combinaison de deux ensembles de variables aléatoires A et B, toutes les autres permuttations des entrées ayant entrainé des erreurs sont supprimées et remplacées. Cette étape est éxpliquée en figure \ref{posprocessing} \
 
 Les codes sont accessibles via \textit{\textbf{github}}: \\
@@ -223,7 +228,7 @@ Dans le travail de \cite{shangStochastic2013}, il est rapporté d'une méthodolo
 %Soit $Y_{i}$ un champ stochastique ayant comme modèle de covariance celui de Matern, et des  
 
 
-\subsubsection{Interprétation et essais avec le papier : "Time-variant global reliability sensitivity analysis of structures with both input random variables and stochastic processes"}
+\subsection{Interprétation et essais avec le papier : "Time-variant global reliability sensitivity analysis of structures with both input random variables and stochastic processes"}
 Ce papier de recherche datant de 2017, offre une approche pour l'analyse de sensibilité de modèles définis dans le temps et leur analyse de fiabilité. En effet, de nombreuses structures mécaniques (ponts, tours etc.) sont soumis à des grandeurs variant dans le temps, et si celles se trouvent être continues dans celui ci, alors cette grandeur peut être représentée par un champ stochastique. Bien qu'il y aie une différence notable entre les grandeurs par rapport auxquelles il y a continuité (dans leur papier le temps, et nous l'espace), des analogies peuvent être faites. \\
 
 L'approche se base sur la décomposition de Karhunen-Loève du champ stochastique, permettant de considérer le problème comme uniquement dépendant de variables aléatoire gaussiennes décorrélées, et de déduire la sensibilité du modèle au champ stochastique à partir de la sensibilité de chaque composant de la décomposition du champ. \\ 
@@ -459,7 +464,8 @@ L'on observe, que pour cet échantillon de 1000, l'indice de Sobol' calculé ave
 
 Les codes ayant montré leur utilisabilité, il était enfin possible d'essayer d'appliquer cette méthodologie à un système plus complexe, un échangeur de chaleur air-air modelisé avec NASTRAN. 
  
-\subsection{Application au modèle NASTRAN d'échangeur thermique}
+\section{Application au modèle NASTRAN d'échangeur thermique}
+\subsection{Définition et analyse de la problématique}
 
 Comme nous l'avions mentionné avant, la finalité de ce travail de quasi-recherche et développement de codes, était de parvenir à induire des défauts stochastiques dans un modèle numérique, et de mesurer la sensibilité de ce modèle à ces perturbations. 
 
@@ -474,7 +480,7 @@ Le modèle en question est celui d'un échangeur thermique d'utilisation aérona
 
 Ce projet est financé par l'union européenne, et la fabrication est assurée par le fabricant allemand \textbf{LIEBHERR}. Ce dernier sous-traite certaines étapes de l'étude, comme les essais physiques sur des échantillons de l'échangeur, tâche réalisée par \textbf{Lortek}, la construction d'un modèle paramétrique numérique de l'échangeur, tâche réalisée par \textbf{Epsilon}, et enfin la partie analyse de sensibilité et déformation moteur réalisée par \textbf{Phimeca}. \\
 
-Ce projet à donc impliqué l'étroite collaboration de ces différents acteurs, vu que pour l'analyse de sensibilité il nous fallait utiliser le modèle contruit par \textbf{Epsilon}, et introduire des incertitudes dans les paramètres, dont la nature et les paramètres ont été récuperées dans les mesures faites par \textbf{Lortek}.
+Ce projet à donc impliqué l'étroite collaboration de ces différents acteurs, vu que pour l'analyse de sensibilité il nous fallait utiliser le modèle contruit par \textbf{Epsilon}, et introduire des incertitudes dans les paramètres, dont la nature et les paramètres ont été récupérées dans les mesures faites par \textbf{Lortek}.
 
 
 \begin{figure}[H]
@@ -488,7 +494,7 @@ Pour bien se coordoner sur le projet, des réunions se sont régulièrement tenu
 
 Dans le cas de l'étude à réaliser par \textbf{Phimeca}, le sujet d'analyse était l'étude de l'influence de la variabilité dans les paramètres des aillettes de l'échangeur de chaleur sur la localisation de la défaillance. Dans le cas de l'échangeur de chaleur, la défaillance correspond à une rupture d'aillette, ou une perte d'étancheité. \\
 
-Numériquement, la rupture se traduit par une contrainte maximale superieure à la contrainte maximale suportée par le matérieau constituant de la pièce. L'analyse de la pièce se traduit donc par l'étude de l'effet de la maitrise des paramètres de l'ailette (épaisseur, planéitée, angle...) sur la localisation de la contrainte maximale. 
+Numériquement, la rupture se traduit par une contrainte maximale supérieure à la contrainte maximale suportée par le matérieau constituant de la pièce. L'analyse de la pièce se traduit donc par l'étude de l'effet de la maitrise des paramètres de l'ailette (épaisseur, planéitée, angle...) sur la localisation de la contrainte maximale. 
 
 \begin{figure}[H]
    \centering   
@@ -496,6 +502,8 @@ Numériquement, la rupture se traduit par une contrainte maximale superieure à 
       \caption{Ailettes d'un échangeur de chaleur}
          \label{SchemaAilettes}
 \end{figure}
+
+\subsection{Mise en place de méthodologie }
 
 Pour parvenir à introduire ces variabilités différentes approches et modèles de champs stochastiques peuvent être prises en considération, puisque les réalisations peuvent fortement varier en fonction des paramètres et modèles. Il est en outre difficile de générer un champ qui serait indépendant du maillage sur lequel il est réalisé, ou du moins qui ressemblerait à un échantillon d'un champ plus grand. 
 
@@ -507,88 +515,162 @@ Pour parvenir à introduire ces variabilités différentes approches et modèles
          \label{maternNu}
 \end{figure}
 
-En deux dimensions, un champ stochastique peut être vu comme un maillage uniforme, ou une valeur est associée à chaque noeud, et ou la valeur à chaque noeud est colérée à la distance et valeur des noeuds proches. La première idée aurait donc été d'appliquer directement une déformation génerée par un champ de la même taille que le maillage d'une ailette aux noeuds constituant l'ailette, et donc de simuler
-une déformation stochastique par ailette, mais en écartant du coup toute corrélation inter-ailettes.
-La déformation se serait fait par translation de chaque noeud suivant l'axe normal au plan de l'ailette.
-Cette méthode a vite été écartée, puisque la génération de champs sur des maillages sous forme de long rectangle étiré était bien moins précise et controlables, allant jusqu'à des réalisation quasi constantes. De plus le nombre de champs genéré par plaque serait très important, alors qu'il serait plus simple de ne genérér qu'un seul champ par plaque et d'user de déformation paramétriques. \\
+En deux dimensions, un champ stochastique peut être vu comme un maillage uniforme, ou une valeur est associée à chaque noeud, et ou la valeur à chaque noeud est corrélée à la distance et valeur des nœuds proches. La première idée aurait donc été d'appliquer directement une déformation générée par un champ de la même taille que le maillage d'une ailette aux nœuds constituant l'ailette, et donc de simuler une déformation stochastique par ailette, mais en écartant du coup toute corrélation inter-ailettes.
+La déformation se serait fait par translation de chaque nœud suivant l'axe normal au plan de l'ailette.
+Cette méthode a vite été écartée, puisque la génération de champs sur des maillages sous forme de long rectangle étiré était bien moins précise et contrôlables, allant jusqu'à des réalisation quasi constantes ou périodiques. De plus le nombre de champs généré par passe serait très important, alors qu'il serait plus simple de ne  génerer qu'un seul champ par plaque et de paramétriser les déformations.\\
 
-Cette seconde approche est inspirée d'un travail par CITEGOKA, qui traite de la modélisation des déformations réelles de pièces mécaniques. Il découle de son travail, que la déformation d'une pièce physique peut être représenté par une sommes de modes de déformation primaires, et qui similairement à une décompositin de fourrier, peut finalement représenter toute déformation de pièce. \\
+D'après le travail réalisé par \cite{Goka2019Jun}, une méthodologie pour modéliser au mieux les imperfections de conception d'une pièce et se rapprocher de défauts réalistes existe. 
+Dans son travail de thèse, \cite{Goka2019Jun} analyse les différentes manières de représenter les défauts de forme d'une pièce issues des imperfections de fabrication. Chaque méthode qu'elle soit paramétrique (Courbes de Bézier, B-Spline, NURBS), aléatoire (Bruit Gaussien), issue de morphing, d'un Skin-Model ou encore basé sur des modes (FFT, Polynômes, PCA, Décomposition modale métrique, champs aléatoires... ) est analysée et jugée par rapport à 4 critères : 
+\begin{itemize}
+	\item capacité à représenter les défauts de forme et les ondulations
+	\item compatibilité avec une représentation probabiliste du champ des défauts <=> amplitude des défauts de méthode doivent être modélisées par des lois de probabilité.
+	\item compatibilité avec les méthodes d'analyse probabiliste existantes, et interprétabilité physique (les coefficients contrôlant l'amplitude des défauts et leur distribution doivent représenter une grandeur physique mesurable) . 
+	\item doit être capable de modéliser des contacts locaux entre pièces et de retrouver les points de contact 
+\end{itemize}
 
-En éxprimant la déformation de chaque arc de neuds colinéaire à la direction normale aux deux flux d'air, comme une fonction mathématique représentant cette déformation basique, par exemple un polynôme du second degré possédant comme racines les deux positions extrêmes de l'arc, et en rendant cette fonction pilotée par un unique paramètre, l'on peut appliquer facilement une déformation à chaque arc de la plaque crénelée. Cette déformaiton, en plus d'être physique, possède une corrélation intra-ailettes, et ne nécessite que la génération d'un seul champ par plaque crénelée. De plus on peut facielement superposer les déformations par sommation.
+L'applicabilité de ces méthodes a notre problème dépend aussi de la réponse à ces critères, et elles ont étés développées au cours de cette thèse en vue de leur utilisation sur des projets d'analyse comme celui-ci. 
+La méthode retenue par Goka au cours de son analyse est la méthode de la décomposition métrique modale. 
+Cette méthode ne s'appuie ni sur des équations du mouvement de la mécanique vibratoire, ni sur la méthode des éléments finis. Elle permet d'introduire des défauts dans un modèle en appliquant une translation à chaque noeud du maillage de la surface. Cette translation est appliquée à l'aide de ce qu'on appelle les vécteurs modaux. 
+Ces vecteurs modaux représentent un défaut élémentaire de la surface. Il existe différent types de déformations élémentaires, et chacun d'eux est à rapporter avec une forme élémentaire. De même ces vecteurs modaux sont généralement représentés dans la base qui est la plus adaptée pour représenter la pièce à laquelle on applique ces défauts. Par exemple les défauts élémentaires d'une surface plane cylindrique. 
 
-Un exemple de déformation qu'il est possible d'obtenir avec cette méthode (un seul mode de déformation): 
+\begin{figure}[H]
+   \centering   
+   \includegraphics[scale=0.3]{VecteurModalCylindre.png}
+      \caption{Vecteur des déformations modales pour un cylindre}
+         \label{VecteurModalCylindre}
+\end{figure}
+
+Analytiquement, un champ modal est défini de la manière suivante (en coordonnées cartésiennes ici):
+
+\begin{equation}
+\textbf{f}(x,y,z) = 
+\begin{bmatrix}
+\textbf{f}_{x}(x,y,z) \\
+\textbf{f}_{y}(x,y,z) \\
+\textbf{f}_{z}(x,y,z)
+\end{bmatrix}_{(x,y,z)}
+\end{equation} 
+
+ce vecteur f(x,y,z) est appliqué à chaque point de la surface de la pièce que l'on souhaite déformer. Le champ modale représente les défauts de forme de la surface, ou encore l'écart entre les positions théoriques parfaites et les positions réelles des points. 
+
+On peut écrire que pour chaque point de la surface nominale $ M_{n}(x_{n}, y_{n}, z_{n}) $ on applique ce vecteur $ f(x,y,z) $ pour obtenir un nouveau point $ M_{f}(x_{f}, y_{f}, z_{f}) $ :
+\begin{equation}
+\begin{pmatrix}
+x_{f} \\
+y_{f} \\
+z_{f} 
+\end{pmatrix} = 
+\begin{pmatrix}
+x_{n} \\
+y_{n} \\
+z_{n} 
+\end{pmatrix} +
+\begin{pmatrix}
+\textbf{f}_{x}(x_{n},y_{n},z_{n}) \\
+\textbf{f}_{y}(x_{n},y_{n},z_{n}) \\
+\textbf{f}_{z}(x_{n},y_{n},z_{n})
+\end{pmatrix}_{(x,y,z)}
+\end{equation}
+
+Le champ modal total représentant les défauts de forme de la surface est défini par la somme pondérée des modes élémentaires appliqués à chaque nœud de la surface :
+
+\begin{equation}
+\textbf{f}_{pa,A_{0}} = 
+\begin{pmatrix}
+\textbf{f}_{xpa,A_{0}} \\
+\textbf{f}_{ypa,A_{0}} \\
+\textbf{f}_{zpa,A_{0}} 
+\end{pmatrix}_{(x,y,z)} = 
+\sum_{j=1}^{n}\lambda_{pa,j}\times\textbf{f}_{pa,j,A_{0}}
+\end{equation} \\
 
 
-\begin{verbatim}
-        PROGRAM area
-        REAL base, height, area
-        PRINT *,'Enter the values for the base and height of a triangle.'
-        READ *, base, height
-        area = (1.0/2.0) * base * height
-        PRINT *,'The area of a triangle with base ', base
-        PRINT *,'and height ', height,' is ', area
-        STOP
-        END
-\end{verbatim}
-
-\paragraph{Note:}
-In \texttt{verbatim} mode you can easily end up outside the
-margins, as in the example above: pay attention to that!
-
-\subsection{Lists}
-Example of a list with numbered items:
-
-   \begin{enumerate}
-      \item  Planets, asteroids, moons \ldots
-      \item  Stars, galaxies, quasars
-  \end{enumerate}
-
-Example of a list with unnumbered items:
-
-   \begin{itemize}
-      \item  Planets, asteroids, moons \ldots
-      \item  Stars, galaxies, quasars
-          
-   \end{itemize}
-
-\section{Results}
-
-\newpage
-\section{Tables and figures}
+Ici, $ \textbf{f}_{pa,A_{0}} $ est le champ modal total de la surface \textit{a} de la pièce \textit{p} et exprimé au point $ \textit{A}_{0} $ ; \ $ \textbf{f}_{pa,j,A_{0}} $ est le vecteur modal correspondant au $j^{ème}$ défaut de forme élémentaire écrit en un point $\textit{A}_{0}$ de la surface \textit{a} de la pièce \textit{p} ; \ $\lambda_{pa,j}$ représente le coefficient d'amplitude du $j^{ème}$ défaut de forme élémentaire de la surface a de la pièce p. Les vecteurs modaux dépendent de la classe et géométrie de la surface, tout comme du moyen de fabrication utilisé. \\ 
 
 
+Les vecteurs modaux sont ensuite normés, pour que les coefficient d'amplitude $\lambda_{pa,j}$ représentent bien une grandeur physique mesurable (métrique).\\
+Le calcul de la norme se limite à calculer la norme maximale du champ vectoriel modal pour tout les points de la surface, avant de normer ce maximum à 1mm : 
+
+\begin{equation}
+max(\Vert\textbf{f},(M)\Vert)_{1\leq j\leq n} = 1[mm]
+\end{equation}\\
+
+L'on obtient les différents modes en étudiant les caractéristiques intrinsèques et les degrés d'invariance de la surface nominale. Quatre types de modes peuvent être distingués : 
+\begin{itemize}
+	\item Les modes rigides qui ne changent pas la nature de la surface: les modes de translation et de rotation de la surface correspondent au premier modes. 
+	\item Les modes dis de "dilatation" qui correspondent à des variations des caractéristiques de la surface. 
+	\item Les modes d'ondulation définis pas des déviations sinusoidales le long des \textit{Eléments Géométriques de Reférence Minimum}\footnote{Les éléments géométriques de référence sont des formes géométriques (plans, cylindre, axe) parfaites qui servent de base pour mesurer les écarts. Dans le cas du modèle de l'échangeur de chaleur, ces plans de référence sont les plans d'origine.}(EGRM) de la surface.  
+	\item Les modes des section définissant des variations de caractéristiques intrinsèques en utilisant des coordonnées polaires(\textit{Ref?}). Ces modes font varier le profil ou la géormétrie de la section droite d'une surface. Dans le cas d'une ailette d'une passe de l'échangeur, ce la revient à faire varier le profil de l'ailette en fonction de la direction du flux d'air. Ceci donne à l'ailette une sorte de géométrie de "ruban". 
+	\item Les modes quelconques sont ceux n'appartenant pas aux autres catégories. 
+\end{itemize} \
+
+Le choix final des modes de déformation se fait finalement à partir des données issues d’expériences ou connaissances en fabrication. En fonction du procédé de fabrication certains défauts sont en effet récurrents. L'amplitude des défauts est déterminée grâce à des mesures prises sur les pièces fabriquées. 
+\linebreak
+
+Le choix de cette méthode semblait donc très adapté, puisque l'utilisation de défauts paramétrisés permet de facilement contrôler des défauts complexes avec qu'un seul paramètre, et évite de devoir générer un grand nombre de déformations stochastiques qui sont bien moins contrôlables et plus coûteuses en temps de calcul à générer. 
+De plus l'utilisation de cette méthode permet de garder une grande maîtrise des défauts et des corrélations inter-défaut.
+\linebreak
+
+En tant qu'illustration, un schéma détaillant la méthode pour la déformation d'une passe de l'échangeur de chaleur avec la méthode de la déformation modale métrique est donné ci dessous. Sur ce schéma, le coefficient d'amplitude $\lambda_{pa,j}$ est donné par un champ stochastique défini sur un maillage de la même taille que la passe, et l'élément géométrique minimal est l'ensemble d’arêtes perpendiculaires aux deux flux d'air.\\ 
+La valeur du champ stochastique en un point donne l'écart maximal entre la surface nominale et la surface "réelle" , et la déformation en elle même suit un polynôme du second ordre s'annulant aux bornes inférieures et supérieures de la passe. 
 
 
-\begin{table}[htb]
-      \caption[]{Example of table caption: opacity sources.}
-         \label{KapSou}
-     $$ 
-         \begin{array}{p{0.7\linewidth}l}
-            \hline
-            \noalign{\smallskip}
-            Source      &  T / {[\mathrm{K}]} \\
-            \noalign{\smallskip}
-            \hline
-            \noalign{\smallskip}
-            Yorke 1979, Yorke 1980a & \leq 1700           \\
-            Kr\"ugel 1971           & 1700 \leq T \leq 5000 \\
-            Cox \& Stewart 1969     & 5000 \leq             \\
-            \noalign{\smallskip}
-            \hline
-         \end{array}
-     $$ 
-\end{table}
+\begin{figure}[H]
+   \centering   
+   \includegraphics[scale=0.45]{SchemaModesDeformation.png}
+      \caption{Schema de l'influence entre la réalisation d'un champ stochastique et la déformation modale de la passe de l'échangeur}
+         \label{SchemaModesDeformation}
+\end{figure}
+
+Cette méthode était hautement fonctionnelle, car les déformations sont toutes corrélées au sein d'une même passe, avec même la possibilité de parvenir à une corrélation tri-dimensionnelle, si l'on génère un champ 3D . 
+
+\subsection{Application de la méthode de la déformation modale métrique pilotée par champ stochastique sur un modèle Simcenter 3D Nastran}
+
+Bien sûr, bien que théoriquement simple, l'implémentation de cette méthode au sein de Simcenter NX Nastran était plus complexe, car l'on devait pouvoir garder le contrôle total sur la géométrie nominale de la pièce - peu importe quels paramètres géométriques originaux on imposait - et aussi un contrôle total sur quel types de passes/ plaques de séparation on introduisait des défauts, et enfin un contrôle total sur les processus stochastiques, leurs fonctions de covariance, et bien sûr les modes de déformation modale et leur nombre.\\
+
+Néanmoins plusieurs difficultés ont été rencontrées lors de l'écriture des codes, puisque les scripts python devaient interagir avec le logiciel de Siemens. Simcenter NX possède un langage de "scripting" appelé NX, qui permet d'utiliser les fonctions de Simcenter depuis un interpréteur et d'automatiser des tâches dans ce qu'on appelle des journaux. L'accès au capacités de scripting de Simcenter peut se faire à partir de différents langages, dont le Visual Basic ou Python, bien que très peu de tutoriels existent pour Python. \\
+
+Mais c'est bien le Python qui a été choisi au final de par sa plus grande simplicité par rapport au Visual Basic et l'existence d'une documentation fournie. \\
+
+\begin{figure}[H]
+   \centering   
+   \includegraphics[scale=0.18]{SimcenterInterface.PNG}
+      \caption{Interface du logiciel Simcenter 12 - vue active du modèle FEM}
+         \label{SimcenterInterface}
+\end{figure}
+
+Néanmoins, l'utilisation de NX dans un journal python ne peut se faire presque uniquement que depuis l’interpréteur Python 3.64 intégré dans Simcenter et non un interpréteur configuré personnellement. Ceci veut dire que l'on a pas accès depuis Simcenter a toutes les autres bibliothèques externes, dont \textit{\textbf{NumPy}} ou \textit{\textbf{openTURNS}}, composants néanmoins nécessaires pour la génération de champs stochastiques et l'analyse de la pièce. \\
+
+Pour contourner cette difficulté, le choix a été fait de scinder le programme en deux parties, une pour interagir directement avec Simcenter et le modèle de la pièce, faire l'analyse , exporter les résultats de l'analyse dans un fichier externe, et ensuite faire appel à un programme Python exécutable qui lui possède toutes les bibliothèques externes et génère les champs stochastiques et les déformations en fonction des données exportées. Ce second script enregistre à son tour toutes les données sur les déformation qui sont réimportés dans le premier script et les déformations appliqués. \\
+
+Un schéma explicatif de la méthodologie et de l'architecture des codes se trouve en annexe. \\
+
+\subsection{Commentaires et mise en contexte}
+
+Bien que entièrement fonctionnel, la méthodologie mise en place se heurte encore à des limites externes. En effet, au cours du projet, des questionnement ont eu lieu quant à l'outil à utiliser pour les simulations thermo-mécaniques, et l'utilisation de Simcenter a été remise en question au profit du logiciel Altair.\\ 
+Dans le cas ou le choix retomberait sur Altair, la méthodologie développée ne pourra plus être gardée, au vue des différences probablement importantes entre le langage de scriptage d'Altair et de Simcenter.\\ 
+
+Ca aura en tout cas été l'occasion de développer des scripts d'analyse de pièce sous Simcenter qui pourront être utilisés dans de futurs projets, et la diffusion de cet exemple (bien sûr en version allégée) sur les forums Simcenter 12 permettra à d'autres d'user plus facilement du langage python pour scripter sur Simcenter.  
 
 \section{Discussion}
 
 \section{Conclusions}
 
-
-
 % TABLES
 
 \bibliography{Bibliographie_rapport_PHIMECA_Simady}
 
+\appendix 
+\appendixpage
+\addappheadtotoc
+
+\begin{figure}[H]
+   \centering
+   \vspace{-2cm}
+   \includegraphics[angle=-90,origin=c,width=1.1\textwidth,height=1.1\textheight,keepaspectratio]{SchemaDeformationNastran.jpg}
+      \caption{Architecture des programmes servant à introduire des déformations pilotées par champ stochastique dans l'échangeur de chaleur}
+         \label{SchemaDeformationNastran}
+\end{figure}
 
 \end{document}
 

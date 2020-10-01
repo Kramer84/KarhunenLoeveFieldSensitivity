@@ -2,16 +2,19 @@
 \BOOKMARK [1][-]{section.2}{Recherche bibliographique}{}% 2
 \BOOKMARK [2][-]{subsection.2.1}{Travaux retenus}{section.2}% 3
 \BOOKMARK [2][-]{subsection.2.2}{Methodes et outils de travail}{section.2}% 4
-\BOOKMARK [2][-]{subsection.2.3}{Pr\351mices}{section.2}% 5
-\BOOKMARK [3][-]{subsubsection.2.3.1}{Mission confi\351e et t\342ches associ\351es}{subsection.2.3}% 6
-\BOOKMARK [3][-]{subsubsection.2.3.2}{Prise en main d'openTURNS et de la th\351orie sur les champs stochastiques}{subsection.2.3}% 7
-\BOOKMARK [2][-]{subsection.2.4}{Exemple th\351orique simple, premiers codes}{section.2}% 8
-\BOOKMARK [2][-]{subsection.2.5}{Choix des codes et difficult\351es algorithmiques}{section.2}% 9
-\BOOKMARK [2][-]{subsection.2.6}{Premiers essais d'analyse de la sensibilit\351 du mod\350le }{section.2}% 10
-\BOOKMARK [3][-]{subsubsection.2.6.1}{Interpr\351tation et essais avec le papier : "Time-variant global reliability sensitivity analysis of structures with both input random variables and stochastic processes"}{subsection.2.6}% 11
-\BOOKMARK [2][-]{subsection.2.7}{Application au mod\350le NASTRAN d'\351changeur thermique}{section.2}% 12
-\BOOKMARK [2][-]{subsection.2.8}{Lists}{section.2}% 13
-\BOOKMARK [1][-]{section.3}{Results}{}% 14
-\BOOKMARK [1][-]{section.4}{Tables and figures}{}% 15
-\BOOKMARK [1][-]{section.5}{Discussion}{}% 16
-\BOOKMARK [1][-]{section.6}{Conclusions}{}% 17
+\BOOKMARK [1][-]{section.3}{Analyse de la probl\351matique, premier tests et prise en main des outils}{}% 5
+\BOOKMARK [2][-]{subsection.3.1}{Mission confi\351e et t\342ches associ\351es}{section.3}% 6
+\BOOKMARK [2][-]{subsection.3.2}{Prise en main d'openTURNS et de la th\351orie sur les champs stochastiques}{section.3}% 7
+\BOOKMARK [1][-]{section.4}{Exemple th\351orique simple, premiers codes}{}% 8
+\BOOKMARK [2][-]{subsection.4.1}{Choix des codes et difficult\351es algorithmiques}{section.4}% 9
+\BOOKMARK [2][-]{subsection.4.2}{Premiers essais d'analyse de la sensibilit\351 du mod\350le }{section.4}% 10
+\BOOKMARK [2][-]{subsection.4.3}{Interpr\351tation et essais avec le papier : "Time-variant global reliability sensitivity analysis of structures with both input random variables and stochastic processes"}{section.4}% 11
+\BOOKMARK [1][-]{section.5}{Application au mod\350le NASTRAN d'\351changeur thermique}{}% 12
+\BOOKMARK [2][-]{subsection.5.1}{D\351finition et analyse de la probl\351matique}{section.5}% 13
+\BOOKMARK [2][-]{subsection.5.2}{Mise en place de m\351thodologie }{section.5}% 14
+\BOOKMARK [2][-]{subsection.5.3}{Application de la m\351thode de la d\351formation modale m\351trique pilot\351e par champ stochastique sur un mod\350le Simcenter 3D Nastran}{section.5}% 15
+\BOOKMARK [2][-]{subsection.5.4}{Commentaires et mise en contexte}{section.5}% 16
+\BOOKMARK [1][-]{section.6}{Discussion}{}% 17
+\BOOKMARK [1][-]{section.7}{Conclusions}{}% 18
+\BOOKMARK [1][-]{section*.7}{Appendices}{}% 19
+\BOOKMARK [1][-]{section*.8}{Appendices}{}% 20
