@@ -2,22 +2,22 @@ __author__ = 'Kristof Attila S.'
 __version__ = '0.1'
 __date__  = '17.09.20'
 
-__all__ = ['AggregatedKarhunenLoeveResults', 
-           'KarhunenLoeveGeneralizedFunctionWrapper',
-           'KarhunenLoeveSobolIndicesExperiment']
+__all__ = ['AggregatedKarhunenLoeveResults']
 
 import openturns as ot 
-import math 
 import uuid
 from collections import Iterable
-from copy import copy,deepcopy
-from joblib import Parallel, delayed
+from copy import copy
 
+def all_same(items):
+    #Checks if all items of a list are the same
+    return all(x == items[0] for x in items)
 
-
-
-
-##############################################################################
+def atLeastList(elem):
+    if isinstance(elem, Iterable) :
+        return list(elem)
+    else : 
+        return [elem]
 
 class AggregatedKarhunenLoeveResults(ot.KarhunenLoeveResult):
     '''Function being a buffer between the processes and the sensitivity
@@ -61,10 +61,11 @@ class AggregatedKarhunenLoeveResults(ot.KarhunenLoeveResult):
         '''Here we're gonna see if all the names are unique, so there can be 
         no confusion. We could also check ID's'''
         if len(set(self._subNames)) != len(self._subNames) :
-            print('The process names are not unique. Adding uuid.')
+            print('The process names are not unique.')
+            print('Using generic name. ')
             for i, process in enumerate(self._KLRL) :
                 oldName = process.getName()
-                newName = oldName + '_' + str(i) + '_' + str(uuid.uuid1())
+                newName = 'X_'+str(i)
                 print('Old name was {}, new one is {}'.format(oldName, newName))
                 process.setName(newName)
             self._subNames = [self._KLRL[i].getName() for i in range(self._N)]
@@ -292,196 +293,6 @@ class AggregatedKarhunenLoeveResults(ot.KarhunenLoeveResult):
 
 
 
-##############################################################################
-
-def all_same(items):
-    #Checks if all items of a list are the same
-    return all(x == items[0] for x in items)
-
-
-
-
-
-##############################################################################
-
-def atLeastList(elem):
-    if isinstance(elem, Iterable) :
-        return list(elem)
-    else : 
-        return [elem]
-
-
-
-
-
-##############################################################################
-
-class KarhunenLoeveGeneralizedFunctionWrapper(ot.OpenTURNSPythonPointToFieldFunction):
-    '''Class allowing to rewrite any function taking as an input a list
-    of fields, samples or ProcessSamples as only dependent of a vector.
-    The function passed should return a list of fields.
-
-    Note
-    ----
-    The usage of this wrapper implies having already done the karhunen loeve
-    decomposition of the list of the Processes with wich we will feed the 
-    function. The input dimension of this function is dependent of the 
-    order of the Karhunen Loeve decomposition. 
-    '''
-    def __init__(self, AggregatedKarhunenLoeveResults=None, func=None, 
-        func_sample=None, outputDim=None):
-        self.func = func
-        self.func_sample = func_sample
-        self.AKLR = AggregatedKarhunenLoeveResults
-        inputDim = self.AKLR.getSizeModes()
-        super(KarhunenLoeveGeneralizedFunctionWrapper,self).__init__(inputDim,
-                                                                  ot.Mesh(),
-                                                                  outputDim)
-        self.setInputDescription(self.AKLR._modeDescription)
-
-    def _exec(self, X):
-        assert len(X)==self.getInputDimension()
-        inputFields = self.AKLR.liftAsField(X)
-        #evaluating ...
-        result = self.func(inputFields)
-        return result
-
-    def _exec_sample(self, X):
-        assert len(X[0])==self.getInputDimension()
-        inputProcessSamples = self.AKLR.liftAsProcessSample(X)
-        try :
-            result = self.func_sample(inputProcessSamples)
-            return X
-        except Exception as e:
-            raise e
-
-
-
-
-
-##############################################################################
-
-class KarhunenLoeveSobolIndicesExperiment(object):
-    def __init__(self, AggregatedKarhunenLoeveResults=None, size=None, second_order=False):
-        self.AKLR = AggregatedKarhunenLoeveResults
-        self.size = None
-
-        self.composedDistribution = None
-        self.inputVarNames = list()
-        self.inputVarNamesKL = list()
-        self._dataMixSamples = list()
-
-        if size is not None:
-            self.setSize(size)
-        if AggregatedKarhunenLoeveResults is not None:
-            self._setKaruhnenLoeveResults(AggregatedKarhunenLoeveResults)
-
-        # here we come to the samples (our outputs)
-        self._sample_A = None
-        self._sample_B = None
-        self._experimentSample = None
-
-    def generate(self, **kwargs):
-        '''generate final sample with A and b mixed
-        '''
-        assert (self.AKLR is not None) and \
-               (self.size is not None), \
-                    "Please intialise sample size and PythonFunction wrapper"
-        self._generateSample(**kwargs)
-
-        self._mixSamples()
-        return self._experimentSample
-
-    def setSize(self, N):
-        '''set size of the samples 
-        '''
-        assert isinstance(N,int) and N>0, \
-                "Sample size can only be positive integer"
-        if self.size is None:
-            self.size = N
-        else:
-            self.size = N
-            self._sample_A = self._sample_B = self._experimentSample = None
-
-    def _setKaruhnenLoeveResults(self, AKLR):
-        '''set the wrapped function from the NdGaussianProcessSensitivity;
-        '''
-        self.AKLR = AKLR
-        self.inputVarNames = self.AKLR._subNames
-        self.inputVarNamesKL = self.AKLR._modeDescription
-        self.composedDistribution = ot.ComposedDistribution([ot.Normal()]*self.AKLR.getSizeModes())
-        self._dataMixSamples = self.AKLR._modesPerProcess
-
-
-    def _mixSamples(self):
-        '''Here we mix the samples together 
-        '''
-        n_vars = self.AKLR._N
-        N = self.size
-        self._experimentSample = deepcopy(self._sample_A)
-        print(self._sample_A)
-        [[self._experimentSample.add(self._sample_A[j]) for j in range(len(self._sample_A))] for _ in range(2+n_vars)]
-        print(self._experimentSample)
-        print(self._sample_B)
-        self._experimentSample[:,N:2 * N] = self._sample_B
-        jump = 2 * N
-        jumpDim = 0
-        for i in range(n_vars):
-            self._experimentSample[jump + N*i:jump + N*(i+1), 
-              jumpDim:jumpDim+self._dataMixSamples[i]] = \
-                self._sample_B[:,jumpDim:jumpDim + self._dataMixSamples[i]]
-            jumpDim += self._dataMixSamples[i]
-
-    def _ramp(self, X):
-        '''simple _ramp function
-        '''
-        if X >= 0 : return X
-        else : return 0
-
-    def _generateSample(self, **kwargs):
-        '''Generation of two samples A and B using diverse methods
-        '''
-        distribution = self.composedDistribution
-        if 'method' in kwargs :
-            method = method
-        else : 
-            method = 'MonteCarlo'
-        N2 = 2 * self.size
-        if method == 'MonteCarlo':
-            sample = distribution.getSample(N2)
-        elif method == 'LHS':
-            lhsExp = openturns.LHSExperiment(distribution,
-                                             N2,
-                                             False,  # alwaysShuffle
-                                             True)  # randomShift
-            sample = lhsExp.generate()
-        elif method == 'QMC':
-            restart = True
-            if 'sequence' in kwargs:
-                if kwargs['sequence'] == 'Faure':
-                    seq = openturns.FaureSequenc
-                if kwargs['sequence'] == 'Halton':
-                    seq = openturns.HaltonSequence
-                if kwargs['sequence'] == 'ReverseHalton':
-                    seq = openturns.ReverseHaltonSequence
-                if kwargs['sequence'] == 'Haselgrove':
-                    seq = openturns.HaselgroveSequence
-                if kwargs['sequence'] == 'Sobol':
-                    seq = openturns.SobolSequence
-            else:
-                print('sequence undefined for low discrepancy experiment, setting default to SobolSequence')
-                print("possible vals for 'sequence' argument:\n\
-                    ['Faure','Halton','ReverseHalton','Haselgrove','Sobol']")
-                seq = openturns.SobolSequence
-            LDExperiment = openturns.LowDiscrepancyExperiment(seq(),
-                                                              distribution,
-                                                              N2,
-                                                              True)
-            LDExperiment.setRandomize(False)
-            sample = LDExperiment.generate()
-        sample = ot.Sample(sample)
-        self._sample_A = sample[:self.size, :]
-        self._sample_B = sample[self.size:, :]
 
 
 '''
