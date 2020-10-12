@@ -10,7 +10,7 @@ import openturns as ot
 class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
     def __init__(self, AggregatedKarhunenLoeveResults=None, size=None, 
                                                         second_order=False):
-        self._AKLR = AggregatedKarhunenLoeveResults
+        self.__AKLR__ = AggregatedKarhunenLoeveResults
         self.size = None
 
         self.__visibility__ = True
@@ -35,7 +35,7 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
     def generate(self, **kwargs):
         '''generate final sample with A and b mixed
         '''
-        assert (self._AKLR is not None) and \
+        assert (self.__AKLR__ is not None) and \
                (self.size is not None), \
                     "Please intialise sample size and PythonFunction wrapper"
         self._generateSample(**kwargs)
@@ -51,8 +51,8 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
         return self.__class__.__name__
 
     def getAggregatedKLResults(self):
-        if self._AKLR is not None:
-            return self._AKLR
+        if self.__AKLR__ is not None:
+            return self.__AKLR__
         else :
             return None
 
@@ -90,12 +90,12 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
             return True
 
     def setAggregatedKLResults(self, AggrKLRes=None):
-        self._AKLR = AggrKLRes
-        self.inputVarNames = self._AKLR._subNames
-        self.inputVarNamesKL = self._AKLR._modeDescription
+        self.__AKLR__ = AggrKLRes
+        self.inputVarNames = self.__AKLR__._subNames
+        self.inputVarNamesKL = self.__AKLR__._modeDescription
         self.composedDistribution = ot.ComposedDistribution(
-                                     [ot.Normal()]*self._AKLR.getSizeModes())
-        self._modesPerProcess = self._AKLR._modesPerProcess
+                                     [ot.Normal()]*self.__AKLR__.getSizeModes())
+        self._modesPerProcess = self.__AKLR__._modesPerProcess
 
     def setName(self, name):
         self.__name__ = str(name)
@@ -117,7 +117,7 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
     def _mixSamples(self):
         '''Here we mix the samples together 
         '''
-        n_vars = self._AKLR._N
+        n_vars = self.__AKLR__._N
         N = self.size
         self._experimentSample = deepcopy(self._sample_A)
         print('Samples A and B of size {} and dimension {}'.format(

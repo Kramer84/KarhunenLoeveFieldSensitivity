@@ -74,7 +74,7 @@ class AggregatedKarhunenLoeveResults(ot.KarhunenLoeveResult):
         modeDescription = list()
         for i, nMode in enumerate(self._modesPerProcess):
             for j in range(nMode):
-                modeDescription.append(self._subNames[i]+'_'+str(j))
+                modeDescription.append(self._subNames[i]+str(j))
         return modeDescription
 
     def _checkCoefficients(self, coefficients):

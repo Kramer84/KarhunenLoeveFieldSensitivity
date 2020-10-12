@@ -21,20 +21,36 @@ class KarhunenLoeveGeneralizedFunctionWrapper(object):
     function. The input dimension of this function is dependent of the 
     order of the Karhunen Loeve decomposition. 
     '''
-    def __init__(self, AggregatedKarhunenLoeveResults=[], func=None, 
-        func_sample=None, n_outputs=1, outputDim=[]):
-        self.func        = func
+    def __init__(self, AggregatedKarhunenLoeveResults=None, func=None, 
+        func_sample=None, n_outputs=1):
+        self.func = func
         self.func_sample = func_sample
-        self.AKLR        = AggregatedKarhunenLoeveResults
-        self.n_outputs   = n_outputs
-        self.outputDim   = outputDim
-        self.inputDim    = self.AKLR.getSizeModes()
-        self._inputDescription = ot.Description(self.inputDim)
-        self._outputDescription = ot.Description(self.n_outputs)
-        self.setInputDescription(self.AKLR._modeDescription)
+        self.__AKLR__ = AggregatedKarhunenLoeveResults
+        self.__nOutputs__ = n_outputs
+        self.__inputDim__ = 0
+        self._inputDescription = ot.Description.BuildDefault(self.__inputDim__, 'X_')
+        self._outputDescription = ot.Description.BuildDefault(self.__nOutputs__, 'Y_')
         self.__calls__ = 0
-        self.__name__  = ''
-        self.Id        = 0
+        self.__name__ = 'Unnamed'
+        self.__setDefaultState__()
+
+    def __setDefaultState__(self):
+        try : 
+            if (self.func is not None or self.func_sample is not None) and self.__AKLR__ is not None : 
+                self.__inputDim__ = self.__AKLR__.getSizeModes()
+                self.setInputDescription(ot.Description(self.__AKLR__._modeDescription))
+                self.setOutputDescription(ot.Description.BuildDefault(self.__nOutputs__, 'Y_'))
+            else : 
+                self.func         = None
+                self.func_sample  = None
+                self.__AKLR__     = None
+                self.__nOutputs__ = 0
+                self.__inputDim__ = 0
+                self._inputDescription = ot.Description()
+                self._outputDescription = ot.Description()
+        except Exception as e: 
+            print('Check if your aggregated karhunen loeve result object is correct')
+            raise e 
 
     def __call__(self, X):
         if isinstance(X, (ot.Point)) or (
@@ -45,7 +61,7 @@ class KarhunenLoeveGeneralizedFunctionWrapper(object):
 
     def _exec(self, X):
         assert len(X)==self.getInputDimension()
-        inputFields = self.AKLR.liftAsField(X)
+        inputFields = self.__AKLR__.liftAsField(X)
         #evaluating ...
         result = self.func(inputFields)
         result = CustomList.atLeastList(result)
@@ -55,7 +71,7 @@ class KarhunenLoeveGeneralizedFunctionWrapper(object):
 
     def _exec_sample(self, X):
         assert len(X[0])==self.getInputDimension()
-        inputProcessSamples = self.AKLR.liftAsProcessSample(X)
+        inputProcessSamples = self.__AKLR__.liftAsProcessSample(X)
         try :
             result = self.func_sample(inputProcessSamples)
             result = CustomList.atLeastList(result)
@@ -73,8 +89,12 @@ class KarhunenLoeveGeneralizedFunctionWrapper(object):
 same order than for the batch evaluation function. This one should only 
 return Points, Fields, Lists or numpy arrays.''')
         outputList = []
+        if len(output) != len(self._outputDescription) :
+            self.__nOutputs__ = len(output)
+            self.setOutputDescription(ot.Description.BuildDefault(self.__nOutputs__, 'Y_'))
         for i, element in enumerate(output) :
             if isinstance(element, (ot.Point, ot.Field)):
+                element.setName(self._outputDescription[i])
                 outputList.append(element)
                 try : dim = element.getDimension()
                 except : dim = element.getMesh().getDimension() 
@@ -92,20 +112,25 @@ return Points, Fields, Lists or numpy arrays.''')
                         print(
 'Element {} of the output tuple returns fields of dimension {}'.format(i,len(shape)))
                         intermElem.flatten()
-                        outputList.append(ot.Field(self._buildMesh(self._getGridShape(shape)),
-                                                   [[elem] for elem in intermElem]))
+                        element = ot.Field(self._buildMesh(self._getGridShape(shape)),
+                                           [[elem] for elem in intermElem])
+                        element.setName(self._outputDescription[i])
+                        outputList.append(element)
                     if len(shape) == 1 :
                         print(
 'Element {} of the output tuple returns points of dimension {}'.format(i,shape[0]))
                         intermElem.recurse2list()
                         intermElem.flatten()
-                        outputList.append(ot.Point(intermElem))
+                        element = ot.Point(intermElem)
+                        element.setName(self._outputDescription[i])
+                        outputList.append(element)
                 else : 
                     print('Do not use non-numerical dtypes in your objects')
                     print('Wrong dtype is: ',dtype.__name__)
             elif isinstance(element, (Complex, Integral, Real, Rational, Number, str)):
-                        print(
-'Element {} of the output tuple returns unique {}'.format(i,type(element).__name__))           
+                print(
+'Element {} of the output tuple returns unique {}'.format(i,type(element).__name__))
+                outputList.append(element)
             elif isinstance(element, (ot.Sample, ot.ProcessSample)):
                 print(
 'ONLY _exec_sample FUNCTION MUST RETURN ot.Sample OR ot.ProcessSample OBJECTS!!')
@@ -124,8 +149,12 @@ return Points, Fields, Lists or numpy arrays.''')
 same order than for the single evaluation function. This one should only 
 return ProcessSamples, Samples, Lists or numpy arrays.''')
         outputList = []
+        if len(output) != len(self._outputDescription) :
+            self.__nOutputs__ = len(output)
+            self.setOutputDescription(ot.Description.BuildDefault(self.__nOutputs__, 'Y_'))
         for i, element in enumerate(output) :
             if isinstance(element, (ot.Sample, ot.ProcessSample)):
+                element.setName(self._outputDescription[i])
                 outputList.append(element)
                 print(
 'Element {} of the output tuple returns elements of type {} of dimension {}'.format(
@@ -139,29 +168,34 @@ return ProcessSamples, Samples, Lists or numpy arrays.''')
                 dtype = intermElem.dtype
                 print('Shape is {} and dtype is {}'.format(shape,dtype))
                 sampleSize = shape[0]
-                subSample = [CustomList(intermElem[i]) for i in range(sampleSize)]
+                subSample = [CustomList(intermElem[j]) for j in range(sampleSize)]
                 assert dtype is not None, 'If None the list is not homogenous'
                 if isinstance(dtype(), (Complex, Integral, Real, Rational, Number, str)):
                     if len(shape) >= 2 :
                         print(
 'Element {} of the output tuple returns process samples of dimension {}'.format(i,len(shape)-1))
                         mesh = self._buildMesh(self._getGridShape(shape[1:]))
-                        subSample = [subSample[i].flatten() for i in range(sampleSize)]
+                        subSample = [subSample[j].flatten() for j in range(sampleSize)]
                         procsample = ot.ProcessSample(mesh, 0, len(shape)-1)
-                        for i in range(sampleSize):
-                            procsample.add(ot.Field(mesh, [[elem] for elem in subSample[i].data]))
+                        for j in range(sampleSize):
+                            procsample.add(ot.Field(mesh, [[elem] for elem in subSample[j].data]))
+                        procsample.setName(self._outputDescription[i])
                         outputList.append(procsample)
                     elif len(shape) == 1 :
                         print(
 'Element {} of the output tuple returns samples of dimension {}'.format(i,1))
-                        outputList.append(ot.Sample([[dat] for dat in intermElem.data]))
+                        element = ot.Sample([[dat] for dat in intermElem.data])
+                        element.setName(self._outputDescription[i])
+                        outputList.append(element)
                 else : 
                     print('Do not use non-numerical dtypes in your objects')
                     print('Wrong dtype is: ',dtype.__name__)
             elif isinstance(element, ot.Point):
                 print(
 'Element {} of the output tuple returns samples of dimension 1'.format(i,type(element).__name__))
-                outputList.append(ot.Sample([[element[i]] for i in range(len(element))]))     
+                element = ot.Sample([[element[j]] for j in range(len(element))])
+                element.setName(self._outputDescription[i])
+                outputList.append(element)     
             elif isinstance(element, ot.Field):
                 print(
 'ONLY _exec_sample FUNCTION MUST RETURN ot.Sample OR ot.ProcessSample OBJECTS!!')
@@ -194,17 +228,17 @@ return ProcessSamples, Samples, Lists or numpy arrays.''')
         return self.__class__.__name__
 
     def getId(self):
-        return self.Id
+        return id(self)
 
     def getImplementation(self):
         print('custom implementation')
         return None
 
-    def getInputDescription(selrf):
+    def getInputDescription(self):
         return self._inputDescription
 
     def getInputDimension(self):
-        return self.inputDim
+        return self.__inputDim__
 
     def getMarginal(self):
         print('custom implementation')
@@ -217,10 +251,10 @@ return ProcessSamples, Samples, Lists or numpy arrays.''')
         return self._outputDescription
 
     def setNumberOutputs(self, N):
-        self.n_outputs = N
+        self.__nOutputs__ = N
 
     def getNumberOutputs(self):
-        return self.n_outputs
+        return self.__nOutputs__
 
     def getOutputDimension(self):
         return self.outputDim
@@ -234,10 +268,10 @@ return ProcessSamples, Samples, Lists or numpy arrays.''')
         self.__name__ = name
 
     def setNumberOutputs(self, N):
-        self.n_outputs = N
+        self.__nOutputs__ = N
 
     def setOutputDescription(self, description):
-        assert len(description) == self.n_outputs
+        assert len(description) == self.__nOutputs__
         "You must specify the name for each separate output, not for each element of each output"
         self._outputDescription.clear()
         self._outputDescription = ot.Description(description)
