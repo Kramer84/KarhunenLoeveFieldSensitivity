@@ -11,15 +11,15 @@ with open('README.md') as f:
     readme = f.read()
 
 # set the parameter of the setup
-setup(name='spsa',
+setup(name='otFieldSensitivity',
       version=version,
-      description='Sensitivity analysis on stochastic fields',
+      description='openTURNS module for sensitivity analysis on models with stochastic fields',
       author='Kristof Simady',
       author_email='ksimady@sigma-clermont.fr',
-      url = "https://github.com/Kramer84/spsa",
+      url = "https://github.com/Kramer84/spsa/openTURNSExt",
       license = 'MIT',
       # define packages which can be imported
-      packages=['spsa'],
+      packages=['otField'],
       package_dir={
       'spsa': 'spsa'},
       long_description=readme,

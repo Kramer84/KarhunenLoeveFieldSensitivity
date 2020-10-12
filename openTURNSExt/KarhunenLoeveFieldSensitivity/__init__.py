@@ -1,3 +1,9 @@
+#-*- coding: utf-8 -*-
+__author__ = 'Kristof Simady'
+__date__ = '12.10.20'
+
+__requires__ = ["openturns"]
+
 from ._aggregatedKarhunenLoeveResults import *
 from ._karhunenLoeveGeneralizedFunctionWrapper import *
 from ._karhunenLoeveSobolIndicesExperiment import *
