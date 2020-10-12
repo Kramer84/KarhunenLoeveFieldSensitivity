@@ -19,7 +19,7 @@ def atLeastList(elem):
     else : 
         return [elem]
 
-class AggregatedKarhunenLoeveResults(ot.KarhunenLoeveResult):
+class AggregatedKarhunenLoeveResults(object):
     '''Function being a buffer between the processes and the sensitivity
     Analysis
     '''
@@ -27,6 +27,7 @@ class AggregatedKarhunenLoeveResults(ot.KarhunenLoeveResult):
         self._KLRL = atLeastList(KLResList) #KLRL : Karhunen Loeve Result List
         assert len(self._KLRL)>0
         self._N = len(self._KLRL)
+        self.__name__ = 'Unnamed'
         self._KLLift = [ot.KarhunenLoeveLifting(self._KLRL[i]) for i in range(self._N)]
         self._homogenMesh = all_same([self._KLRL[i].getMesh() for i in range(self._N)])
         self._homogenDim = (all_same([self._KLRL[i].getCovarianceModel().getOutputDimension() for i in range(self._N)])  \
@@ -36,7 +37,6 @@ class AggregatedKarhunenLoeveResults(ot.KarhunenLoeveResult):
         #Cause when aggregated there is usage of multvariate covariance functions
         if self._aggregFlag : print('Process seems to be aggregated. ')
         self.threshold = max([self._KLRL[i].getThreshold() for i in range(self._N)])
-        super(AggregatedKarhunenLoeveResults, self).__init__()
         #Now we gonna get the data we will usually need
         self._subNames = [self._KLRL[i].getName() for i in range(self._N)]
         self._checkSubNames()
@@ -132,6 +132,9 @@ class AggregatedKarhunenLoeveResults(ot.KarhunenLoeveResult):
         '''
         return [self._KLRL[i].getModesAsProcessSample() for i in range(self._N)]
 
+    def getName(self):
+        return self.__name__
+
     def getProjectionMatrix(self):
         '''
         '''
@@ -151,6 +154,9 @@ class AggregatedKarhunenLoeveResults(ot.KarhunenLoeveResult):
         '''
         '''
         return self.threshold
+
+    def setName(self,name):
+        self.__name__ = name
 
     def lift(self, coefficients):
         '''lift a point into a function
