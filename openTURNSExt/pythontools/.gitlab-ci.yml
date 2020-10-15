@@ -1,0 +1,23 @@
+pages:
+  stage: deploy
+  script:
+    - wget -c --no-check-certificate https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    - bash Miniconda3-latest-Linux-x86_64.sh -b -p anaconda/
+    - PATH="anaconda/bin:$PATH"
+    - echo PATH="anaconda/bin:\$PATH"
+    - conda config --add channels conda-forge
+    - conda config --set channel_priority strict
+    - conda env create -f environment.yml
+    - conda init bash
+    - source ~/.bashrc 
+    - conda activate pythontools
+    - python setup.py install
+    - pytest test
+    # - pytest --doctest-modules src
+    - make html
+    - mkdir .public
+    - cp -r doc/_build/html/* .public
+    - mv .public public
+  artifacts:
+    paths:
+      - public

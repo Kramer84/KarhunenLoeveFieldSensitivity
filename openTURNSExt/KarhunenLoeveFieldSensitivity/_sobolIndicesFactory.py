@@ -57,7 +57,6 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(ot.SaltelliSensitivityAlgorith
         self.__centeredOutputDesign__ = list()
         self.__preProcessedOutputDesign__ = list()
         self.__setDefaultState__()
-        self.__resultContainer__ = list()
         self.estimator = estimator
         self.__results__ = list()
 
@@ -224,6 +223,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(ot.SaltelliSensitivityAlgorith
         self.ConfidenceLevel = confidenceLevel
 
     def setDesign(self, inputDesign=None, outputDesign=None, N=0):
+        outputDesign = atLeastList(outputDesign)
         assert all_same([len(outputDesign[i]) for i in range(len(outputDesign))])
         assert (isinstance(N,(int, Integral)) and N>=0)
         self.inputDesign = inputDesign
@@ -336,22 +336,24 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(ot.SaltelliSensitivityAlgorith
             else : 
                 raise NotImplementedError
 
-    def __preProcessOutputDesign__(self):
-        flatSampleA = [self.__centeredOutputDesign__[i][:self.N] for i in range(self.__nOutputs__)]
-        flatSampleB = [self.__centeredOutputDesign__[i][self.N:2*self.N] for i in range(self.__nOutputs__)]
-        psi_fo, psi_to = self.__symbollicSaltelliFormula__(1)
-        self.__preProcessedOutputDesign__.clear()
-        for i_output in range(self.__nOutputs__):
-            inputOneOutput = []
-            for sobolIdx in range(self.__nSobolIndices__):
-                inputOneIndice = []
-                inputOneIndice.append(flatSampleA[i_output])
-                inputOneIndice.append(flatSampleB[i_output])
-                inputOneIndice.append(self.__centeredOutputDesign__[i_output][(2+sobolIdx)*self.N : (3+sobolIdx)*self.N])
-                inputOneIndice.append(psi_fo)
-                inputOneIndice.append(psi_to)
-                inputOneOutput.append(tuple(inputOneIndice))
-            self.__preProcessedOutputDesign__.append(inputOneOutput)
+############################################################################################################################
+    def __preProcessOutputDesign__(self):                                                                                 ##
+        flatSampleA = [self.__centeredOutputDesign__[i][:self.N] for i in range(self.__nOutputs__)]                       ##
+        flatSampleB = [self.__centeredOutputDesign__[i][self.N:2*self.N] for i in range(self.__nOutputs__)]               ##
+        psi_fo, psi_to = self.__symbollicSaltelliFormula__(1)                                                             ##
+        self.__preProcessedOutputDesign__.clear()                                                                         ##
+        for i_output in range(self.__nOutputs__):                                                                         ##
+            inputOneOutput = []                                                                                           ##
+            for sobolIdx in range(self.__nSobolIndices__):                                                                ##
+                inputOneIndice = []                                                                                       ##
+                inputOneIndice.append(flatSampleA[i_output])                                                              ##
+                inputOneIndice.append(flatSampleB[i_output])                                                              ##
+                inputOneIndice.append(self.__centeredOutputDesign__[i_output][(2+sobolIdx)*self.N : (3+sobolIdx)*self.N]) ##
+                inputOneIndice.append(psi_fo)                                                                             ##
+                inputOneIndice.append(psi_to)                                                                             ##
+                inputOneOutput.append(tuple(inputOneIndice))                                                              ##
+            self.__preProcessedOutputDesign__.append(inputOneOutput)                                                      ##
+############################################################################################################################
 
     def __confirmationMessage__(self):
         def getDim(pointOrSample):
@@ -377,12 +379,24 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(ot.SaltelliSensitivityAlgorith
             inputDescription = self.inputDesign.getDescription()
             SobolIndicesName = []
             inputWOutLastChar = [inputDescription[i][:-1] for i in range(len(inputDescription))]
-            SobolIndicesName = list(set(inputWOutLastChar))
+            SobolIndicesName = []
+            for x in inputWOutLastChar:
+                if x not in SobolIndicesName:
+                    SobolIndicesName.append(x)
             print('SobolIndicesName',SobolIndicesName)
             self.inputDescription = SobolIndicesName
 
+    def __fastResultCheck__(self):
+        if not len(self.__results__)>0 : 
+            try : 
+                self.__solve__()
+            except AssertionError :
+                print('You need samples to work on. Check doc')
+                raise AssertionError
+
     def __solve__(self):
         assert self.estimator is not None, "First initialize the estimator (Jansen, Saltelli, etc.)"
+        assert len(self.outputDesign) > 0, "You have to pass a Sample to work on"
         assert self.outputDesign[0] is not None, "You have to pass a Sample to work on"
         dummyInputSample = ot.Sample(self.size, self.__nSobolIndices__)
         dummyInputSample.setDescription(self.inputDescription)
@@ -390,8 +404,9 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(ot.SaltelliSensitivityAlgorith
         outputDesigns = self.__centeredOutputDesign__
         for i in range(len(outputDesigns)):
             estimator = self.estimator.__class__()
+            _input = dummyInputSample[:]
             self.__results__.append(estimator)
-            self.__results__[i].setDesign(dummyInputSample, outputDesigns[i], self.N)
+            self.__results__[i].setDesign(_input, outputDesigns[i], self.N)
             self.__results__[i].setName(self.inputDescription[i])
 
     def __toBaseDataFormat__(self, data, idx):
@@ -418,49 +433,43 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(ot.SaltelliSensitivityAlgorith
             return data 
         else : 
             raise NotImplementedError
-
-    def __fastResultCheck__(self):
-        if not len(self.__results__)>0 : 
-            try : 
-                self.__solve__()
-            except AssertionError :
-                print('You need samples to work on. Check doc')
-                raise AssertionError
-
-    def __symbollicSaltelliFormula__(self, N : int) :
-        '''Method to create the symbolic python saltelli function
-
-        Note
-        ----
-        N > 1 only in the case of aggregated indices
-
-        Arguments
-        ---------
-        N : int
-            number of nominators and denominators
-
-        Returns
-        -------
-        psi_fo : ot.SymbolicFunction
-            first order symbolic function
-        psi_to : ot.SymbolicFunction
-            total order symbolic function
-        '''
-        x, y = (ot.Description.BuildDefault(N, 'X'),
-                ot.Description.BuildDefault(N, 'Y'))
-        # in order X0, Y0, X1, Y1
-        xy = list(x)
-        for i, yy in enumerate(y):
-            xy.insert(2 * i + 1, yy)
-        symbolic_num, symbolic_denom = '', ''
-        symbolic_num = [item for sublist in zip(x, ['+'] * N) for item in sublist]
-        symbolic_denom = [item for sublist in zip(y, ['+'] * N) for item in sublist]
-        (symbolic_num.pop(), symbolic_denom.pop())
-        symbolic_num = ''.join(symbolic_num)
-        # psi  = (x1 + x2 + ...) / (y1 + y2 + ...).
-        symbolic_denom = ''.join(symbolic_denom)
-        psi_fo = ot.SymbolicFunction(xy,\
-                             ['(' + symbolic_num + ')/(' + symbolic_denom + ')'])
-        psi_to = ot.SymbolicFunction(xy,\
-                    ['1 - ' + '(' + symbolic_num + ')/(' + symbolic_denom + ')'])
-        return psi_fo, psi_to
+ 
+#######################################################################################
+    def __symbollicSaltelliFormula__(self, N : int) :                                ##
+        '''Method to create the symbolic python saltelli function                    ##
+                                                                                     ##
+         Note                                                                        ##
+        ----                                                                         ##
+        N > 1 only in the case of aggregated indices                                 ##
+                                                                                     ##
+         Arguments                                                                   ##
+        ---------                                                                    ##
+        N : int                                                                      ##
+            number of nominators and denominators                                    ##
+                                                                                     ##
+         Returns                                                                     ##
+        -------                                                                      ##
+        psi_fo : ot.SymbolicFunction                                                 ##
+            first order symbolic function                                            ##
+        psi_to : ot.SymbolicFunction                                                 ##
+            total order symbolic function                                            ##
+        '''                                                                          ##
+        x, y = (ot.Description.BuildDefault(N, 'X'),                                 ##
+                ot.Description.BuildDefault(N, 'Y'))                                 ##
+        # in order X0, Y0, X1, Y1                                                    ##
+        xy = list(x)                                                                 ##
+        for i, yy in enumerate(y):                                                   ##
+            xy.insert(2 * i + 1, yy)                                                 ##
+        symbolic_num, symbolic_denom = '', ''                                        ##
+        symbolic_num = [item for sublist in zip(x, ['+'] * N) for item in sublist]   ##
+        symbolic_denom = [item for sublist in zip(y, ['+'] * N) for item in sublist] ##
+        (symbolic_num.pop(), symbolic_denom.pop())                                   ##
+        symbolic_num = ''.join(symbolic_num)                                         ##
+        # psi  = (x1 + x2 + ...) / (y1 + y2 + ...).                                  ##
+        symbolic_denom = ''.join(symbolic_denom)                                     ##
+        psi_fo = ot.SymbolicFunction(xy,\                                            ##
+                             ['(' + symbolic_num + ')/(' + symbolic_denom + ')'])    ##
+        psi_to = ot.SymbolicFunction(xy,\                                            ##
+                    ['1 - ' + '(' + symbolic_num + ')/(' + symbolic_denom + ')'])    ##
+        return psi_fo, psi_to                                                        ##
+#######################################################################################

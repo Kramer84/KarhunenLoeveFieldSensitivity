@@ -1,0 +1,422 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>OpenturnsPythonFunctionWrapper &mdash; spsa 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/jquery.fancybox.min.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/glpi.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="spsa 0.1 documentation" href="../index.html"/>
+        <link rel="up" title="Documentation of the API" href="../user_manual.html"/>
+        <link rel="prev" title="StochasticProcessSensitivityExperiment" href="spsa.StochasticProcessSensitivityExperiment.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> spsa
+          
+
+          
+          </a>
+
+          
+            
+              <div class="version">
+                0.1
+
+                
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../user_manual.html">Documentation of the API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../user_manual.html#spsa">spsa</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="spsa.StochasticProcessConstructor.html">StochasticProcessConstructor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spsa.SobolIndicesStochasticProcessAlgorithm.html">SobolIndicesStochasticProcessAlgorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spsa.StochasticProcessSensitivityAnalysis.html">StochasticProcessSensitivityAnalysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spsa.StochasticProcessSensitivityExperiment.html">StochasticProcessSensitivityExperiment</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">OpenturnsPythonFunctionWrapper</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">spsa</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../user_manual.html">Documentation of the API</a> &raquo;</li>
+        
+      <li>OpenturnsPythonFunctionWrapper</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/_generated/spsa.OpenturnsPythonFunctionWrapper.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+      
+        <a href="spsa.StochasticProcessSensitivityExperiment.html" class="btn btn-neutral" title="StochasticProcessSensitivityExperiment" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="openturnspythonfunctionwrapper">
+<h1>OpenturnsPythonFunctionWrapper<a class="headerlink" href="#openturnspythonfunctionwrapper" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="spsa.OpenturnsPythonFunctionWrapper">
+<em class="property">class </em><code class="sig-prename descclassname">spsa.</code><code class="sig-name descname">OpenturnsPythonFunctionWrapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.OpenturnsPythonFunctionWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper for python functions that take as an argument stochastic fields,
+as well as scalar probabilistic distributions. The wrapper creates an
+interface to a new function, that only takes in scalar values, by
+decomposing the stochastic processes using Karhunen-Loeve</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>functionSample: python function</strong></dt><dd><p>function taking as an input random fields and scalars, specialy
+optimized for batch processing</p>
+</dd>
+<dt><strong>functionSolo: python function</strong></dt><dd><p>same function than above, but only working with one sample at once</p>
+</dd>
+<dt><strong>processesDistributions: list</strong></dt><dd><p>list of distributions and processes (processes are defined with the
+StochasticProcessConstructor)</p>
+</dd>
+<dt><strong>outputDict: dict</strong></dt><dd><p>dictionary containing data about the outputs of the function. The
+dimension as well as the output position has to be indicated</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This class is used internaly by the StochasticProcessSensitivityAnalysis
+class, so the order of decomposition of the Processes hs not to be known
+and all is tracked internaly relatively robustly.</p>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code>(X)</p></td>
+<td><p>Call self as a function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#spsa.OpenturnsPythonFunctionWrapper.composeFromProcessAndDistribution" title="spsa.OpenturnsPythonFunctionWrapper.composeFromProcessAndDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">composeFromProcessAndDistribution</span></code></a>(…[, ntemp])</p></td>
+<td><p>Using a list of ordered openturns distributions and custom defined Process with the StochasticProcessConstructor class we construct a vector of scalar distributions, according to the distributions and the Karhunen-Loeve decomposition of the processes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getInputDescription</span></code>()</p></td>
+<td><p>Input description accessor.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getInputDimension</span></code>()</p></td>
+<td><p>Input dimension accessor.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#spsa.OpenturnsPythonFunctionWrapper.getInputVariablesName" title="spsa.OpenturnsPythonFunctionWrapper.getInputVariablesName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getInputVariablesName</span></code></a>()</p></td>
+<td><p>Get the name of the input variables and fields</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#spsa.OpenturnsPythonFunctionWrapper.getKLDecompositionVarNames" title="spsa.OpenturnsPythonFunctionWrapper.getKLDecompositionVarNames"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getKLDecompositionVarNames</span></code></a>()</p></td>
+<td><p>function to retrieve new set of variable names, once the function is depending on the KL decomposition</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getOutputDescription</span></code>()</p></td>
+<td><p>Output description accessor.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getOutputDimension</span></code>()</p></td>
+<td><p>Output dimension accessor.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#spsa.OpenturnsPythonFunctionWrapper.getTotalOutputDimension" title="spsa.OpenturnsPythonFunctionWrapper.getTotalOutputDimension"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getTotalOutputDimension</span></code></a>()</p></td>
+<td><p>As we don’t know how many output variables the function returns, and the dimension of each of theme, we analyse it again</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#spsa.OpenturnsPythonFunctionWrapper.liftFieldFromKLDistribution" title="spsa.OpenturnsPythonFunctionWrapper.liftFieldFromKLDistribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">liftFieldFromKLDistribution</span></code></a>(…)</p></td>
+<td><p>Function to transform an 2D array of random variables (as we have allways more than one sample) into a collection of random variables and fields, according to the Karhunen-Loeve decomposition</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#spsa.OpenturnsPythonFunctionWrapper.matrixToOutputList" title="spsa.OpenturnsPythonFunctionWrapper.matrixToOutputList"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matrixToOutputList</span></code></a>(matrix)</p></td>
+<td><p>Tranform the flattened image of the output back into it’s original shape</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#spsa.OpenturnsPythonFunctionWrapper.outputListToMatrix" title="spsa.OpenturnsPythonFunctionWrapper.outputListToMatrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">outputListToMatrix</span></code></a>(outputList)</p></td>
+<td><p>Flattens a list of ndarrays, sharing the same first dimension</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setInputDescription</span></code>(descIn)</p></td>
+<td><p>Input description accessor.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setOutputDescription</span></code>(descOut)</p></td>
+<td><p>Output description accessor.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 72%" />
+<col style="width: 28%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>getOutputVariablesName</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="spsa.OpenturnsPythonFunctionWrapper.composeFromProcessAndDistribution">
+<code class="sig-name descname">composeFromProcessAndDistribution</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">processesDistributions</span><span class="p">:</span> <span class="n">list</span></em>, <em class="sig-param"><span class="n">ntemp</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">1750</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.OpenturnsPythonFunctionWrapper.composeFromProcessAndDistribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Using a list of ordered openturns distributions and custom defined Process
+with the StochasticProcessConstructor class we construct a vector of scalar
+distributions, according to the distributions and the Karhunen-Loeve decomposition
+of the processes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>processesDistributions: list</strong></dt><dd><p>list of probabilistic distributions as well as Processes</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>composedDistribution: openturns.ComposedDistribution</dt><dd><p>random vector of various probabilistic distributions, in the order
+of the input list and with Processes decomposed as random variables</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.OpenturnsPythonFunctionWrapper.getInputVariablesName">
+<code class="sig-name descname">getInputVariablesName</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spsa.OpenturnsPythonFunctionWrapper.getInputVariablesName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the name of the input variables and fields</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.OpenturnsPythonFunctionWrapper.getKLDecompositionVarNames">
+<code class="sig-name descname">getKLDecompositionVarNames</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spsa.OpenturnsPythonFunctionWrapper.getKLDecompositionVarNames" title="Permalink to this definition">¶</a></dt>
+<dd><p>function to retrieve new set of variable names, once the function
+is depending on the KL decomposition</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.OpenturnsPythonFunctionWrapper.getTotalOutputDimension">
+<code class="sig-name descname">getTotalOutputDimension</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spsa.OpenturnsPythonFunctionWrapper.getTotalOutputDimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>As we don’t know how many output variables the function returns, and the dimension of
+each of theme, we analyse it again</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.OpenturnsPythonFunctionWrapper.liftFieldFromKLDistribution">
+<code class="sig-name descname">liftFieldFromKLDistribution</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">KLComposedDistribution</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.OpenturnsPythonFunctionWrapper.liftFieldFromKLDistribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to transform an 2D array of random variables (as we have allways more than one sample)
+into a collection of random variables and fields, according to the Karhunen-Loeve decomposition</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.OpenturnsPythonFunctionWrapper.matrixToOutputList">
+<code class="sig-name descname">matrixToOutputList</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matrix</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.OpenturnsPythonFunctionWrapper.matrixToOutputList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tranform the flattened image of the output back into it’s original
+shape</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="spsa.OpenturnsPythonFunctionWrapper.outputListToMatrix">
+<code class="sig-name descname">outputListToMatrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">outputList</span></em><span class="sig-paren">)</span><a class="headerlink" href="#spsa.OpenturnsPythonFunctionWrapper.outputListToMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flattens a list of ndarrays, sharing the same first dimension</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="spsa.StochasticProcessSensitivityExperiment.html" class="btn btn-neutral" title="StochasticProcessSensitivityExperiment" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Kristof Simady.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/language_data.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="../_static/jquery.fancybox.min.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+  
+  <script type="text/javascript">
+    $(function(){
+      $('.image-reference').fancybox();
+    })
+  </script>
+
+</body>
+</html>

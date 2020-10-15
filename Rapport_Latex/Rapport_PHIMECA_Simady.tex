@@ -55,8 +55,8 @@ Je remercie enfin le reste de l'équipe, Oussama B., Fabien T., Julien S. Marc G
 Ce document est autant un rapport de stage qu'une note à qui voudrait se servir des différentes méthodes explorées et codes développés.
 
 \newpage
-
-\section{Introduction}
+\section{Premiers 5 mois de stage}
+\subsection{Introduction}
 Dans le cadre d'analyse probabiliste et fiabiliste, il est d'usage d’effectuer des analyses de sensibilité sur une ou plusieurs grandeurs d’intérêt, grâce à divers moyens comme les indices de Sobol' ou les analyses de corrélation. \\
 Ces analyses sont néanmoins souvent cantonnées à des modèles n'ayant en sortie et entrée que des grandeurs scalaires, pour lesquelles de nombreuses méthodes existent dans la littérature.\\
 L'objectif du travail présenté ici, est d’effectuer ce type d'analyse sur des modèles ayant en entrée plusieurs champs aléatoires et des variables aléatoires scalaires et en sortie aussi des champs et grandeurs scalaires. \\ Pour compléter cela, il était bien sûr aussi demandé de d'abord créer un modèle simple gouverné par des champs stochastiques et de faire de l'analyse de sensibilité sur ce modèle. \\
@@ -64,27 +64,27 @@ Il sera d'abord présenté différentes méthodes présentes dans la littératur
 Cette approche des l'analyse de sensibilité nous renvoie aussi sur des champs de recherche bien différents, car les méthodes peuvent autant venir du champ de la mécanique que de la géologie ou l'étude environnementale.
 
  
-\section{Recherche bibliographique}
+\subsection{Recherche bibliographique}
 Ce travail de recherche a été l'occasion de parcourir un grand nombre de travaux, liés de plus ou moins loin à l'analyse de sensibilité sur des processus gaussiens.\\
 On notera notamment les travaux de \cite{Lilburne2009Feb} qui donnent dans leur travail un état de l'art complet sur les différentes méthodes utilisables pour l'analyse de sensibilité sur champs gaussiens. \\
 D'autres techniques plus récentes ont néanmoins vu le jour, et ce sont ces dernières que nous avons explorés en premier. Notamment les travaux de \cite{Wei2017May} sur l'analyse de sensibilité de structures ayant en entrée des variables aléatoires et processus stochastiques variant dans le temps, ou encore le travail de \cite{Pronzato2019Jul} qui développe un métamodel entre l'entrée et sortie d'un modèle gouverné par des champs stochastiques.
 
-\subsection{Travaux retenus}
+\subsubsection{Travaux retenus}
 Etant donné que les missions d'analyse de sensibilité et d'incertitudes se font classiquement en se basant sur la bibliothèque \textit{openTURNS} développé par PHIMECA, le choix a été fait d'adapter techniques de recherche et méthodes déja existantes dans l'API au problème étudié. 
 
 
-\subsection{Methodes et outils de travail}
+\subsubsection{Methodes et outils de travail}
 L'ensemblde des codes ont été écrits dans le langage \textit{Python}, en se servant majoritairement des bibliothèques a caractère scientifique (\textit{SciPy, NumPy}) et la bibliothèque développée en partie par \textbf{PHIMECA :} \textit{openTURNS} (\emph{open treatment of Uncertainties and Risk \& Statistics })\cite{OpenTURNS}.\\
 \textbf{PHIMECA} a fourni un poste de travail Linux, tout comme un accès au serveur de calcul pour les modèles un peu plus conséquents. \\
 
-\section{Analyse de la problématique, premier tests et prise en main des outils}
+\subsection{Analyse de la problématique, premier tests et prise en main des outils}
 
-\subsection{Mission confiée et tâches associées}
+\subsubsection{Mission confiée et tâches associées}
 L'objectif du stage était de développer une méthodologie pour l'analyse de sensibilité sur des modèles gouvernés par des champs aléatoires (Champs Stochastiques) et des variables aléatoires, et qui en sortie sont aussi représentables par une collection de champs et variables aléatoires. \\
 Plus spécifiquement, cette méthodologie était à appliquer à un modèle d'échangeur de chaleur air-air commercialisé par \textbf{LIEBHERR} et utilisé pour la régulation thermique de l'air ambiant dans les avions de ligne.\\\\
 Comme la mission confiée au sein de \textbf{PHIMECA} se rapprochait d'un travail de recherche, celui -ci était bien sur accompagné de nombreuses étapes distinctes. En effet, en plus du développement des codes et de l'application analytique, une recherche bibliographique a du être menée en amont pour parvenir a lister les différentes méthodes d'analyse existantes et tester celles qui pourraient convenir au mieux. De plus, une phase d'apprentissage et de tests a du d'abord être nécessaire pour parvenir à prendre en main les différents outils, et comprendre la théorie et les mathématiques sous-jacentes.\\
 
-\subsection{Prise en main d'openTURNS et de la théorie sur les champs stochastiques}
+\subsubsection{Prise en main d'openTURNS et de la théorie sur les champs stochastiques}
 \paragraph{Champs Stochastiques\\} 
 Un champ stochastique est un champ de variables aléatoires toutes corrélées entre elles, et dont l'intensité de la corrélation est déterminée par leur proximité dans l'espace. Par exemple la position de tout objet est corrélée à sa position aux intervalles de temps proches (continuité du temps), ou bien les températures au dessus d'un pays sont corrélés à faible distance mais l'effet aléatoire est plus présent lorsque les distances sont importantes. \\
 Ce type de modélisation des champs est couramment utilisée pour modéliser des propriétés présentant des variabilités gaussiennes mais une continuité dans leur espace de définition. \\ Lorsque la corrélation est seulement dépendante de la distance entre deux points de l'espace et non d'une position absolue, on parle d'un champ stationnaire. Lors de cette étude, on se place dans ce cas.\\ 
@@ -139,7 +139,7 @@ Néanmoins, la librairie reste quand même extrêmement bien documentée, avec l
 \newpage
 
 
-\section{Exemple théorique simple, premiers codes}
+\subsection{Exemple théorique simple, premiers codes}
 Pour parvenir a tester les méthodes trouvées lors de la recherche bibliographique, et avoir un modèle simple et rapide à exécuter, un exemple simple a été développé : 
 Il s'agit d'un modèle de poutre en appui sur ses deux extrémités
 \begin{figure}[H]
@@ -169,7 +169,7 @@ Ceci permet de faire l'analyse de sobol classique (avec l'algorithme de sensibil
 
 La difficultée ici, est d'ensuite relier les indices de sensiblité de Sobol des variables aléatoires définissant le champ au champ stochastique même. (On ne souhaite n'avoir qu'un seul indice de sobol pour un champ.) 
 
-\subsection{Choix des codes et difficultées algorithmiques}
+\subsubsection{Choix des codes et difficultées algorithmiques}
 Au vu de choix de développer une méthode algorithmique pour l'analyse de sensiblité sur des champs stochastiques, et non pas de juste faire l'analyse de sensibilité sur une seule problématique, il y avait un besoin de robustesse supplémentaire pour l'écriture des différents codes. Ces derniers doivent pouvoir fonctionner avec tout type de fonction en python prennant en entrée des champs et variables aléatoire, et renvoyant un tuple de variables aléatoires. 
 
 Pour pouvoir tester ceci, l'exemple de la poutre en éléments fins à été codée à part, et peut être utilisée directement comme fonction, indépendamment de l'analyse de sensibilité. Cette dernière prend de même en entrée deux champs stochastiques et trois variables aléatoires, et peut renvoyer plusieurs arguments. Les tests ont été faits avec la fonction ne renvoyant qu'une collection de champs (contraintes de von mises) et avec la fonction renvoyant un tuple (collection de champs + vecteur déflection maximale). Ce choix augmente le nombre de vérification qu'il y a à effectuer au sein du code, mais permet l'utilisation d'un plus grand nombre de fonctions, et l'analyse de sensiblité sur l'ensemble des variables de sortie en une seule fois.
@@ -217,7 +217,7 @@ Mais ayant fait une analyse préliminaire de ces indices de sobol', des incohér
 
 
 
-\subsection{Premiers essais d'analyse de la sensibilité du modèle }
+\subsubsection{Premiers essais d'analyse de la sensibilité du modèle }
 
 Comme nous avions désormais accès aux différents indices de sobol de notre modèle basé sur la décompostion de Karhunen-Loève, le travail pouvait désormais se focaliser sur l'interprétation de ces différents indices. En effet, cette décomposition était très classique lors du travail avec des champs stochastiques, et plusieurs papiers de recherche se sont interessés à comment faire des  analyses de sensibilité de ce type de champs avec cette même décomposition. Comme mentionné précédemment, le travail de \cite{Wei2017May} offre une première approche pour l'interprétration de ces résultats, mais d'autres comme \cite{Pronzato2019Jul} ont aussi developpés des méthodes pour l'analyse de ces indices issus de l'expansion de Karhunen-Loève. 
 Dans le travail de \cite{shangStochastic2013}, il est rapporté d'une méthodologie pour lier un modèle en élément finis d'Abaqus avec des champs stochastiques genérés avec MATLAB et pour l'analyse probabiliste de ce modèle. L'utilisation de l'expansion de KL y est aussi mentionné, et ce travail offre une analyse intéressante sur la capacité de cette méthode à reproduire le champs stochastique, en fonction de l'élément à partir duquel on troncature cette expansion. 
@@ -228,7 +228,7 @@ Dans le travail de \cite{shangStochastic2013}, il est rapporté d'une méthodolo
 %Soit $Y_{i}$ un champ stochastique ayant comme modèle de covariance celui de Matern, et des  
 
 
-\subsection{Interprétation et essais avec le papier : "Time-variant global reliability sensitivity analysis of structures with both input random variables and stochastic processes"}
+\subsubsection{Interprétation et essais avec le papier : "Time-variant global reliability sensitivity analysis of structures with both input random variables and stochastic processes"}
 Ce papier de recherche datant de 2017, offre une approche pour l'analyse de sensibilité de modèles définis dans le temps et leur analyse de fiabilité. En effet, de nombreuses structures mécaniques (ponts, tours etc.) sont soumis à des grandeurs variant dans le temps, et si celles se trouvent être continues dans celui ci, alors cette grandeur peut être représentée par un champ stochastique. Bien qu'il y aie une différence notable entre les grandeurs par rapport auxquelles il y a continuité (dans leur papier le temps, et nous l'espace), des analogies peuvent être faites. \\
 
 L'approche se base sur la décomposition de Karhunen-Loève du champ stochastique, permettant de considérer le problème comme uniquement dépendant de variables aléatoire gaussiennes décorrélées, et de déduire la sensibilité du modèle au champ stochastique à partir de la sensibilité de chaque composant de la décomposition du champ. \\ 
@@ -464,8 +464,8 @@ L'on observe, que pour cet échantillon de 1000, l'indice de Sobol' calculé ave
 
 Les codes ayant montré leur utilisabilité, il était enfin possible d'essayer d'appliquer cette méthodologie à un système plus complexe, un échangeur de chaleur air-air modelisé avec NASTRAN. 
  
-\section{Application au modèle NASTRAN d'échangeur thermique}
-\subsection{Définition et analyse de la problématique}
+\subsection{Application au modèle NASTRAN d'échangeur thermique}
+\subsubsection{Définition et analyse de la problématique}
 
 Comme nous l'avions mentionné avant, la finalité de ce travail de quasi-recherche et développement de codes, était de parvenir à induire des défauts stochastiques dans un modèle numérique, et de mesurer la sensibilité de ce modèle à ces perturbations. 
 
@@ -503,7 +503,7 @@ Numériquement, la rupture se traduit par une contrainte maximale supérieure à
          \label{SchemaAilettes}
 \end{figure}
 
-\subsection{Mise en place de méthodologie }
+\subsubsection{Mise en place de méthodologie }
 
 Pour parvenir à introduire ces variabilités différentes approches et modèles de champs stochastiques peuvent être prises en considération, puisque les réalisations peuvent fortement varier en fonction des paramètres et modèles. Il est en outre difficile de générer un champ qui serait indépendant du maillage sur lequel il est réalisé, ou du moins qui ressemblerait à un échantillon d'un champ plus grand. 
 
@@ -624,7 +624,7 @@ La valeur du champ stochastique en un point donne l'écart maximal entre la surf
 
 Cette méthode était hautement fonctionnelle, car les déformations sont toutes corrélées au sein d'une même passe, avec même la possibilité de parvenir à une corrélation tri-dimensionnelle, si l'on génère un champ 3D . 
 
-\subsection{Application de la méthode de la déformation modale métrique pilotée par champ stochastique sur un modèle Simcenter 3D Nastran}
+\subsubsection{Application de la méthode de la déformation modale métrique pilotée par champ stochastique sur un modèle Simcenter 3D Nastran}
 
 Bien sûr, bien que théoriquement simple, l'implémentation de cette méthode au sein de Simcenter NX Nastran était plus complexe, car l'on devait pouvoir garder le contrôle total sur la géométrie nominale de la pièce - peu importe quels paramètres géométriques originaux on imposait - et aussi un contrôle total sur quel types de passes/ plaques de séparation on introduisait des défauts, et enfin un contrôle total sur les processus stochastiques, leurs fonctions de covariance, et bien sûr les modes de déformation modale et leur nombre.\\
 
@@ -645,18 +645,19 @@ Pour contourner cette difficulté, le choix a été fait de scinder le programme
 
 Un schéma explicatif de la méthodologie et de l'architecture des codes se trouve en annexe. \\
 
-\subsection{Commentaires et mise en contexte}
+\subsubsection{Commentaires et mise en contexte}
 
 Bien que entièrement fonctionnel, la méthodologie mise en place se heurte encore à des limites externes. En effet, au cours du projet, des questionnement ont eu lieu quant à l'outil à utiliser pour les simulations thermo-mécaniques, et l'utilisation de Simcenter a été remise en question au profit du logiciel Altair.\\ 
 Dans le cas ou le choix retomberait sur Altair, la méthodologie développée ne pourra plus être gardée, au vue des différences probablement importantes entre le langage de scriptage d'Altair et de Simcenter.\\ 
+ 
+\subsection{Bilan intermédiaire}
 
-Ca aura en tout cas été l'occasion de développer des scripts d'analyse de pièce sous Simcenter qui pourront être utilisés dans de futurs projets, et la diffusion de cet exemple (bien sûr en version allégée) sur les forums Simcenter 12 permettra à d'autres d'user plus facilement du langage python pour scripter sur Simcenter.  
 
-\section{Discussion}
+
+\section{Derniers 5 mois de stage }
 
 \section{Conclusions}
 
-% TABLES
 
 \bibliography{Bibliographie_rapport_PHIMECA_Simady}
 
