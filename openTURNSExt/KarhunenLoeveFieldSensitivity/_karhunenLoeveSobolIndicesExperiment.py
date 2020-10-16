@@ -121,18 +121,19 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
         N = self.size
         self._experimentSample = deepcopy(self._sample_A)
         print('Samples A and B of size {} and dimension {}'.format(
-                                                self._sample_A.getSize(),
-                                                self._sample_A.getDimension()))
+                                            self._sample_A.getSize(),
+                                            self._sample_A.getDimension()))
         [[self._experimentSample.add(
             self._sample_A[j]) for j in range(
                 len(self._sample_A))] for _ in range(1+n_vars)]  
-        self._experimentSample[:,N:2 * N] = self._sample_B
-        jump = 2 * N
+        # Setting the B sample 
+        self._experimentSample[N:2 * N,:] = self._sample_B[:]
+        jump = 2 * N # As the first two blocks are sample A and B
         jumpDim = 0
         for i in range(n_vars):
             self._experimentSample[jump + N*i:jump + N*(i+1), 
-              jumpDim:jumpDim+self._modesPerProcess[i]] = \
-                self._sample_B[:,jumpDim:jumpDim + self._modesPerProcess[i]]
+                jumpDim:jumpDim+self._modesPerProcess[i]] = \
+                    self._sample_B[:,jumpDim:jumpDim + self._modesPerProcess[i]]
             jumpDim += self._modesPerProcess[i]
 
         if self.__computeSecondOrder__ == True and n_vars>2 : 

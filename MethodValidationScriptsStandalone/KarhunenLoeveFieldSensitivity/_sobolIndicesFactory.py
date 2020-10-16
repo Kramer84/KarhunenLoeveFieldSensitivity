@@ -21,7 +21,7 @@ def list_(*args): return list(args)
 def zip_(*args): return map(list_, *args)
 
 
-class SobolKarhunenLoeveFieldSensitivityAlgorithm(ot.SaltelliSensitivityAlgorithm):
+class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
     '''Pure opentTURNS implementation of the sobol indices algorithm
     in the case where the design of the experiment was generated 
     using a field function that has been wrapped using the 
@@ -38,9 +38,15 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(ot.SaltelliSensitivityAlgorith
             estimator = ot.SaltelliSensitivityAlgorithm(), computeSecondOrder=False):
         self.inputDesign = inputDesign
         self.outputDesign = atLeastList(outputDesign)
-        if len(self.outputDesign) > 0 and outputDesign is not None:
+        if len(self.outputDesign) > 0 and self.outputDesign[0] is not None:
             assert all_same([len(
                 self.outputDesign[i]) for i in range(len(self.outputDesign))])
+        if inputDesign is not None and outputDesign is not None :
+            try :
+                assert isinstance(inputDesign, ot.Sample), 'The input design can only be a Sample'
+                assert any([isinstance(outputDesign[i], (ot.Sample, ot.ProcessSample)) for i in range(len(outputDesign))])
+            except AssertionError:
+                return None
         self.N = int(N)
         self.size = None
         self.__nOutputs__ = 0
@@ -55,10 +61,20 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(ot.SaltelliSensitivityAlgorith
         self.__BootstrapSize__ = None
         self.flatOutputDesign = list()
         self.__centeredOutputDesign__ = list()
-        self.__preProcessedOutputDesign__ = list()
+        #self.__preProcessedOutputDesign__ = list()
         self.__setDefaultState__()
         self.estimator = estimator
         self.__results__ = list()
+
+    def __repr__(self):
+        str0 = 'SobolKarhunenLoeveFieldSensitivityAlgorithm'
+        str1 = 'with estimator : {}'.format(self.estimator.__class__.__name__)
+        str2 = 'input dimension : {}'.format(str(self.inputDesign.getDimension()) if self.inputDesign is not None else '_')
+        str3 = 'output size : {}'.format(self.__nOutputs__)
+        str4 = 'compute second order : {}'.format(self.__computeSecondOrder__)
+        return ', '.join([str0, str1, str2, str3, str4])
+
+
 
     def DrawCorrelationCoefficients(self, *args):
         self.__fastResultCheck__()
@@ -226,6 +242,8 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(ot.SaltelliSensitivityAlgorith
         outputDesign = atLeastList(outputDesign)
         assert all_same([len(outputDesign[i]) for i in range(len(outputDesign))])
         assert (isinstance(N,(int, Integral)) and N>=0)
+        assert isinstance(inputDesign, ot.Sample), 'The input design can only be a Sample'
+        assert any([isinstance(outputDesign[i], (ot.Sample, ot.ProcessSample)) for i in range(len(outputDesign))])
         self.inputDesign = inputDesign
         self.outputDesign = atLeastList(outputDesign)
         self.N = int(N)
@@ -269,20 +287,14 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(ot.SaltelliSensitivityAlgorith
                     self.__nSobolIndices__ = (int(self.size / self.N) - 2)/2
                     try : 
                         assert (int(self.size / self.N) - 2) % 2 == 0
-                    except : 
-                        print('The outputDesign you have passed does not satisfy')
-                        print('The minimum requirements to do the sensitivity analysis')
-                        print('The total sample size should be : tot = N * (2 + d) = 2*N + 2*d*N') 
-                        print('In this case : tot-2*N = 2*d*N MUST be divisible by two')
+                    except AssertionError: 
+                        print(MSG_1)
                 else :
                     self.__nSobolIndices__ = int(self.size / self.N) - 2
-                    print('Warning : Always pass the computeSecondOrder argument')
-                    print('if you also pass the data to compute it')
-                    print('Otherwise, the behavior will be unreliable')
+                    print(MSG_2)
                 self.__getDataOutputDesign__()
                 self.__flattenOutputDesign__()
                 self.__centerOutputDesign__()
-                self.__preProcessOutputDesign__()                
                 self.__confirmationMessage__()
                 self.__setDefaultName__()
             else : 
@@ -295,8 +307,8 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(ot.SaltelliSensitivityAlgorith
         self.__Meshes__.clear()
         self.__Classes__.clear()
         for output in self.outputDesign :
+            self.__Classes__.append(output.__class__)
             try :
-                self.__Classes__.append(output.__class__)
                 self.__Meshes__.append(output.getMesh())
             except AttributeError :
                 self.__Meshes__.append(None)
@@ -311,15 +323,12 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(ot.SaltelliSensitivityAlgorith
                 self.flatOutputDesign.append(sample)
 
     def __splitProcessSample__(self, processSample):
-        mesh = processSample.getMesh()
-        n_vertices = mesh.getVerticesNumber()
-        sample = ot.Sample(self.size, n_vertices)
+        '''Function to split a process sample into a 1D sample and a mesh.
+        '''
+        sample = ot.Sample(self.size, processSample.getMesh().getVerticesNumber())
         for i in range(self.size):
-            field = processSample.getField(i)
-            vals = field.getValues()
-            vals = list([vals[i][0] for i in range(n_vertices)])
-            sample[i] = vals
-        return sample, mesh
+            sample[i] = processSample[i].asPoint()
+        return sample, processSample.getMesh()
 
     def __centerOutputDesign__(self):
         design_cpy = [self.flatOutputDesign[i][:] for i in range(self.__nOutputs__)]
@@ -335,25 +344,6 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(ot.SaltelliSensitivityAlgorith
                 self.__centeredOutputDesign__.append(deepcopy(design_elem))
             else : 
                 raise NotImplementedError
-
-############################################################################################################################
-    def __preProcessOutputDesign__(self):                                                                                 ##
-        flatSampleA = [self.__centeredOutputDesign__[i][:self.N] for i in range(self.__nOutputs__)]                       ##
-        flatSampleB = [self.__centeredOutputDesign__[i][self.N:2*self.N] for i in range(self.__nOutputs__)]               ##
-        psi_fo, psi_to = self.__symbollicSaltelliFormula__(1)                                                             ##
-        self.__preProcessedOutputDesign__.clear()                                                                         ##
-        for i_output in range(self.__nOutputs__):                                                                         ##
-            inputOneOutput = []                                                                                           ##
-            for sobolIdx in range(self.__nSobolIndices__):                                                                ##
-                inputOneIndice = []                                                                                       ##
-                inputOneIndice.append(flatSampleA[i_output])                                                              ##
-                inputOneIndice.append(flatSampleB[i_output])                                                              ##
-                inputOneIndice.append(self.__centeredOutputDesign__[i_output][(2+sobolIdx)*self.N : (3+sobolIdx)*self.N]) ##
-                inputOneIndice.append(psi_fo)                                                                             ##
-                inputOneIndice.append(psi_to)                                                                             ##
-                inputOneOutput.append(tuple(inputOneIndice))                                                              ##
-            self.__preProcessedOutputDesign__.append(inputOneOutput)                                                      ##
-############################################################################################################################
 
     def __confirmationMessage__(self):
         def getDim(pointOrSample):
@@ -433,41 +423,88 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(ot.SaltelliSensitivityAlgorith
             return data 
         else : 
             raise NotImplementedError
+
+
+MSG_1 = """The outputDesign you have passed does not satisfy
+The minimum requirements to do the sensitivity analysis.
+The total sample size should be : tot = N * (2 + d) = 2*N + 2*d*N
+In this case : tot-2*N = 2*d*N MUST be divisible by two
+"""
+
+MSG_2 ="""Warning : Always pass the computeSecondOrder argument
+if you also pass the data to compute it
+Otherwise, the behavior will be unreliable
+"""
+
+
+"""
+
+
+############################################################################################################################
+    def __preProcessOutputDesign__(self):                                                                                 ##
+        flatSampleA = [self.__centeredOutputDesign__[i][:self.N] for i in range(self.__nOutputs__)]                       ##
+        flatSampleB = [self.__centeredOutputDesign__[i][self.N:2*self.N] for i in range(self.__nOutputs__)]               ##
+        psi_fo, psi_to = self.__symbollicSaltelliFormula__(1)                                                             ##
+        self.__preProcessedOutputDesign__.clear()                                                                         ##
+        for i_output in range(self.__nOutputs__):                                                                         ##
+            inputOneOutput = []                                                                                           ##
+            for sobolIdx in range(self.__nSobolIndices__):                                                                ##
+                inputOneIndice = []                                                                                       ##
+                inputOneIndice.append(flatSampleA[i_output])                                                              ##
+                inputOneIndice.append(flatSampleB[i_output])                                                              ##
+                inputOneIndice.append(self.__centeredOutputDesign__[i_output][(2+sobolIdx)*self.N : (3+sobolIdx)*self.N]) ##
+                inputOneIndice.append(psi_fo)                                                                             ##
+                inputOneIndice.append(psi_to)                                                                             ##
+                inputOneOutput.append(tuple(inputOneIndice))                                                              ##
+            self.__preProcessedOutputDesign__.append(inputOneOutput)                                                      ##
+############################################################################################################################
+
+
+
+
  
-    def __symbollicSaltelliFormula__(self, N : int) :
-        '''Method to create the symbolic python saltelli function
+#######################################################################################
+    def __symbollicSaltelliFormula__(self, N : int) :                                ##
+        '''Method to create the symbolic python saltelli function                    ##
+                                                                                     ##
+         Note                                                                        ##
+        ----                                                                         ##
+        N > 1 only in the case of aggregated indices                                 ##
+                                                                                     ##
+         Arguments                                                                   ##
+        ---------                                                                    ##
+        N : int                                                                      ##
+            number of nominators and denominators                                    ##
+                                                                                     ##
+         Returns                                                                     ##
+        -------                                                                      ##
+        psi_fo : ot.SymbolicFunction                                                 ##
+            first order symbolic function                                            ##
+        psi_to : ot.SymbolicFunction                                                 ##
+            total order symbolic function                                            ##
+        '''                                                                          ##
+        x, y = (ot.Description.BuildDefault(N, 'X'),                                 ##
+                ot.Description.BuildDefault(N, 'Y'))                                 ##
+        # in order X0, Y0, X1, Y1                                                    ##
+        xy = list(x)                                                                 ##
+        for i, yy in enumerate(y):                                                   ##
+            xy.insert(2 * i + 1, yy)                                                 ##
+        symbolic_num, symbolic_denom = '', ''                                        ##
+        symbolic_num = [item for sublist in zip(x, ['+'] * N) for item in sublist]   ##
+        symbolic_denom = [item for sublist in zip(y, ['+'] * N) for item in sublist] ##
+        (symbolic_num.pop(), symbolic_denom.pop())                                   ##
+        symbolic_num = ''.join(symbolic_num)                                         ##
+        # psi  = (x1 + x2 + ...) / (y1 + y2 + ...).                                  ##
+        symbolic_denom = ''.join(symbolic_denom)                                     ##
+        psi_fo = ot.SymbolicFunction(xy,\                                            ##
+                             ['(' + symbolic_num + ')/(' + symbolic_denom + ')'])    ##
+        psi_to = ot.SymbolicFunction(xy,\                                            ##
+                    ['1 - ' + '(' + symbolic_num + ')/(' + symbolic_denom + ')'])    ##
+        return psi_fo, psi_to                                                        ##
+#######################################################################################
 
-        Note
-        ----
-        N > 1 only in the case of aggregated indices
 
-        Arguments
-        ---------
-        N : int
-            number of nominators and denominators
 
-        Returns
-        -------
-        psi_fo : ot.SymbolicFunction
-            first order symbolic function
-        psi_to : ot.SymbolicFunction
-            total order symbolic function
-        '''
-        x, y = (ot.Description.BuildDefault(N, 'X'),
-                ot.Description.BuildDefault(N, 'Y'))
-        # in order X0, Y0, X1, Y1
-        xy = list(x)
-        for i, yy in enumerate(y):
-            xy.insert(2 * i + 1, yy)
-        symbolic_num, symbolic_denom = '', ''
-        symbolic_num = [item for sublist in zip(x, ['+'] * N) for item in sublist]
-        symbolic_denom = [item for sublist in zip(y, ['+'] * N) for item in sublist]
-        (symbolic_num.pop(), symbolic_denom.pop())
-        symbolic_num = ''.join(symbolic_num)
-        # psi  = (x1 + x2 + ...) / (y1 + y2 + ...).
-        symbolic_denom = ''.join(symbolic_denom)
-        psi_fo = ot.SymbolicFunction(xy,\
-                             ['(' + symbolic_num + ')/(' + symbolic_denom + ')'])
-        psi_to = ot.SymbolicFunction(xy,\
-                    ['1 - ' + '(' + symbolic_num + ')/(' + symbolic_denom + ')'])
-        return psi_fo, psi_to
+
+
+"""
