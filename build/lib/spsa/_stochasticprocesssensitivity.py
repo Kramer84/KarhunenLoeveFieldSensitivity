@@ -3,17 +3,19 @@ __author__ = 'Kristof Attila S.'
 __date__  = '22.06.20'
 
 __all__ = ['StochasticProcessSensitivityAnalysis', 
-                                             'OpenturnsPythonFunctionWrapper']
+           'OpenturnsPythonFunctionWrapper']
 
 import atexit
 import gc
 import uuid 
-from   typing import Callable, List, Tuple, Optional, Any, Union
-from   copy   import deepcopy, copy
+from typing import Callable, List, Tuple, Optional, Any, Union
+from copy   import deepcopy, copy
 
 import openturns
-import numpy
-
+try :
+    import numpy
+except ImportError :
+    from .tinynumpy import tinynumpy as numpy
 from ._stochasticprocessexperimentgeneration import \
                                     StochasticProcessSensitivityExperiment
 from ._stochasticprocesssensitivityindices   import \
@@ -31,7 +33,7 @@ class StochasticProcessSensitivityAnalysis(object):
         that these inputs follow, as well as the nature of the outputs.
         This informations are added by passing a list of objects defined in
         an other class: spsa.StochasticProcessConstructor
-        
+
         The function indicated can be any python function, but not the
         openTurnsPythonFunction type, as this is done internaly. The
         function also needs to take as an input the full field, not the
@@ -151,7 +153,7 @@ class StochasticProcessSensitivityAnalysis(object):
             order = {'GeometricProfile', 'LinearProfile'}
                 Refer to openTURNS documentation for more details
         sequence: str, optional, <2>
-            order = {'Sobol', 'Faure', 'Halton', 'ReverseHalton', 'Haselgrove'}
+            order = {'Sobol','Faure','Halton','ReverseHalton','Haselgrove'}
              
         """
         try :
@@ -227,17 +229,18 @@ class StochasticProcessSensitivityAnalysis(object):
         ----------
          ~ same as .run() method ~
         '''
-        outputList           = copy(self._outputDesignListNC)
-        ## We flatten all the realisation of each sample, to check if we have np.nans
-        outputMatrix         = self._wrappedFunction.outputListToMatrix(outputList)
-        inputArray           = numpy.array(deepcopy(self._inputDesignNC)) 
+        outputList = copy(self._outputDesignListNC)
+        # flatten all realisation of each sample, to check if we have np.nans
+        outputMatrix = self._wrappedFunction.outputListToMatrix(
+                        outputList)
+        inputArray = numpy.array(deepcopy(self._inputDesignNC)) 
         composedDistribution = self._wrappedFunction.KLComposedDistribution
-        N                    = self.size
-        d_implicit           = int(inputArray.shape[0]/N)-2                    #Any type of input shape being a multiple > 2 of N
-        d_inputKL            = composedDistribution.getDimension()             #dimension of the karhunen loeve composed distribution
-        combinedMatrix       = numpy.hstack([inputArray, outputMatrix]).copy() # of size (N_samples, inputDim*outputDim)
-        combinedMatrix0      = combinedMatrix.copy()
-        whereNan             = numpy.argwhere(
+        N = self.size
+        d_implicit = int(inputArray.shape[0]/N)-2                             # Any type of input shape being a multiple > 2 of N
+        d_inputKL = composedDistribution.getDimension()                       # dimension of the karhunen loeve composed distribution
+        combinedMatrix = numpy.hstack([inputArray, outputMatrix]).copy()      # of size (N_samples, inputDim*outputDim)
+        combinedMatrix0 = combinedMatrix.copy()
+        whereNan = numpy.argwhere(
                                     numpy.isnan(
                                              deepcopy(combinedMatrix)))[...,0]
         columnIdx            = numpy.atleast_1d(numpy.squeeze(
@@ -264,12 +267,12 @@ class StochasticProcessSensitivityAnalysis(object):
                 assert numpy.isnan(combinedMatrix).any() == False,\
                                                   "should have no nan anymore"
             except : 
-                whereNan             = numpy.argwhere(numpy.isnan(
-                                                  deepcopy(
-                                                      combinedMatrix)))[...,0]
-                columnIdx            = numpy.atleast_1d(numpy.squeeze(
-                                                            numpy.unique(
-                                                                   whereNan)))
+                whereNan = numpy.argwhere(numpy.isnan(
+                                    deepcopy(
+                                        combinedMatrix)))[...,0]
+                columnIdx = numpy.atleast_1d(numpy.squeeze(
+                                            numpy.unique(
+                                                    whereNan)))
                 print('columns where still nan', columnIdx)
 
             print(' - Post replacement assertion passed - \n')
@@ -337,8 +340,15 @@ class StochasticProcessSensitivityAnalysis(object):
         s00, s01, s02, s03, s04 = self._getState()
         self.outputVariables    = outputDict       
         s10, s11, s12, s13, s14 = self._getState()
-        state0, state1, state2, state3, state4 = (s00 or s10), (s01 or s11), (s02 or s12), (s03 or s13), (s04 or s14)
-        if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
+        state0 = (s00 or s10)
+        state1 = (s01 or s11)
+        state2 = (s02 or s12)
+        state3 = (s03 or s13)
+        state4 = (s04 or s14) 
+        if (state0 is True) \
+            and (state1 is True) \
+            and ((state2 is True) or (state3 is True)) \
+            and (state4 is True):
             self._wrapFunc() 
 
     def setProcessesDistributions(
@@ -355,8 +365,15 @@ class StochasticProcessSensitivityAnalysis(object):
         s00, s01, s02, s03, s04 = self._getState()
         self.processesDistributions = processesDistributionsN
         s10, s11, s12, s13, s14 = self._getState()
-        state0, state1, state2, state3, state4 = (s00 or s10), (s01 or s11), (s02 or s12), (s03 or s13), (s04 or s14)
-        if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
+        state0 = (s00 or s10)
+        state1 = (s01 or s11)
+        state2 = (s02 or s12)
+        state3 = (s03 or s13)
+        state4 = (s04 or s14) 
+        if (state0 is True) \
+            and (state1 is True) \
+            and ((state2 is True) or (state3 is True)) \
+            and (state4 is True):
             self._wrapFunc() 
 
     def setSize(self, N : int) -> None:
@@ -367,8 +384,15 @@ class StochasticProcessSensitivityAnalysis(object):
         s00, s01, s02, s03, s04 = self._getState()
         self.size = N
         s10, s11, s12, s13, s14 = self._getState()
-        state0, state1, state2, state3, state4 = (s00 or s10), (s01 or s11), (s02 or s12), (s03 or s13), (s04 or s14)
-        if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
+        state0 = (s00 or s10)
+        state1 = (s01 or s11)
+        state2 = (s02 or s12)
+        state3 = (s03 or s13)
+        state4 = (s04 or s14) 
+        if (state0 is True) \
+            and (state1 is True) \
+            and ((state2 is True) or (state3 is True)) \
+            and (state4 is True):
             self._wrapFunc() 
 
     def setBatchFunc(self, batchFunction : Callable = None) -> None:
@@ -378,8 +402,15 @@ class StochasticProcessSensitivityAnalysis(object):
         s00, s01, s02, s03, s04 = self._getState()
         self.batchFunction = batchFunction
         s10, s11, s12, s13, s14 = self._getState()
-        state0, state1, state2, state3, state4 = (s00 or s10), (s01 or s11), (s02 or s12), (s03 or s13), (s04 or s14)
-        if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
+        state0 = (s00 or s10)
+        state1 = (s01 or s11)
+        state2 = (s02 or s12)
+        state3 = (s03 or s13)
+        state4 = (s04 or s14) 
+        if (state0 is True) \
+            and (state1 is True) \
+            and ((state2 is True) or (state3 is True)) \
+            and (state4 is True):
             self._wrapFunc() 
 
     def setSingleFunc(self, singleFunction: Callable = None) -> None:
@@ -389,8 +420,15 @@ class StochasticProcessSensitivityAnalysis(object):
         s00, s01, s02, s03, s04 = self._getState()
         self.singleFunction = singleFunction
         s10, s11, s12, s13, s14 = self._getState()
-        state0, state1, state2, state3, state4 = (s00 or s10), (s01 or s11), (s02 or s12), (s03 or s13), (s04 or s14)
-        if (state0 is True) and (state1 is True) and ((state2 is True) or (state3 is True)) and (state4 is True):
+        state0 = (s00 or s10)
+        state1 = (s01 or s11)
+        state2 = (s02 or s12)
+        state3 = (s03 or s13)
+        state4 = (s04 or s14) 
+        if (state0 is True) \
+            and (state1 is True) \
+            and ((state2 is True) or (state3 is True)) \
+            and (state4 is True):
             self._wrapFunc() 
 
 
@@ -411,26 +449,33 @@ class StochasticProcessSensitivityAnalysis(object):
             string specifying the Sobol' estimator (default : Saltelli)
         '''
         methods = ['Jansen', 'Saltelli', 'Mauntz-Kucherenko', 'Martinez']
-        assert method in methods, "argument has to be one of:\n['Jansen','Saltelli','Mauntz-Kucherenko','Martinez'] "
+        assert method in methods, '''
+Argument has to be one of:
+['Jansen','Saltelli','Mauntz-Kucherenko','Martinez']'''
         print('You have chosen to use the',method,'method')
         print('There are',len(self.outputDesignList),'distinct outputs')
         sensitivityAnalysisDict = dict()
         for k, key in enumerate(self.outputVariables.keys()):
-            sensitivityAnalysis = SobolIndicesStochasticProcessAlgorithm(self.outputDesignList[k], self.size, method)
+            sensitivityAnalysis = SobolIndicesStochasticProcessAlgorithm(
+                                  self.outputDesignList[k], self.size, method)
             try : 
                 subKeys             = list(self.outputVariables[key].keys())
                 nameKey             = str()
                 for subKey in subKeys : 
-                    if ('name' in subKey) or ('Name' in subKey) or ('var' in subKey) or ('descri' in subKey) or ('Var' in subKey):
+                    if ('name' in subKey) or ('Name' in subKey) or (
+                        'var' in subKey) or ('descri' in subKey) or (
+                        'Var' in subKey):
                         nameKey = subKey
                 name = self.outputVariables[key][nameKey]
             except :
                 print("'name' key not found in outputVariables dictionary")
                 name = 'tempName_'+str(k)
-            sensitivityAnalysis.setInputDescription([self.processesDistributions[i].getName() for i in range(len(self.processesDistributions))])
+            sensitivityAnalysis.setInputDescription(
+                [self.processesDistributions[i].getName() for i in range(
+                len(self.processesDistributions))])
             sensitivityAnalysis.setName(name)
             sensitivityAnalysis._runAlgorithm()
-            sensitivityAnalysisDict[k]    = sensitivityAnalysis
+            sensitivityAnalysisDict[k] = sensitivityAnalysis
             sensitivityAnalysisDict[name] = sensitivityAnalysis
             print(sensitivityAnalysis)
 
@@ -470,7 +515,11 @@ class StochasticProcessSensitivityAnalysis(object):
         # We build a unit grid
         grid_shape = [[0, arr_shape[i], arr_shape[i]] for i in range(dimension)]
         otMesh      = self.getMesh(grid_shape, dimension)
-        field_list = [openturns.Field(otMesh,numpy.expand_dims(ndarray[i,...].flatten(order='C'), axis=1).tolist()) for i in range(numpy_array.shape[0])]
+        field_list = [openturns.Field(
+                        otMesh,numpy.expand_dims(
+                          ndarray[i,...].flatten(
+                            order='C'), axis=1).tolist(
+                        )) for i in range(numpy_array.shape[0])]
         process_sample = openturns.ProcessSample(otMesh, 0, dimension)
         [process_sample.add(field_list[i]) for i in range(len(field_list))]
         return process_sample
@@ -609,7 +658,7 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
                 listProbabilisticDistributions.extend([inp])
 
 
-            if isinstance(inp, openturns.Process) :
+            if isinstance(inp, openturns.ProcessImplementation) :
                 name = inp.getName()
                 assert name != 'Unnamed',\
                     "Give a name to Processes through setName() method"

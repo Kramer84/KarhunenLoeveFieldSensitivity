@@ -340,6 +340,8 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
                 self.__centeredOutputDesign__.append(deepcopy(design_elem))
             elif isinstance(design_elem, ot.Sample):
                 mean = design_elem.computeMean()
+                print('Means is\n',mean)
+                print('design_elem size, dim', design_elem.getSize(),design_elem.getDimension())
                 design_elem -= mean
                 self.__centeredOutputDesign__.append(deepcopy(design_elem))
             else : 
@@ -367,6 +369,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
             self.inputDescription = desc
         elif all_same(self.inputDesign.getDescription()) == False:
             inputDescription = self.inputDesign.getDescription()
+            print('Description all same?',inputDescription)
             SobolIndicesName = []
             inputWOutLastChar = [inputDescription[i][:-1] for i in range(len(inputDescription))]
             SobolIndicesName = []
@@ -375,6 +378,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
                     SobolIndicesName.append(x)
             print('SobolIndicesName',SobolIndicesName)
             self.inputDescription = SobolIndicesName
+        print('Input Description is,',self.inputDescription)
 
     def __fastResultCheck__(self):
         if not len(self.__results__)>0 : 
@@ -391,10 +395,10 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         dummyInputSample = ot.Sample(self.size, self.__nSobolIndices__)
         dummyInputSample.setDescription(self.inputDescription)
         self.__results__.clear()
-        outputDesigns = self.__centeredOutputDesign__
+        outputDesigns = self.flatOutputDesign
         for i in range(len(outputDesigns)):
             estimator = self.estimator.__class__()
-            _input = dummyInputSample[:]
+            _input = copy(dummyInputSample)
             self.__results__.append(estimator)
             self.__results__[i].setDesign(_input, outputDesigns[i], self.N)
             self.__results__[i].setName(self.inputDescription[i])

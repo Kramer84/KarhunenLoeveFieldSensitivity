@@ -19,7 +19,7 @@ setup(name='otFieldSensitivity',
       url = "https://github.com/Kramer84/spsa/openTURNSExt",
       license = 'MIT',
       # define packages which can be imported
-      packages=['otField'],
+      packages=['spsa'],
       package_dir={
       'spsa': 'spsa'},
       long_description=readme,

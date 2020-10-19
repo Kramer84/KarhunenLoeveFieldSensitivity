@@ -38,15 +38,6 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
             estimator = ot.SaltelliSensitivityAlgorithm(), computeSecondOrder=False):
         self.inputDesign = inputDesign
         self.outputDesign = atLeastList(outputDesign)
-        if len(self.outputDesign) > 0 and self.outputDesign[0] is not None:
-            assert all_same([len(
-                self.outputDesign[i]) for i in range(len(self.outputDesign))])
-        if inputDesign is not None and outputDesign is not None :
-            try :
-                assert isinstance(inputDesign, ot.Sample), 'The input design can only be a Sample'
-                assert any([isinstance(outputDesign[i], (ot.Sample, ot.ProcessSample)) for i in range(len(outputDesign))])
-            except AssertionError:
-                return None
         self.N = int(N)
         self.size = None
         self.__nOutputs__ = 0
@@ -61,10 +52,19 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         self.__BootstrapSize__ = None
         self.flatOutputDesign = list()
         self.__centeredOutputDesign__ = list()
-        #self.__preProcessedOutputDesign__ = list()
-        self.__setDefaultState__()
-        self.estimator = estimator
         self.__results__ = list()
+        self.estimator = estimator
+        if len(self.outputDesign) > 0 and self.outputDesign[0] is not None:
+            assert all_same([len(
+                self.outputDesign[i]) for i in range(len(self.outputDesign))])
+        if inputDesign is not None and outputDesign is not None :
+            try :
+                assert isinstance(inputDesign, ot.Sample), 'The input design can only be a Sample'
+                assert any([isinstance(outputDesign[i], (ot.Sample, ot.ProcessSample)) for i in range(len(outputDesign))])
+            except AssertionError:
+                print('\n\n\n\n\n\n\nThe error\n\n\n\n\n\n\n')
+                return None
+        self.__setDefaultState__()
 
     def __repr__(self):
         str0 = 'SobolKarhunenLoeveFieldSensitivityAlgorithm'
@@ -340,6 +340,8 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
                 self.__centeredOutputDesign__.append(deepcopy(design_elem))
             elif isinstance(design_elem, ot.Sample):
                 mean = design_elem.computeMean()
+                print('Means is\n',mean)
+                print('design_elem size, dim', design_elem.getSize(),design_elem.getDimension())
                 design_elem -= mean
                 self.__centeredOutputDesign__.append(deepcopy(design_elem))
             else : 
@@ -367,6 +369,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
             self.inputDescription = desc
         elif all_same(self.inputDesign.getDescription()) == False:
             inputDescription = self.inputDesign.getDescription()
+            print('Description all same?',inputDescription)
             SobolIndicesName = []
             inputWOutLastChar = [inputDescription[i][:-1] for i in range(len(inputDescription))]
             SobolIndicesName = []
@@ -375,6 +378,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
                     SobolIndicesName.append(x)
             print('SobolIndicesName',SobolIndicesName)
             self.inputDescription = SobolIndicesName
+        print('Input Description is,',self.inputDescription)
 
     def __fastResultCheck__(self):
         if not len(self.__results__)>0 : 
@@ -391,10 +395,10 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         dummyInputSample = ot.Sample(self.size, self.__nSobolIndices__)
         dummyInputSample.setDescription(self.inputDescription)
         self.__results__.clear()
-        outputDesigns = self.__centeredOutputDesign__
+        outputDesigns = self.__centerOutputDesign__
         for i in range(len(outputDesigns)):
             estimator = self.estimator.__class__()
-            _input = dummyInputSample[:]
+            _input = deepcopy(dummyInputSample)
             self.__results__.append(estimator)
             self.__results__[i].setDesign(_input, outputDesigns[i], self.N)
             self.__results__[i].setName(self.inputDescription[i])

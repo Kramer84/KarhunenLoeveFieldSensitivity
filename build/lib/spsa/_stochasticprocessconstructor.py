@@ -899,3 +899,13 @@ class RandomNormalVector(openturns.PythonRandomVector):
             listOtNormals.append(openturns.Normal(randDict[key][0],
                                                   randDict[key][1]))
         return listOtNormals
+
+'''
+P_2D = spsa.StochasticProcessConstructor()
+P_2D.setDimension(2)
+P_2D.setGrid([[0,10,10],[0,10,10]])
+P_2D.setCovarianceModel({'Model':'MaternModel','amplitude':[5],'scale':[3,3],'nu':5.23})
+P_2D.setGaussianProcess()
+
+
+'''
