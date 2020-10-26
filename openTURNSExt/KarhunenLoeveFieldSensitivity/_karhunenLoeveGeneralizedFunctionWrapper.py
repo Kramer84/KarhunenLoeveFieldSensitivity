@@ -38,7 +38,7 @@ class KarhunenLoeveGeneralizedFunctionWrapper(object):
         try : 
             if (self.func is not None or self.func_sample is not None) and self.__AKLR__ is not None : 
                 self.__inputDim__ = self.__AKLR__.getSizeModes()
-                self.setInputDescription(ot.Description(self.__AKLR__._modeDescription))
+                self.setInputDescription(ot.Description(self.__AKLR__.__mode_description__))
                 self.setOutputDescription(ot.Description.BuildDefault(self.__nOutputs__, 'Y_'))
             else : 
                 self.func         = None
@@ -142,8 +142,8 @@ return Points, Fields, Lists or numpy arrays.''')
         return outputList
 
     def _convert_exec_sample_ot(self, output):
-        '''For a singular evaluation, the function must only return scalars, 
-        points or fields.'''
+        '''For a singular evaluation, the function must only return 
+        any combination of scalars, points or fields.'''
         print(
 '''Using the batch evaluation function. Assumes that the outputs are in the 
 same order than for the single evaluation function. This one should only 

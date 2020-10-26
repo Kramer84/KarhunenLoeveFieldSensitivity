@@ -11,7 +11,7 @@ with open('README.md') as f:
     readme = f.read()
 
 # set the parameter of the setup
-setup(name='otFieldSensitivity',
+setup(name='spsa',
       version=version,
       description='openTURNS module for sensitivity analysis on models with stochastic fields',
       author='Kristof Simady',

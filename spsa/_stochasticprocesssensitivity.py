@@ -203,12 +203,14 @@ class StochasticProcessSensitivityAnalysis(object):
         assert self._inputDesignNC is not None
         assert self.batchFunction is not None \
                 or self.singleFunction is not None 
-        if self.batchFunction is not None : 
+        if self.batchFunction is not None :
+            print('DOING EVAL!!!')
             inputDes         = copy(self._inputDesignNC)
             outputDesign     = self._wrappedFunction(inputDes)
         else :
           # We first have to implement the multiprocessing of the single 
           # evaluation model
+            print('There was an error...')
             raise NotImplementedError
         n_outputs = len(self.outputVariables.keys())
         if n_outputs >1 :

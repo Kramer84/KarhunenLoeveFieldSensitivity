@@ -1,8 +1,8 @@
 Metadata-Version: 1.1
 Name: spsa
 Version: 0.1
-Summary: Sensitivity analysis on stochastic fields
-Home-page: https://github.com/Kramer84/spsa
+Summary: openTURNS module for sensitivity analysis on models with stochastic fields
+Home-page: https://github.com/Kramer84/spsa/openTURNSExt
 Author: Kristof Simady
 Author-email: ksimady@sigma-clermont.fr
 License: MIT
@@ -48,10 +48,10 @@ Description: # SPSA : Stochastic Process Sensitivity Analysis
         #### Creating stochastic processes:
         
         ```python
-        from spsa import StochasticProcessConstructor as SPC
+        import spsa
         import matplotlib.pyplot as plt
         
-        stochasticProcess = SPC.StochasticProcessConstructor() 
+        stochasticProcess = spsa.StochasticProcessConstructor() 
         stochasticProcess.setDimension(2)
         stochasticProcess.setGrid([[0,100,100],[0,100,100],])
         stochasticProcess.setCovarianceModel({'Model':'MaternModel','scale':[25,25],'amplitude':[5],'nu':3.})
@@ -67,8 +67,7 @@ Description: # SPSA : Stochastic Process Sensitivity Analysis
         The general case would be to have a function **F(X,Y) = U,V**, where **X** and **Y** would be a collection of fields and scalars, and the the outputs **U** and **V** would also be fields and scalars. 
         
         ```python
-        from spsa import StochasticProcessConstructor as SPC
-        from spsa import StochasticProcessSensitivity as SPS
+        import spsa
         import openturns as ot
         
         RV0 = ot.Normal()        #Centered and reduced normal law
@@ -78,7 +77,7 @@ Description: # SPSA : Stochastic Process Sensitivity Analysis
         singleFunc = Fsingle #Function doing single evaluations
         sampleFunc = Fsample #Function doing multiple evaluations
         
-        sensitivityAnalysis = SPS.StochasticProcessSensitivityAnalysis([RV0, SP0], outputs, sampleFunc, singleFunc, size)
+        sensitivityAnalysis = spsa.StochasticProcessSensitivityAnalysis([RV0, SP0], outputs, sampleFunc, singleFunc, size)
         sensitivityAnalysis.run(generationType = 1)
         sensitivityAnalysis.getSensitivityAnalysisResults()
         results = sensitivityAnalysis.SensitivityAnalysisResults

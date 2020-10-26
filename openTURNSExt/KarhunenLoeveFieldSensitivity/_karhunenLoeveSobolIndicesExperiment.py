@@ -20,7 +20,7 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
         self.composedDistribution = None
         self.inputVarNames = list()
         self.inputVarNamesKL = list()
-        self._modesPerProcess = list()
+        self.__mode_count__ = list()
 
         if size is not None:
             self.setSize(size)
@@ -91,11 +91,12 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
 
     def setAggregatedKLResults(self, AggrKLRes=None):
         self.__AKLR__ = AggrKLRes
-        self.inputVarNames = self.__AKLR__._subNames
-        self.inputVarNamesKL = self.__AKLR__._modeDescription
+        self.inputVarNames = self.__AKLR__.__process_distribution_description__
+        self.inputVarNamesKL = self.__AKLR__.__mode_description__
         self.composedDistribution = ot.ComposedDistribution(
                                      [ot.Normal()]*self.__AKLR__.getSizeModes())
-        self._modesPerProcess = self.__AKLR__._modesPerProcess
+        self.composedDistribution.setDescription(self.inputVarNamesKL)
+        self.__mode_count__ = self.__AKLR__.__mode_count__
 
     def setName(self, name):
         self.__name__ = str(name)
@@ -131,10 +132,10 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
             jmp = 2 * N # As the first two blocks are sample A and B
             jmpDim = 0
             for i in range(n_vars):
+                self._experimentSample[jmp + N*i : jmp + N*(i+1), :] = self._sample_A[:, :]
                 self._experimentSample[jmp + N*i : jmp + N*(i+1), 
-                                       jmpDim : jmpDim+self._modesPerProcess[i]] = \
-                        self._sample_B[... , jmpDim : jmpDim + self._modesPerProcess[i]]
-                jmpDim += self._modesPerProcess[i]
+                             jmpDim : jmpDim+self.__mode_count__[i]] = self._sample_B[:, jmpDim : jmpDim + self.__mode_count__[i]]
+                jmpDim += self.__mode_count__[i]
 
         elif self.__computeSecondOrder__ == True and n_vars>2 : 
             print('Generating samples for the second order indices')
@@ -151,27 +152,23 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
             jmp = 2 * N # As the first two blocks are sample A and B
             jmpDim = 0
             for i in range(n_vars):
+                self._experimentSample[jmp + N*i : jmp + N*(i+1), :] = self._sample_A[:,:]
                 self._experimentSample[jmp + N*i : jmp + N*(i+1), 
-                                       jmpDim : jmpDim+self._modesPerProcess[i]] = \
-                        self._sample_B[... , jmpDim : jmpDim + self._modesPerProcess[i]]
-                jmpDim += self._modesPerProcess[i]
+                                       jmpDim : jmpDim+self.__mode_count__[i]] = \
+                        self._sample_B[: , jmpDim : jmpDim + self.__mode_count__[i]]
+                jmpDim += self.__mode_count__[i]
             jmp = int(N*(2+n_vars))
             jmpDim = 0
             for i in range(n_vars):
-                self._experimentSample[jmp + N*i:jmp + N*(i+1), 
-                  jmpDim:jmpDim+self._modesPerProcess[i]] = \
-                        self._sample_A[:,jmpDim:jmpDim + self._modesPerProcess[i]]
-                jmpDim += self._modesPerProcess[i]
+                self._experimentSample[jmp + N*i : jmp + N*(i+1), :] = self._sample_B[:,:]
+                self._experimentSample[jmp + N*i : jmp + N*(i+1), 
+                  jmpDim:jmpDim+self.__mode_count__[i]] = \
+                        self._sample_A[:,jmpDim:jmpDim + self.__mode_count__[i]]
+                jmpDim += self.__mode_count__[i]
             print('Experiment for second order generated')
         print('Experiment of size {} and dimension {}'.format(
                                                 self._experimentSample.getSize(),
                                                 self._experimentSample.getDimension()))
-
-    def _ramp(self, X):
-        '''simple _ramp function
-        '''
-        if X >= 0 : return X
-        else : return 0
 
     def _generateSample(self, **kwargs):
         '''Generation of two samples A and B using diverse methods
@@ -194,7 +191,7 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
             restart = True
             if 'sequence' in kwargs:
                 if kwargs['sequence'] == 'Faure':
-                    seq = ot.FaureSequenc
+                    seq = ot.FaureSequence
                 if kwargs['sequence'] == 'Halton':
                     seq = ot.HaltonSequence
                 if kwargs['sequence'] == 'ReverseHalton':
@@ -217,4 +214,4 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
             sample = LDExperiment.generate()
         sample = ot.Sample(sample)
         self._sample_A = sample[:self.size, :]
-        self._sample_B = sample[self.size:, :]
+        self._sample_B = sample[self.size:, :]            

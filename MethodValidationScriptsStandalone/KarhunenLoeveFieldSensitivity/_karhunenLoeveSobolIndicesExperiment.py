@@ -20,7 +20,7 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
         self.composedDistribution = None
         self.inputVarNames = list()
         self.inputVarNamesKL = list()
-        self._modesPerProcess = list()
+        self.__mode_count__ = list()
 
         if size is not None:
             self.setSize(size)
@@ -91,11 +91,11 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
 
     def setAggregatedKLResults(self, AggrKLRes=None):
         self.__AKLR__ = AggrKLRes
-        self.inputVarNames = self.__AKLR__._subNames
-        self.inputVarNamesKL = self.__AKLR__._modeDescription
+        self.inputVarNames = self.__AKLR__.__process_distribution_description__
+        self.inputVarNamesKL = self.__AKLR__.__mode_description__
         self.composedDistribution = ot.ComposedDistribution(
                                      [ot.Normal()]*self.__AKLR__.getSizeModes())
-        self._modesPerProcess = self.__AKLR__._modesPerProcess
+        self.__mode_count__ = self.__AKLR__.__mode_count__
 
     def setName(self, name):
         self.__name__ = str(name)
@@ -118,39 +118,52 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
         '''Here we mix the samples together 
         '''
         n_vars = self.__AKLR__._N
+        n_modes = self.__AKLR__.getSizeModes()
         N = self.size
-        self._experimentSample = deepcopy(self._sample_A)
-        print('Samples A and B of size {} and dimension {}'.format(
-                                            self._sample_A.getSize(),
-                                            self._sample_A.getDimension()))
-        [[self._experimentSample.add(
-            self._sample_A[j]) for j in range(
-                len(self._sample_A))] for _ in range(1+n_vars)]  
-        # Setting the B sample 
-        self._experimentSample[N:2 * N,:] = self._sample_B[:]
-        jump = 2 * N # As the first two blocks are sample A and B
-        jumpDim = 0
-        for i in range(n_vars):
-            self._experimentSample[jump + N*i:jump + N*(i+1), 
-                jumpDim:jumpDim+self._modesPerProcess[i]] = \
-                    self._sample_B[:,jumpDim:jumpDim + self._modesPerProcess[i]]
-            jumpDim += self._modesPerProcess[i]
+        if self.__computeSecondOrder__ == False or n_vars<=2 : 
+            N_tot = int(N*(2+n_vars))
+            self._experimentSample = ot.Sample(N_tot, n_modes)
+            self._experimentSample[:N,:] = self._sample_A[:,:]
+            print('Samples A and B of size {} and dimension {}'.format(
+                                                self._sample_A.getSize(),
+                                                self._sample_A.getDimension()))
+            self._experimentSample[N:2 * N,:] = self._sample_B[:,:]
+            jmp = 2 * N # As the first two blocks are sample A and B
+            jmpDim = 0
+            for i in range(n_vars):
+                self._experimentSample[jmp + N*i : jmp + N*(i+1), :] = self._sample_A[:, :]
+                self._experimentSample[jmp + N*i : jmp + N*(i+1), 
+                             jmpDim : jmpDim+self.__mode_count__[i]] = self._sample_B[:, jmpDim : jmpDim + self.__mode_count__[i]]
+                jmpDim += self.__mode_count__[i]
 
-        if self.__computeSecondOrder__ == True and n_vars>2 : 
+        elif self.__computeSecondOrder__ == True and n_vars>2 : 
             print('Generating samples for the second order indices')
             # when cxomputing second order indices we add n_vars*size elements to 
             # the experiment sample. 
             # Here we mix columns of A into B 
-            [[self._experimentSample.add(
-                self._sample_B[j]) for j in range(
-                    len(self._sample_B))] for _ in range(n_vars)]
-            jump = N*(2+n_vars)
-            jumpDim = 0
+            N_tot = int(N*(2+2*n_vars))
+            self._experimentSample = ot.Sample(N_tot, n_modes)
+            self._experimentSample[:N,:] = self._sample_A[:,:]
+            print('Samples A and B of size {} and dimension {}'.format(
+                                                self._sample_A.getSize(),
+                                                self._sample_A.getDimension()))
+            self._experimentSample[N:2 * N,:] = self._sample_B[:,:]
+            jmp = 2 * N # As the first two blocks are sample A and B
+            jmpDim = 0
             for i in range(n_vars):
-                self._experimentSample[jump + N*i:jump + N*(i+1), 
-                  jumpDim:jumpDim+self._modesPerProcess[i]] = \
-                    self._sample_A[:,jumpDim:jumpDim + self._modesPerProcess[i]]
-                jumpDim += self._modesPerProcess[i]
+                self._experimentSample[jmp + N*i : jmp + N*(i+1), :] = self._sample_A[:,:]
+                self._experimentSample[jmp + N*i : jmp + N*(i+1), 
+                                       jmpDim : jmpDim+self.__mode_count__[i]] = \
+                        self._sample_B[: , jmpDim : jmpDim + self.__mode_count__[i]]
+                jmpDim += self.__mode_count__[i]
+            jmp = int(N*(2+n_vars))
+            jmpDim = 0
+            for i in range(n_vars):
+                self._experimentSample[jmp + N*i : jmp + N*(i+1), :] = self._sample_B[:,:]
+                self._experimentSample[jmp + N*i : jmp + N*(i+1), 
+                  jmpDim:jmpDim+self.__mode_count__[i]] = \
+                        self._sample_A[:,jmpDim:jmpDim + self.__mode_count__[i]]
+                jmpDim += self.__mode_count__[i]
             print('Experiment for second order generated')
         print('Experiment of size {} and dimension {}'.format(
                                                 self._experimentSample.getSize(),
@@ -206,4 +219,4 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
             sample = LDExperiment.generate()
         sample = ot.Sample(sample)
         self._sample_A = sample[:self.size, :]
-        self._sample_B = sample[self.size:, :]
+        self._sample_B = sample[self.size:, :]            

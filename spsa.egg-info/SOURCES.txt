@@ -1,6 +1,7 @@
 README.rst
 setup.py
 spsa/__init__.py
+spsa/_sobolIndicesAlgorithmFactory.py
 spsa/_stochasticprocessconstructor.py
 spsa/_stochasticprocessexperimentgeneration.py
 spsa/_stochasticprocesssensitivity.py

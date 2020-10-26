@@ -65,8 +65,8 @@ class StochasticProcessSensitivityExperiment(object):
         self.inputVarNames = list()
         self.inputVarNamesKL = list()
 
-        print('Generation types are:\n1 : Random (default)\n2 : LHS\n\
-            3 : LowDiscrepancySequence\n4 : SimulatedAnnealingLHS')
+        print('''Generation types are:\n1 : Random (default)\n2 : LHS\n
+3 : LowDiscrepancySequence\n4 : SimulatedAnnealingLHS''')
         print('You choose', self.genTypes[self._genType], 'generation')
         if size is not None:
             self.setSize(size)
