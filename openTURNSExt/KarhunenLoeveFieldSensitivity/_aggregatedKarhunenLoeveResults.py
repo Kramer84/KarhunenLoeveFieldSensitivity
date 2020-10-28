@@ -172,61 +172,39 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
         return list(set(classNames))
 
     def getCovarianceModel(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getCovarianceModel() if hasattr(self.__KLResultsAndDistributions__[i], 'getCovarianceModel') else None for i in range(self.__field_distribution_count__) ]
 
     def getEigenValues(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getEigenValues() if hasattr(self.__KLResultsAndDistributions__[i], 'getEigenValues') else None for i in range(self.__field_distribution_count__) ]
 
     def getId(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getId() for i in range(self.__field_distribution_count__) ]
 
     def getImplementation(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getImplementation() if hasattr(self.__KLResultsAndDistributions__[i], 'getImplementation') else None for i in range(self.__field_distribution_count__) ]
 
     def getMesh(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getMesh() if hasattr(self.__KLResultsAndDistributions__[i], 'getMesh') else None for i in range(self.__field_distribution_count__) ]
 
     def getModes(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getModes() if hasattr(self.__KLResultsAndDistributions__[i], 'getModes') else None for i in range(self.__field_distribution_count__) ]
 
     def getModesAsProcessSample(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getModesAsProcessSample() if hasattr(self.__KLResultsAndDistributions__[i], 'getModesAsProcessSample') else None for i in range(self.__field_distribution_count__) ]
 
     def getName(self):
         return self.__name__
 
     def getProjectionMatrix(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getProjectionMatrix() if hasattr(self.__KLResultsAndDistributions__[i], 'getProjectionMatrix') else None for i in range(self.__field_distribution_count__) ]
 
     def getScaledModes(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getScaledModes() if hasattr(self.__KLResultsAndDistributions__[i], 'getScaledModes') else None for i in range(self.__field_distribution_count__) ]
 
     def getScaledModesAsProcessSample(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getScaledModesAsProcessSample() if hasattr(self.__KLResultsAndDistributions__[i], 'getScaledModes') else None for i in range(self.__field_distribution_count__) ]
 
     def getThreshold(self):
-        '''
-        '''
         return self.threshold
 
     def setName(self,name):
@@ -237,6 +215,7 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
         process samples and points
         '''
         assert isinstance(coefficients, (ot.Sample, ot.SampleImplementation))
+        print('Lifting as process sample')
         jumpDim = 0
         processes = []
         for i in range(self.__field_distribution_count__):
@@ -251,7 +230,6 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
                 if not self.__liftWithMean__:
                     processSample = ot.ProcessSample(ot.Mesh(), 0, 1)
                     val_sample = self.__KL_lifting__[i](coefficients[:, jumpDim : jumpDim + self.__mode_count__[i]])
-                    print('val_sample is',val_sample)
                     for j, value in enumerate(val_sample):
                         field = ot.Field(ot.Mesh(),1)
                         field.setValueAtIndex(0,value)
@@ -261,7 +239,6 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
                     processSample = ot.ProcessSample(ot.Mesh(), 0, 1)
                     val_sample = self.__KL_lifting__[i](coefficients[:, jumpDim : jumpDim + self.__mode_count__[i]])
                     mean = self.__means__[i]
-                    print('val_sample is',val_sample)
                     for j, value in enumerate(val_sample):
                         field = ot.Field(ot.Mesh(),1)
                         field.setValueAtIndex(0,[value[0]+mean]) # adding mean
@@ -275,13 +252,12 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
         '''
         assert isinstance(coefficients, (ot.Point)), 'function only lifts points'
         valid = self._checkCoefficients(coefficients)
-        print('coefficients are', coefficients)
+        print('Lifting as field')
         if valid :
             to_return = []
+            jumpDim = 0
             for i in range(self.__field_distribution_count__):
-                jumpDim = 0
                 if self.__isProcess__[i] :
-                    print('coeffs for process are: ',coefficients[jumpDim : jumpDim + self.__mode_count__[i]])
                     field = self.__KLResultsAndDistributions__[i].liftAsField(coefficients[jumpDim : jumpDim + self.__mode_count__[i]])
                     jumpDim += self.__mode_count__[i]
                     if not self.__liftWithMean__:
@@ -292,17 +268,15 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
                         field.setValues(vals)
                         to_return.append(field)
                 else :
-                    print('i is:',i)
-                    print('coeffs are :',coefficients[jumpDim : jumpDim + self.__mode_count__[i]])
                     value = self.__KL_lifting__[i](coefficients[jumpDim : jumpDim + self.__mode_count__[i]])
                     jumpDim += self.__mode_count__[i]
                     if not self.__liftWithMean__:
-                        print('field value is',value)
+                        #print('field value is',value)
                         field = ot.Field(ot.Mesh(),1)
                         field.setValueAtIndex(0,value)
                         to_return.append(field)
                     else :
-                        print('field value is',value)
+                        #print('field value is',value)
                         field = ot.Field(ot.Mesh(),1)
                         value[0] += self.__means__[i]
                         field.setValueAtIndex(0,value)
@@ -315,6 +289,7 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
         ''' function to lift into a list of samples a Point of coefficents
         '''
         assert isinstance(coefficients, ot.Point)
+        print('Lifting as sample')
         valid = self._checkCoefficients(coefficients)
         modes = self.__mode_count__
         jumpDim = 0
@@ -406,18 +381,13 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
                 try:
                     projection =list()
                     for i in range(nProcess):
-                        print('trying to project :')
-                        print(args[i])
                         if isinstance(args[i], (ot.Sample, ot.Field)) and self.__isProcess__[i]:
                             projection.append(list(self.__KLResultsAndDistributions__[i].project(args[i])))
                         else :
                             ELEM = list(self.__KL_projecting__[i](args[i]))
-                            print('aint no process ',ELEM)
                             projection.append(ELEM)
-                    print('Projection passed')
                     # this comprehensive list transforms a list[list[float], ot.Point] into a flat list of floats
                     projectionFlat = [item if not isinstance(item,(ot.Point)) else item[0] for sublist in projection for item in sublist]
-                    print('comprehension passed')
                     output = ot.PointWithDescription(list(zip(self.__mode_description__, projectionFlat)))
                     return output
                 except Exception as e :

@@ -5,10 +5,10 @@ __date__  = '17.09.20'
 __all__ = ['KarhunenLoeveSobolIndicesExperiment']
 
 from copy import deepcopy
-import openturns as ot 
+import openturns as ot
 
 class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
-    def __init__(self, AggregatedKarhunenLoeveResults=None, size=None, 
+    def __init__(self, AggregatedKarhunenLoeveResults=None, size=None,
                                                         second_order=False):
         self.__AKLR__ = AggregatedKarhunenLoeveResults
         self.size = None
@@ -77,7 +77,7 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
     def hasName(self):
         if len(self.__name__)==0 or self.__name__ is None:
             return False
-        else : 
+        else :
             return True
 
     def hasUniformWeights(self):
@@ -105,7 +105,7 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
         self.__shadowedId__ = ids
 
     def setSize(self, N):
-        '''set size of the samples 
+        '''set size of the samples
         '''
         assert isinstance(N,int) and N>0, \
                 "Sample size can only be positive integer"
@@ -116,12 +116,12 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
             self._sample_A = self._sample_B = self._experimentSample = None
 
     def _mixSamples(self):
-        '''Here we mix the samples together 
+        '''Here we mix the samples together
         '''
-        n_vars = self.__AKLR__._N
+        n_vars = self.__AKLR__.__field_distribution_count__
         n_modes = self.__AKLR__.getSizeModes()
         N = self.size
-        if self.__computeSecondOrder__ == False or n_vars<=2 : 
+        if self.__computeSecondOrder__ == False or n_vars<=2 :
             N_tot = int(N*(2+n_vars))
             self._experimentSample = ot.Sample(N_tot, n_modes)
             self._experimentSample[:N,:] = self._sample_A[:,:]
@@ -133,15 +133,15 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
             jmpDim = 0
             for i in range(n_vars):
                 self._experimentSample[jmp + N*i : jmp + N*(i+1), :] = self._sample_A[:, :]
-                self._experimentSample[jmp + N*i : jmp + N*(i+1), 
+                self._experimentSample[jmp + N*i : jmp + N*(i+1),
                              jmpDim : jmpDim+self.__mode_count__[i]] = self._sample_B[:, jmpDim : jmpDim + self.__mode_count__[i]]
                 jmpDim += self.__mode_count__[i]
 
-        elif self.__computeSecondOrder__ == True and n_vars>2 : 
+        elif self.__computeSecondOrder__ == True and n_vars>2 :
             print('Generating samples for the second order indices')
-            # when cxomputing second order indices we add n_vars*size elements to 
-            # the experiment sample. 
-            # Here we mix columns of A into B 
+            # when cxomputing second order indices we add n_vars*size elements to
+            # the experiment sample.
+            # Here we mix columns of A into B
             N_tot = int(N*(2+2*n_vars))
             self._experimentSample = ot.Sample(N_tot, n_modes)
             self._experimentSample[:N,:] = self._sample_A[:,:]
@@ -153,7 +153,7 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
             jmpDim = 0
             for i in range(n_vars):
                 self._experimentSample[jmp + N*i : jmp + N*(i+1), :] = self._sample_A[:,:]
-                self._experimentSample[jmp + N*i : jmp + N*(i+1), 
+                self._experimentSample[jmp + N*i : jmp + N*(i+1),
                                        jmpDim : jmpDim+self.__mode_count__[i]] = \
                         self._sample_B[: , jmpDim : jmpDim + self.__mode_count__[i]]
                 jmpDim += self.__mode_count__[i]
@@ -161,7 +161,7 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
             jmpDim = 0
             for i in range(n_vars):
                 self._experimentSample[jmp + N*i : jmp + N*(i+1), :] = self._sample_B[:,:]
-                self._experimentSample[jmp + N*i : jmp + N*(i+1), 
+                self._experimentSample[jmp + N*i : jmp + N*(i+1),
                   jmpDim:jmpDim+self.__mode_count__[i]] = \
                         self._sample_A[:,jmpDim:jmpDim + self.__mode_count__[i]]
                 jmpDim += self.__mode_count__[i]
@@ -176,7 +176,7 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
         distribution = self.composedDistribution
         if 'method' in kwargs :
             method = kwargs['method']
-        else : 
+        else :
             method = 'MonteCarlo'
         N2 = 2 * self.size
         if method == 'MonteCarlo':
@@ -214,4 +214,4 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
             sample = LDExperiment.generate()
         sample = ot.Sample(sample)
         self._sample_A = sample[:self.size, :]
-        self._sample_B = sample[self.size:, :]            
+        self._sample_B = sample[self.size:, :]
