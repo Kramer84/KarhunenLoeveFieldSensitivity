@@ -172,61 +172,39 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
         return list(set(classNames))
 
     def getCovarianceModel(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getCovarianceModel() if hasattr(self.__KLResultsAndDistributions__[i], 'getCovarianceModel') else None for i in range(self.__field_distribution_count__) ]
 
     def getEigenValues(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getEigenValues() if hasattr(self.__KLResultsAndDistributions__[i], 'getEigenValues') else None for i in range(self.__field_distribution_count__) ]
 
     def getId(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getId() for i in range(self.__field_distribution_count__) ]
 
     def getImplementation(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getImplementation() if hasattr(self.__KLResultsAndDistributions__[i], 'getImplementation') else None for i in range(self.__field_distribution_count__) ]
 
     def getMesh(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getMesh() if hasattr(self.__KLResultsAndDistributions__[i], 'getMesh') else None for i in range(self.__field_distribution_count__) ]
 
     def getModes(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getModes() if hasattr(self.__KLResultsAndDistributions__[i], 'getModes') else None for i in range(self.__field_distribution_count__) ]
 
     def getModesAsProcessSample(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getModesAsProcessSample() if hasattr(self.__KLResultsAndDistributions__[i], 'getModesAsProcessSample') else None for i in range(self.__field_distribution_count__) ]
 
     def getName(self):
         return self.__name__
 
     def getProjectionMatrix(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getProjectionMatrix() if hasattr(self.__KLResultsAndDistributions__[i], 'getProjectionMatrix') else None for i in range(self.__field_distribution_count__) ]
 
     def getScaledModes(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getScaledModes() if hasattr(self.__KLResultsAndDistributions__[i], 'getScaledModes') else None for i in range(self.__field_distribution_count__) ]
 
     def getScaledModesAsProcessSample(self):
-        '''
-        '''
         return [self.__KLResultsAndDistributions__[i].getScaledModesAsProcessSample() if hasattr(self.__KLResultsAndDistributions__[i], 'getScaledModes') else None for i in range(self.__field_distribution_count__) ]
 
     def getThreshold(self):
-        '''
-        '''
         return self.threshold
 
     def setName(self,name):

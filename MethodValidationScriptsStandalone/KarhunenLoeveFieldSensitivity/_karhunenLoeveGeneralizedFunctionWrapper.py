@@ -4,7 +4,7 @@ __date__  = '17.09.20'
 
 __all__ = ['KarhunenLoeveGeneralizedFunctionWrapper']
 
-import openturns as ot 
+import openturns as ot
 from collections import Iterable, UserList, Sequence
 from copy import copy
 from numbers import Complex, Integral, Real, Rational, Number
@@ -17,11 +17,11 @@ class KarhunenLoeveGeneralizedFunctionWrapper(object):
     Note
     ----
     The usage of this wrapper implies having already done the karhunen loeve
-    decomposition of the list of the Processes with wich we will feed the 
-    function. The input dimension of this function is dependent of the 
-    order of the Karhunen Loeve decomposition. 
+    decomposition of the list of the Processes with wich we will feed the
+    function. The input dimension of this function is dependent of the
+    order of the Karhunen Loeve decomposition.
     '''
-    def __init__(self, AggregatedKarhunenLoeveResults=None, func=None, 
+    def __init__(self, AggregatedKarhunenLoeveResults=None, func=None,
         func_sample=None, n_outputs=1):
         self.func = func
         self.func_sample = func_sample
@@ -35,12 +35,12 @@ class KarhunenLoeveGeneralizedFunctionWrapper(object):
         self.__setDefaultState__()
 
     def __setDefaultState__(self):
-        try : 
-            if (self.func is not None or self.func_sample is not None) and self.__AKLR__ is not None : 
+        try :
+            if (self.func is not None or self.func_sample is not None) and self.__AKLR__ is not None :
                 self.__inputDim__ = self.__AKLR__.getSizeModes()
                 self.setInputDescription(ot.Description(self.__AKLR__.__mode_description__))
                 self.setOutputDescription(ot.Description.BuildDefault(self.__nOutputs__, 'Y_'))
-            else : 
+            else :
                 self.func         = None
                 self.func_sample  = None
                 self.__AKLR__     = None
@@ -48,9 +48,9 @@ class KarhunenLoeveGeneralizedFunctionWrapper(object):
                 self.__inputDim__ = 0
                 self._inputDescription = ot.Description()
                 self._outputDescription = ot.Description()
-        except Exception as e: 
+        except Exception as e:
             print('Check if your aggregated karhunen loeve result object is correct')
-            raise e 
+            raise e
 
     def __call__(self, X):
         if isinstance(X, (ot.Point)) or (
@@ -63,7 +63,14 @@ class KarhunenLoeveGeneralizedFunctionWrapper(object):
         assert len(X)==self.getInputDimension()
         inputFields = self.__AKLR__.liftAsField(X)
         #evaluating ...
-        result = self.func(inputFields)
+        try :
+            result = self.func(inputFields)
+        except :
+            try :
+                result = self.func(*inputFields)
+            except TypeError as te:
+                print('did not manage to evaluate single function')
+                raise te
         result = CustomList.atLeastList(result)
         result = self._convert_exec_ot(result)
         self.__calls__+=1
@@ -74,19 +81,24 @@ class KarhunenLoeveGeneralizedFunctionWrapper(object):
         inputProcessSamples = self.__AKLR__.liftAsProcessSample(X)
         try :
             result = self.func_sample(inputProcessSamples)
-            result = CustomList.atLeastList(result)
-            result = self._convert_exec_sample_ot(result)
-            self.__calls__ += X.__len__()
-            return result
-        except Exception as e:
-            raise e
+        except :
+            try :
+                result = self.func_sample(*inputProcessSamples)
+            except TypeError as te:
+                print('did not manage to evaluate single function')
+                raise te
+        result = CustomList.atLeastList(result)
+        result = self._convert_exec_sample_ot(result)
+        self.__calls__ += X.__len__()
+        return result
+
 
     def _convert_exec_ot(self, output):
-        '''For a singular evaluation, the function must only return scalars, 
+        '''For a singular evaluation, the function must only return scalars,
         points or fields.'''
         print(
-'''Using the single evaluation function. Assumes that the outputs are in the 
-same order than for the batch evaluation function. This one should only 
+'''Using the single evaluation function. Assumes that the outputs are in the
+same order than for the batch evaluation function. This one should only
 return Points, Fields, Lists or numpy arrays.''')
         outputList = []
         if len(output) != len(self._outputDescription) :
@@ -97,7 +109,7 @@ return Points, Fields, Lists or numpy arrays.''')
                 element.setName(self._outputDescription[i])
                 outputList.append(element)
                 try : dim = element.getDimension()
-                except : dim = element.getMesh().getDimension() 
+                except : dim = element.getMesh().getDimension()
                 print(
 'Element {} of the output tuple returns elements of type {} of dimension {}'.format(
                       i, element.__class__.__name__ ,dim))
@@ -124,7 +136,7 @@ return Points, Fields, Lists or numpy arrays.''')
                         element = ot.Point(intermElem)
                         element.setName(self._outputDescription[i])
                         outputList.append(element)
-                else : 
+                else :
                     print('Do not use non-numerical dtypes in your objects')
                     print('Wrong dtype is: ',dtype.__name__)
             elif isinstance(element, (Complex, Integral, Real, Rational, Number, str)):
@@ -142,11 +154,11 @@ return Points, Fields, Lists or numpy arrays.''')
         return outputList
 
     def _convert_exec_sample_ot(self, output):
-        '''For a singular evaluation, the function must only return 
+        '''For a singular evaluation, the function must only return
         any combination of scalars, points or fields.'''
         print(
-'''Using the batch evaluation function. Assumes that the outputs are in the 
-same order than for the single evaluation function. This one should only 
+'''Using the batch evaluation function. Assumes that the outputs are in the
+same order than for the single evaluation function. This one should only
 return ProcessSamples, Samples, Lists or numpy arrays.''')
         outputList = []
         if len(output) != len(self._outputDescription) :
@@ -187,7 +199,7 @@ return ProcessSamples, Samples, Lists or numpy arrays.''')
                         element = ot.Sample([[dat] for dat in intermElem.data])
                         element.setName(self._outputDescription[i])
                         outputList.append(element)
-                else : 
+                else :
                     print('Do not use non-numerical dtypes in your objects')
                     print('Wrong dtype is: ',dtype.__name__)
             elif isinstance(element, ot.Point):
@@ -195,7 +207,7 @@ return ProcessSamples, Samples, Lists or numpy arrays.''')
 'Element {} of the output tuple returns samples of dimension 1'.format(i,type(element).__name__))
                 element = ot.Sample([[element[j]] for j in range(len(element))])
                 element.setName(self._outputDescription[i])
-                outputList.append(element)     
+                outputList.append(element)
             elif isinstance(element, ot.Field):
                 print(
 'ONLY _exec_sample FUNCTION MUST RETURN ot.Sample OR ot.ProcessSample OBJECTS!!')
@@ -284,7 +296,8 @@ return ProcessSamples, Samples, Lists or numpy arrays.''')
 
 class CustomList(UserList):
     '''List-like object, but with methods allowing to find indexes and values
-    inside of a certain threshold
+    inside of a certain threshold, or to iterate over the different sub-dimensions
+    of the list and to convert any sub-iterable into a list
     '''
     def __init__(self, data=list()):
         data = CustomList.atLeastList(data)
@@ -304,7 +317,6 @@ class CustomList(UserList):
         data = copy(self.data)
         data.extend(other)
         return CustomList(data)
-
     def index(self, val, thresh=1e-5):
         dif = [abs(self.data[i]-val) for i in range(self.__len__())]
         idx = [dif[i]<=thresh for i in range(self.__len__())]
@@ -336,8 +348,8 @@ class CustomList(UserList):
         return sorted(range(len(copy(self.data))),
                                          key=lambda k: copy(self.data)[k])
     def getOrderedUnique(self):
-        # custom function, returning the unique values of the list in 
-        # ascending order 
+        # custom function, returning the unique values of the list in
+        # ascending order
         newList = sorted(list(set(copy(self.data))))
         return CustomList(newList)
     def all_same(self, items=None):
@@ -351,40 +363,40 @@ class CustomList(UserList):
         notEmpty = len(L)!=0
         dtype = None
         shape = []
-        if len(L)==0 : 
+        if len(L)==0 :
             shape.append(0)
             self.shape = tuple(shape)
-            self.dtype = dtype 
+            self.dtype = dtype
             return None
         if isHomogenous :
             dtype = L[0].__class__
         shape.append(len(L))
-        while isHomogenous and isIterable and notEmpty: 
+        while isHomogenous and isIterable and notEmpty:
             L = L[0]
             notEmpty = len(L)!=0
             isHomogenous = self.all_same([type(L[i]) for i in range(len(L))])
             isIterable = all([(isinstance(L[i],Iterable) and not isinstance(L[i],str)) for i in range(len(L))])
-            if isHomogenous : 
+            if isHomogenous :
                 dtype = L[0].__class__
-            else : 
+            else :
                 dtype = None
             shape.append(len(L))
         self.shape = tuple(shape)
-        self.dtype = dtype 
+        self.dtype = dtype
     def recurse2list(self):
         self.data = CustomList._iterable2list(self.data)
         self._getShapeDType()
     @staticmethod
     def _iterable2list(X):
-        try : 
+        try :
             return [CustomList._iterable2list(x) for x in X]
         except TypeError:
             return X
     def flatten(self, L=None):
         if L is None: L = self.data
-        if len(L)!=1 and not isinstance(L, (str, bytes)): 
+        if len(L)!=1 and not isinstance(L, (str, bytes)):
             L = list(CustomList._yielder(L))
-        return CustomList(L) 
+        return CustomList(L)
     @staticmethod
     def _yielder(L):
         for el in L:
@@ -396,5 +408,5 @@ class CustomList(UserList):
     def atLeastList(elem):
         if isinstance(elem, Iterable) and not isinstance(elem,(str,bytes)):
             return list(elem)
-        else : 
+        else :
             return [elem]

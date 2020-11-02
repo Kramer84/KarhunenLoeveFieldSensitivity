@@ -22,7 +22,7 @@ def list_(*args): return list(args)
 def zip_(*args): return map(list_, *args)
 
 def checkIfNanInSample(sample):
-    return isnan(sum(Y.computeMean()))
+    return isnan(sum(sample.computeMean()))
 
 
 class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):

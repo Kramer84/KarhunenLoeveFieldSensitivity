@@ -22,6 +22,7 @@ class _BeamBase(object):
         vertex_list = [Vertex(vertices[i],0) for i in range(n_elems+1)]
         return vertex_list
 
+
     def batchEval(self, random_young_modulus, 
                   random_diameter, 
                   random_density, 
@@ -180,6 +181,110 @@ def nodeChecksAndVertsInsertion_MP( system, forcePosition, random_diameter, rand
         random_young_modulus = insertToPos(random_young_modulus, nearestNodeFposID-2)
         return nearestNodeFposID, random_diameter, random_young_modulus
 
+
+######################################################################################################
+######################################################################################################
+######################################################################################################
+
+
+def experience_mod( youngModu, diam, density, forcePosition, forceNorm, vertex_list, l_element, i=0):
+    '''Function that is used for multiprocessing the beam experience
+    There are a lot of tests to make sure the codes don't crash
+    '''
+    youngModu     = youngModu
+    diam          = diam
+    n0_elems      = diam.shape[0]
+    density       = density
+    forcePosition = forcePosition
+    forceNorm     = forceNorm
+    if i % 33 == 0 :
+        print('Iteration',i)
+        print('youngModu.shape is', youngModu.shape)
+        print('diam.shape is', diam.shape)
+        print('n0_elems is', n0_elems)
+        print('density is', density)
+        print('forcePosition is', forcePosition)
+        print('forceNorm is', forceNorm)
+    
+        print('youngModu.mean() is', youngModu.mean())
+        print('diam.mean() is', diam.mean())
+
+    BeamObj_MP, youngModu, diam = anastruct_beam_MP(youngModu, diam, density, forcePosition, forceNorm, vertex_list, l_element)
+    try :
+        solution          = BeamObj_MP.solve(force_linear = False,
+                                             verbosity = 50,
+                                             max_iter = 300, 
+                                             geometrical_non_linear = False,
+                                             naked = False)
+        points_range      = numpy.array(BeamObj_MP.nodes_range('x'), copy=False, subok = True)
+        elem_length_range = points_range[1:]-(points_range[1]-points_range[0])/2
+        deflection        = numpy.array(BeamObj_MP.get_node_result_range('uy'), copy=False, subok = True)
+        shear             = numpy.array(BeamObj_MP.get_element_result_range('shear'), copy=False, subok = True)
+        moment            = numpy.array(BeamObj_MP.get_element_result_range('moment'), copy=False, subok = True)
+        element_results   = numpy.vstack([elem_length_range,youngModu, diam, 
+                                          numpy.array(shear, copy=False, subok = True), 
+                                          numpy.array(moment, copy=False, subok = True)])
+        node_results      = numpy.vstack([points_range, deflection])
+        global_beamParams = numpy.array([forceNorm, density, forcePosition], copy=False, subok = True)
+
+        return element_results, node_results, global_beamParams
+
+    except :
+        print('there was an error in the stiffness matrix.\n','Filling  with numpy.nan values\n')
+        elem_length_range   = youngModu  = diam =  shear =  moment = nans(shape=(n0_elems+1,))
+        points_range        = deflection = nans(shape=(n0_elems+2,))
+        element_results     = numpy.vstack([elem_length_range,youngModu, diam, shear, moment])
+        node_results        = numpy.vstack([points_range, deflection])
+        global_beamParams   = nans(shape=(3,))
+        return element_results, node_results, global_beamParams
+
+def anastruct_beam_MP( youngModu, diam, density, forcePosition, forceNorm, vertex_list, l_element):
+    system = SystemElements(EA = None, EI = None) # to make sure we delete the default values
+    for k in range(len(vertex_list)-1):      # always a vertex more than element
+        system.add_element(location = [vertex_list[k], vertex_list[k+1]], 
+                            d = diam[k],
+                            E = youngModu[k],
+                            gamma = density)
+    
+    nodeID, random_diameter, random_young_modulus = nodeChecksAndVertsInsertion_MP(system, forcePosition, diam, youngModu, l_element)
+    system.point_load(nodeID, Fy = -forceNorm)   # in kN
+    system.add_support_hinged(node_id=min(system.node_map.keys()))
+    system.add_support_roll(node_id=system.id_last_node , direction='x')
+    return system, random_young_modulus, random_diameter
+
+    
+def nodeChecksAndVertsInsertion_MP( system, forcePosition, random_diameter, random_young_modulus, l_element):
+    # Function to apply force at force position
+    nearestNodeFposID = system.nearest_node('x', forcePosition)
+    elemNumber, factor = getElemIdAndFactor_MP(forcePosition, l_element)
+
+    if factor*l_element<1: # if the application point is to near wuth an ither point
+        ## We add an other node next to it so we normalize the number of elements
+        system.insert_node(element_id = nearestNodeFposID+2, factor=0.5)
+        random_diameter      = insertToPos(random_diameter, nearestNodeFposID+2)
+        random_young_modulus = insertToPos(random_young_modulus, nearestNodeFposID+2)
+        return nearestNodeFposID, random_diameter, random_young_modulus
+
+    elif forcePosition < l_element*.1 :
+        system.insert_node(element_id = 1, factor= 0.1)
+        random_diameter = insertToPos(random_diameter, 0)
+        random_young_modulus = insertToPos(random_young_modulus, 0)
+        return 0, random_diameter, random_young_modulus
+
+    else :
+        system.insert_node(element_id = elemNumber, factor=factor)
+        # as we inserted a node we have one more element so we add it 
+        random_diameter      = insertToPos(random_diameter, nearestNodeFposID-2)
+        random_young_modulus = insertToPos(random_young_modulus, nearestNodeFposID-2)
+        return nearestNodeFposID, random_diameter, random_young_modulus
+
+
+######################################################################################################
+######################################################################################################
+######################################################################################################
+
+
+
 @jit(nopython=True)
 def insertToPos(array, pos):
     if pos > 0:
@@ -230,6 +335,7 @@ class PureBeam(object):
             var_Fnor = numpy.asarray([inputList[4][i][0,0] for i in range(inputList[2].getSize())])
             print('field E shape', field_E.shape)
             print('var_Fnor shape', var_Fnor.shape)
+            print('field_E', field_E.mean(), 'field_D', field_D.mean(), 'var_Rho', var_Rho.mean(), 'var_Fpos', var_Fpos.mean(), 'var_Fnor', var_Fnor.mean(),)
             return field_E, field_D, var_Rho, var_Fpos, var_Fnor
         else :
             field_E = inputList[0].getValues()
@@ -240,5 +346,23 @@ class PureBeam(object):
             return field_E, field_D, var_Rho, var_Fpos, var_Fnor
 
 
-    
+#Here we create half of the coordinates of the beam
+#The length decreases inversly proportional to the Normal law
+N = ot.Normal(2,1)
+pts_normal_reversed = np.arange(2,0,-1*(2/50))
+pts_normal = np.array(list(map(N.computeCDF, pts_normal_reversed)))
+l_0 = pts_normal.sum()
+pts_normal/l_0
 
+
+
+N.computeCDF(ot.Sample(np.expand_dims(pts_normal_reversed,axis=1)))
+
+def buildSystemParameters(young_modulus, diameter, density, 
+                position_force, norm_force,length_beam=1000, i=0):
+    n_elems = young_modulus.shape[0]
+    l = length_beam
+    n_verts = n_elems + 1
+    l_elem = length_beam/n_elems
+    l_sub_elem = l_elem/10
+ 
