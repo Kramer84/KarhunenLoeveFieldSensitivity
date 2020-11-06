@@ -689,23 +689,37 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         '''Function to transform an 2D array of random variables (as we have allways more than one sample)
         into a collection of random variables and fields, according to the Karhunen-Loeve decomposition
         '''
+        print('Lifting')
         fieldPositions     = [self.StochasticProcessList[i][0] for i in range(len(self.StochasticProcessList))]
         numberModesFields  = [int(self.StochasticProcessList[i][1].decompositionAsRandomVector.n_modes) for i in range(len(self.StochasticProcessList))]
         fieldNames         = [self.StochasticProcessList[i][1].getName() for i in range(len(self.StochasticProcessList))]
         listInputVars      = list()
         idxStp             = 0
         tempCompo          = numpy.asarray(KLComposedDistribution)
+        print('Before loop OK, input dim is',self.inputDim)
+        print('fieldPositions are',fieldPositions)
+        print('self.StochasticProcessList',self.StochasticProcessList)
         for k in range(self.inputDim):
             if k in fieldPositions :
+                print('wtf')
                 idx        = int(numpy.argwhere(numpy.asarray(fieldPositions)==k))
                 idxStpPrev = idxStp
-                idxStp     += numberModesFields[idx]-1
+                idxStp     += numberModesFields[idx]
                 process    = self.StochasticProcessList[fieldPositions[k]][1]
-                field      = process.liftDistributionToField(tempCompo[...,k+idxStpPrev:k+idxStpPrev+idxStp].tolist())
+                try :
+                    print('idxStpPrev=',idxStpPrev,'idxStp=',idxStp, 'k=',k)
+                    field      = process.liftDistributionToField(tempCompo[...,k+idxStpPrev:k+idxStpPrev+idxStp].tolist())
+                except Exception as e:
+                    print('got exception',e)
+                    raise e
+                print('lifted')
                 field      = numpy.asarray(field).tolist()
                 listInputVars.append(field)
+                print('Appended')
             else :
                 listInputVars.append(tempCompo[...,k+idxStp])
+                print('Appended')
+        print('Lifted')
         return listInputVars
 
     def getInputVariablesName(self):
@@ -811,6 +825,7 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         -----
         These functions are now using the Karhunen-Loeve decomposition
         '''
+        print('calling solo function')
         inputProcessNRVs = self.liftFieldFromKLDistribution(X)
         return self.PythonSingleFunction(*inputProcessNRVs)
 
@@ -822,7 +837,10 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         -----
         These functions are now using the Karhunen-Loeve decomposition
         '''
+        print('calling sample function 000')
         inputProcessNRVs = self.liftFieldFromKLDistribution(X)
+        print('inputs are:',inputProcessNRVs)
+
         return self.PythonBatchFunction(*inputProcessNRVs)
 
 

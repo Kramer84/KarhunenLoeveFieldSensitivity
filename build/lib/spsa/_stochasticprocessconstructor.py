@@ -203,7 +203,7 @@ CovarianceModel object
   >>> npSample = process.getSample(N,True) #output as numpy array
 '''
         reprStr = ' '.join(['Stochastic','Process','on','grid','of','shape',
-                            shape, 'and', covaModel,'covariance','Model',
+                            shape, 'and', str(self.covarianceModel),'covariance','Model',
                             helpStr])
         return reprStr
 
@@ -646,6 +646,7 @@ the same as the dimension of the process: ''',
         '''transforms a randomVector or collection of random vectors
         into one or multiple gaussian fields
         '''
+        print('lifting to field')
         try:
             assert self.KarhunenLoeveResult is not None, (
                     "first run self.getKarhunenLoeveDecomposition()")

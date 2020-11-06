@@ -85,7 +85,7 @@ class KarhunenLoeveGeneralizedFunctionWrapper(object):
             try :
                 result = self.func_sample(*inputProcessSamples)
             except TypeError as te:
-                print('did not manage to evaluate single function')
+                print('did not manage to evaluate batch function')
                 raise te
         result = CustomList.atLeastList(result)
         result = self._convert_exec_sample_ot(result)

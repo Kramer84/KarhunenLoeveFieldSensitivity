@@ -81,8 +81,7 @@ class StochasticProcessSobolIndicesAlgorithmBase(object):
     @staticmethod
     def SaltelliIndices(Y_Ac, Y_Bc,\
                 Y_Ec, psi_fo: openturns.SymbolicFunction,\
-                psi_to: openturns.SymbolicFunction) ->\
-                    Tuple[, , , ]:
+                psi_to: openturns.SymbolicFunction):
         '''method implementing the Saltelli' way of calculating 
         Sobol Indices it only calculates the indice for one unique input variables
         at the time, but on the whole output dimensions, thanks to highly parallelized
