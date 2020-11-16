@@ -85,7 +85,7 @@ class KarhunenLoeveGeneralizedFunctionWrapper(object):
             try :
                 result = self.func_sample(*inputProcessSamples)
             except TypeError as te:
-                print('did not manage to evaluate single function')
+                print('did not manage to evaluate batch function')
                 raise te
         result = CustomList.atLeastList(result)
         result = self._convert_exec_sample_ot(result)
@@ -104,6 +104,7 @@ return Points, Fields, Lists or numpy arrays.''')
         if len(output) != len(self._outputDescription) :
             self.__nOutputs__ = len(output)
             self.setOutputDescription(ot.Description.BuildDefault(self.__nOutputs__, 'Y_'))
+            print("shapes mismatched")
         for i, element in enumerate(output) :
             if isinstance(element, (ot.Point, ot.Field)):
                 element.setName(self._outputDescription[i])
@@ -407,6 +408,9 @@ class CustomList(UserList):
     @staticmethod
     def atLeastList(elem):
         if isinstance(elem, Iterable) and not isinstance(elem,(str,bytes)):
-            return list(elem)
+            if not  isinstance(elem[0], (Complex, Integral, Real, Rational, Number)):
+                return list(elem)
+            else:
+                return [elem]
         else :
             return [elem]

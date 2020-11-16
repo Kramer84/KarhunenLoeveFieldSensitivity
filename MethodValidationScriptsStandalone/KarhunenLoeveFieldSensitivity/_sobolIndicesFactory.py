@@ -3,6 +3,7 @@ from collections import Iterable, UserList, Sequence
 from copy import copy, deepcopy
 from numbers import Complex, Integral, Real, Rational, Number
 from math import isnan
+import re
 
 __all__ = ['SobolKarhunenLoeveFieldSensitivityAlgorithm']
 
@@ -380,7 +381,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
             inputDescription = self.inputDesign.getDescription()
             print('Description all same?',inputDescription)
             SobolIndicesName = []
-            inputWOutLastChar = [inputDescription[i][:-1] for i in range(len(inputDescription))]
+            inputWOutLastChar = [inputDescription[i][:re.search(r'_\d+$',inputDescription[i]).span()[0]] for i in range(len(inputDescription))]
             SobolIndicesName = []
             for x in inputWOutLastChar:
                 if x not in SobolIndicesName:
