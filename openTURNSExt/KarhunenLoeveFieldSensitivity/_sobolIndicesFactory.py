@@ -177,7 +177,9 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
                 SO_point_list = list()
                 for j in range(nMarginals[i]):
                     SO_point_list.append(self.__results__[i].getSecondOrderIndices(j))
-                SO_point_list = list(zip_(*SO_point_list))
+                print('This makes a problem:',SO_point_list)
+                if len(SO_point_list)>1:
+                    SO_point_list = list(zip_(*SO_point_list))
                 SO_indices.append([self.__toBaseDataFormat__(ot.Point(SO_point_list[k]), i) for k in range(self.__nSobolIndices__)])
                 [SO_indices[i][k].setName('SecondOrderSobol_'+self.outputDesign[i].getName()+'_'+self.inputDescription[k]) for k in range(self.__nSobolIndices__)]
             return SO_indices
