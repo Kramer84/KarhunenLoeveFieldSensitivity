@@ -318,6 +318,8 @@ class CustomList(UserList):
         data = copy(self.data)
         data.extend(other)
         return CustomList(data)
+    def __repr__(self):
+        return 'Custom list object with data:\n'+self.data.__repr__()
     def index(self, val, thresh=1e-5):
         dif = [abs(self.data[i]-val) for i in range(self.__len__())]
         idx = [dif[i]<=thresh for i in range(self.__len__())]
@@ -408,9 +410,12 @@ class CustomList(UserList):
     @staticmethod
     def atLeastList(elem):
         if isinstance(elem, Iterable) and not isinstance(elem,(str,bytes)):
-            if not  isinstance(elem[0], (Complex, Integral, Real, Rational, Number)):
-                return list(elem)
+            if elem.__class__.__module__ == 'numpy':
+                if len(elem.shape)==1:
+                    return [elem]
+                else :
+                    return list(elem)
             else:
-                return [elem]
+                return list(elem)
         else :
             return [elem]

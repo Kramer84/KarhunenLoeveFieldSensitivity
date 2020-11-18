@@ -1,26 +1,26 @@
 \babel@toc {english}{}
-\contentsline {paragraph}{Note:}{3}{section*.3}
-\contentsline {section}{\numberline {1}Premiers 5 mois de stage}{4}{section.1}
-\contentsline {subsection}{\numberline {1.1}Introduction}{4}{subsection.1.1}
-\contentsline {subsection}{\numberline {1.2}Recherche bibliographique}{4}{subsection.1.2}
-\contentsline {subsubsection}{\numberline {1.2.1}Travaux retenus}{4}{subsubsection.1.2.1}
-\contentsline {subsubsection}{\numberline {1.2.2}Methodes et outils de travail}{4}{subsubsection.1.2.2}
-\contentsline {subsection}{\numberline {1.3}Analyse de la probl\IeC {\'e}matique, premier tests et prise en main des outils}{5}{subsection.1.3}
-\contentsline {subsubsection}{\numberline {1.3.1}Mission confi\IeC {\'e}e et t\IeC {\^a}ches associ\IeC {\'e}es}{5}{subsubsection.1.3.1}
-\contentsline {subsubsection}{\numberline {1.3.2}Prise en main d'openTURNS et de la th\IeC {\'e}orie sur les champs stochastiques}{5}{subsubsection.1.3.2}
-\contentsline {paragraph}{Champs Stochastiques\\}{5}{section*.4}
-\contentsline {paragraph}{openTURNS\\}{7}{section*.5}
-\contentsline {subsection}{\numberline {1.4}Exemple th\IeC {\'e}orique simple, premiers codes}{8}{subsection.1.4}
-\contentsline {subsubsection}{\numberline {1.4.1}Choix des codes et difficult\IeC {\'e}es algorithmiques}{9}{subsubsection.1.4.1}
-\contentsline {subsubsection}{\numberline {1.4.2}Premiers essais d'analyse de la sensibilit\IeC {\'e} du mod\IeC {\`e}le }{12}{subsubsection.1.4.2}
-\contentsline {subsubsection}{\numberline {1.4.3}Interpr\IeC {\'e}tation et essais avec le papier : "Time-variant global reliability sensitivity analysis of structures with both input random variables and stochastic processes"}{13}{subsubsection.1.4.3}
-\contentsline {subsection}{\numberline {1.5}Application au mod\IeC {\`e}le NASTRAN d'\IeC {\'e}changeur thermique}{21}{subsection.1.5}
-\contentsline {subsubsection}{\numberline {1.5.1}D\IeC {\'e}finition et analyse de la probl\IeC {\'e}matique}{21}{subsubsection.1.5.1}
-\contentsline {subsubsection}{\numberline {1.5.2}Mise en place de m\IeC {\'e}thodologie }{23}{subsubsection.1.5.2}
-\contentsline {subsubsection}{\numberline {1.5.3}Application de la m\IeC {\'e}thode de la d\IeC {\'e}formation modale m\IeC {\'e}trique pilot\IeC {\'e}e par champ stochastique sur un mod\IeC {\`e}le Simcenter 3D Nastran}{28}{subsubsection.1.5.3}
-\contentsline {subsubsection}{\numberline {1.5.4}Commentaires et mise en contexte}{29}{subsubsection.1.5.4}
-\contentsline {subsection}{\numberline {1.6}Bilan interm\IeC {\'e}diaire}{29}{subsection.1.6}
-\contentsline {section}{\numberline {2}Derniers 5 mois de stage }{29}{section.2}
-\contentsline {section}{\numberline {3}Conclusions}{29}{section.3}
-\contentsline {section}{Appendices}{31}{section*.7}
-\contentsline {section}{Appendices}{31}{section*.8}
+\contentsline {paragraph}{Note:}{3}{section*.3}%
+\contentsline {section}{\numberline {1}Premiers 5 mois de stage}{4}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Introduction}{4}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Recherche bibliographique}{4}{subsection.1.2}%
+\contentsline {subsubsection}{\numberline {1.2.1}Travaux retenus}{4}{subsubsection.1.2.1}%
+\contentsline {subsubsection}{\numberline {1.2.2}Methodes et outils de travail}{4}{subsubsection.1.2.2}%
+\contentsline {subsection}{\numberline {1.3}Analyse de la problématique, premier tests et prise en main des outils}{5}{subsection.1.3}%
+\contentsline {subsubsection}{\numberline {1.3.1}Mission confiée et tâches associées}{5}{subsubsection.1.3.1}%
+\contentsline {subsubsection}{\numberline {1.3.2}Prise en main d'openTURNS et de la théorie sur les champs stochastiques}{5}{subsubsection.1.3.2}%
+\contentsline {paragraph}{Champs Stochastiques\\}{5}{section*.4}%
+\contentsline {paragraph}{openTURNS\\}{7}{section*.5}%
+\contentsline {subsection}{\numberline {1.4}Exemple théorique simple, premiers codes}{8}{subsection.1.4}%
+\contentsline {subsubsection}{\numberline {1.4.1}Choix des codes et difficultées algorithmiques}{9}{subsubsection.1.4.1}%
+\contentsline {subsubsection}{\numberline {1.4.2}Premiers essais d'analyse de la sensibilité du modèle }{12}{subsubsection.1.4.2}%
+\contentsline {subsubsection}{\numberline {1.4.3}Interprétation et essais avec le papier : "Time-variant global reliability sensitivity analysis of structures with both input random variables and stochastic processes"}{13}{subsubsection.1.4.3}%
+\contentsline {subsection}{\numberline {1.5}Application au modèle NASTRAN d'échangeur thermique}{21}{subsection.1.5}%
+\contentsline {subsubsection}{\numberline {1.5.1}Définition et analyse de la problématique}{21}{subsubsection.1.5.1}%
+\contentsline {subsubsection}{\numberline {1.5.2}Mise en place de méthodologie }{23}{subsubsection.1.5.2}%
+\contentsline {subsubsection}{\numberline {1.5.3}Application de la méthode de la déformation modale métrique pilotée par champ stochastique sur un modèle Simcenter 3D Nastran}{28}{subsubsection.1.5.3}%
+\contentsline {subsubsection}{\numberline {1.5.4}Commentaires et mise en contexte}{29}{subsubsection.1.5.4}%
+\contentsline {subsection}{\numberline {1.6}Bilan intermédiaire}{29}{subsection.1.6}%
+\contentsline {section}{\numberline {2}Derniers 5 mois de stage }{29}{section.2}%
+\contentsline {section}{\numberline {3}Conclusions}{29}{section.3}%
+\contentsline {section}{Appendices}{31}{section*.7}%
+\contentsline {section}{Appendices}{31}{section*.8}%
