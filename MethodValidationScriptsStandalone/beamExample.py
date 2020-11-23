@@ -6,6 +6,7 @@ from numba import jit, int32, float64
 import numpy
 import openturns as ot
 from anastruct.fem.system import SystemElements, Vertex
+from anastruct.basic import FEMException
 from copy import deepcopy
 from scipy.interpolate import CubicSpline
 from functools import partial
@@ -45,16 +46,41 @@ def experience_mod(young_modulus, diameter, position_force, norm_force,
     system.add_support_hinged(node_id = 1)
     system.add_support_roll(node_id = system.id_last_node , direction='x')
 
-    solution = system.solve(force_linear = False,
-                            verbosity = 50,
-                            max_iter = 300, 
-                            geometrical_non_linear = False,
-                            naked = False)
-    deflection = numpy.array(system.get_node_result_range('uy'))
-    shear = numpy.array(system.get_element_result_range('shear'))
-    moment = numpy.array(system.get_element_result_range('moment'))
-    element_results = numpy.vstack([young_modu_new, diameter_new, shear, moment])
-    norm_position = numpy.array([norm_force, position_force])
+    try :
+        solution = system.solve(force_linear = False,
+                                verbosity = 50,
+                                max_iter = 300, 
+                                geometrical_non_linear = False,
+                                naked = False)
+        deflection = numpy.array(system.get_node_result_range('uy'))
+        shear = numpy.array(system.get_element_result_range('shear'))
+        moment = numpy.array(system.get_element_result_range('moment'))
+        element_results = numpy.vstack([young_modu_new, diameter_new, shear, moment])
+        norm_position = numpy.array([norm_force, position_force])
+
+    except Exception as e :
+        print('Caught exception', e)
+        print('------------- PARAMETER LOG -------------')
+        print('-- Name : ( mean, variance, min, max)* --')
+        print('-- Name : ( value )** -------------------')
+        print('-- * : Field , ** : Scalar ')
+        print('-- Youngs Modulus : ( {} , {}, {}, {})'.format( round(float(numpy.mean(young_modu_new)), 4), 
+                                                               round(float(numpy.std(young_modu_new)), 4), 
+                                                               round(float(numpy.min(young_modu_new)), 4),
+                                                               round(float(numpy.max(young_modu_new)), 4)))
+        print('-- Diameter : ( {} , {}, {}, {})'.format( round(float(numpy.mean(diameter_new)), 4), 
+                                                               round(float(numpy.std(diameter_new)), 4), 
+                                                               round(float(numpy.min(diameter_new)), 4),
+                                                               round(float(numpy.max(diameter_new)), 4)))
+        print('-- Position Force : ( {} )'.format( round(float(position_force), 4 )))
+        print('-- Norm Force : ( {} )'.format( round(float(norm_force), 4 )))
+
+        l_ver = len(vertex_list)
+        deflection = numpy.zeros((l_ver,))
+        shear = numpy.zeros((l_ver - 1,))
+        moment = numpy.zeros((l_ver - 1,))
+        element_results = numpy.vstack([young_modu_new, diameter_new, shear, moment])
+        norm_position = numpy.array([norm_force, position_force]) 
 
     return element_results, deflection, norm_position
 
