@@ -45,7 +45,7 @@ def build_default_kriging_algo(input_sample, output_sample, basis=None,
 
         algo_kriging_col[marginal] = ot.KrigingAlgorithm(input_sample,
                                             output_sample[:, marginal],
-                                            covariance_model, basis, True)
+                                            covariance_model, basis)
         if noise is not None:
             if type(noise) is not list:
                 algo_kriging_col[marginal].setNoise([noise]*input_sample.getSize())
@@ -152,7 +152,7 @@ def estimate_kriging_theta(algo_kriging, lower_bound=None, upper_bound=None, siz
 
             # Now the KrigingAlgorithm is used to optimize the likelihood using a
             # good starting point
-            algo_kriging[marginal] = ot.KrigingAlgorithm(X, Y, covariance_model, basis, True)
+            algo_kriging[marginal] = ot.KrigingAlgorithm(X, Y, covariance_model, basis)
             if noise.getDimension() != 0:
                 algo_kriging[marginal].setNoise(noise)
 

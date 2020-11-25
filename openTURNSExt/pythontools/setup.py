@@ -5,11 +5,11 @@ from distutils.version import LooseVersion
 import openturns as ot
 import otmorris as otm
 
-ot_version_require = '1.15'
+ot_version_require = '1.16rc1'
 if LooseVersion(ot.__version__) != ot_version_require:
     raise Exception('Version of openturns must be : {}, found {}.'.format(ot_version_require, ot.__version__))
 
-otm_version_require = '0.8'
+otm_version_require = '0.9'
 if LooseVersion(otm.__version__) != otm_version_require:
     raise Exception('Version of otmorris must be : {}, found {}.'.format(otm_version_require, otm.__version__))
 
