@@ -70,9 +70,11 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
             elif isinstance(self.__KLResultsAndDistributions__[i], (ot.Distribution, ot.DistributionImplementation)):
                 self.__has_distributions__ = True
                 if self.__KLResultsAndDistributions__[i].getMean()[0] != 0 :
-                    print('The mean value of distribution at index {} of type {} is not 0.'.format(str(i), self.__KLResultsAndDistributions__[i].getClassName()))
+                    print('The mean value of distribution {} at index {} of type {} is not 0.'.format(str('"'+self.__KLResultsAndDistributions__[i].getName()+'"'), str(i), self.__KLResultsAndDistributions__[i].getClassName()))
+                    name_distr = self.__KLResultsAndDistributions__[i].getName()
                     self.__means__[i] = self.__KLResultsAndDistributions__[i].getMean()[0]
                     self.__KLResultsAndDistributions__[i] -= self.__means__[i]
+                    self.__KLResultsAndDistributions__[i].setName(name_distr)
                     print('Distribution recentered and mean added to list of means')
                     print('Set the "liftWithMean" flag to true if you want to include the mean.')
                 # We can say that the inverse iso probabilistic transformation is analoguous to lifting
