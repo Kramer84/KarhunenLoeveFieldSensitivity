@@ -1,11 +1,58 @@
 import functools
 import time
+import os
+from collections.abc import Sequence, Iterable
+
 import numpy as np
 import pandas as pd
 import openturns as ot
+
 import pythontools as pt
 import KarhunenLoeveFieldSensitivity as klfs
 import beamExample as MODEL
+
+sample_path = './sample_storage'
+if not os.path.isdir(sample_path):
+    os.mkdir(sample_path)
+
+
+def timer(func):
+    @functools.wraps(func)
+    def wrapper_timer(*args, **kwargs):
+        tic = time.perf_counter()
+        value = func(*args, **kwargs)
+        toc = time.perf_counter()
+        elapsed_time = toc - tic
+        print(f"Elapsed time: {elapsed_time:0.4f} seconds")
+        return value
+    return wrapper_timer
+
+def function_with_save_wrapper(func):
+    @functools.wraps(func)
+    def new_function_wrapper(arg, file_name):
+        if not (os.path.isfile(os.path.join(sample_path, file_name+'.csv')) \
+                and os.path.isfile(os.path.join(sample_path, file_name+'_VM'+'.csv')) \
+                and os.path.isfile(os.path.join(sample_path, file_name+'_MD'+'.csv'))):
+            output = func(arg)
+            vonMises = ot.Sample(np.array(np.stack([np.squeeze(np.asarray(output[0][i])) for i in range(len(output[0]))])))
+            maxDefl = output[1][0]
+            arg.exportToCSVFile(os.path.join(sample_path,file_name+'.csv'), ';')
+            vonMises.exportToCSVFile(os.path.join(sample_path,file_name+'_VM'+'.csv'), ';')
+            maxDefl.exportToCSVFile(os.path.join(sample_path,file_name+'_MD'+'.csv'), ';')
+            return arg, vonMises, maxDefl
+        else :
+            print('function was already evaluated, reloading data')
+            doe = pd.read_csv(os.path.join(sample_path, file_name+'.csv'), sep=';')
+            vonMises = pd.read_csv(os.path.join(sample_path, file_name+'_VM'+'.csv'), sep=';', header=None)
+            maxDefl = pd.read_csv(os.path.join(sample_path, file_name+'_MD'+'.csv'), sep=';', header=None)
+            sample_doe = ot.Sample(doe.values)
+            sample_doe.setDescription(doe.columns)
+            sample_vonMises = ot.Sample(vonMises.values)
+            sample_vonMises.setDescription(ot.Description.BuildDefault(len(vonMises.columns), 'VM_'))
+            sample_maxDefl = ot.Sample(maxDefl.values)
+            sample_maxDefl.setDescription(ot.Description.BuildDefault(len(maxDefl.columns), 'MD_'))
+            return sample_doe, sample_vonMises, sample_maxDefl
+    return new_function_wrapper
 
 def getRandomNormalVector(AggregatedKLRes):
     nModes = AggregatedKLRes.getSizeModes()  # the number of elements in the input vector of our KL wrapped model
@@ -30,17 +77,6 @@ def get_process_kl_decomposition(mean, coef_var, scale, nu, mesh, dimension, nam
     results = algorithm.getResult()
     results.setName(name)
     return results
-
-def timer(func):
-    @functools.wraps(func)
-    def wrapper_timer(*args, **kwargs):
-        tic = time.perf_counter()
-        value = func(*args, **kwargs)
-        toc = time.perf_counter()
-        elapsed_time = toc - tic
-        print(f"Elapsed time: {elapsed_time:0.4f} seconds")
-        return value
-    return wrapper_timer
 
 
 # Little helper class for optimized lhs :
@@ -270,9 +306,8 @@ class __validation_results__(object) :
         theGraph.add(theCurve)
         ot.Show(theGraph)
 
-    def getR2s(self):
+    def getR2(self):
         theGraph = ot.Graph('R2','varying dimension','residual',True,'')
-        theCurve = ot.Curve(list(range(len(self.__R2__))),
-                            self.__R2__, 'R2')
-        theGraph.add(theCurve)
-        ot.Show(theGraph)
+        r2_sampl = ot.Sample(self.__R2__)
+        R2 = r2_sampl.asPoint()
+        print('R2:',R2)
