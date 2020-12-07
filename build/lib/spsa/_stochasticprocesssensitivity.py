@@ -698,7 +698,6 @@ class OpenturnsPythonFunctionWrapper(openturns.OpenTURNSPythonFunction):
         tempCompo          = numpy.asarray(KLComposedDistribution)
         print('Before loop OK, input dim is',self.inputDim)
         print('fieldPositions are',fieldPositions)
-        print('self.StochasticProcessList',self.StochasticProcessList)
         for k in range(self.inputDim):
             if k in fieldPositions :
                 print('wtf')
