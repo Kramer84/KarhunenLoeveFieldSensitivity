@@ -1,7 +1,9 @@
 import functools
+from copy import deepcopy, copy
 import time
 import os
 from collections.abc import Sequence, Iterable
+from fractions import Fraction
 
 import numpy as np
 import pandas as pd
@@ -66,11 +68,14 @@ def get_fem_vertices(min_vertices, max_vertices, n_elements):
     fem_vertices = mesher.build(interval)
     return fem_vertices
 
-def get_process_kl_decomposition(mean, coef_var, scale, nu, mesh, dimension, name, threshold= 1e-3):
+def get_process_kl_decomposition(mean, coef_var=None, amplitude=None, scale=0, nu=1, mesh=None, dimension=1, name='', threshold= 1e-3):
     # for matern model only
-    amplitude = [mean*coef_var]*dimension
-    scale = [scale]*dimension
-    model = ot.MaternModel(scale, amplitude, nu)
+    if amplitude is None and coef_var is not None:
+        amplitude = [float(mean*coef_var)]*dimension
+    else :
+        amplitude = [float(amplitude)]*dimension
+    scale = [float(scale)]*dimension
+    model = ot.MaternModel(scale, amplitude, float(nu))
     # Karhunen Loeve decomposition of process
     algorithm = ot.KarhunenLoeveP1Algorithm(mesh, model, threshold)
     algorithm.run()
@@ -311,3 +316,174 @@ class __validation_results__(object) :
         r2_sampl = ot.Sample(self.__R2__)
         R2 = r2_sampl.asPoint()
         print('R2:',R2)
+        return R2
+
+
+
+#Basic parameters of the problem
+dim          = 1
+n_elements   = 99
+min_vertices = 0    #mm
+max_vertices = 1000 #mm
+
+if not os.path.isdir('./meta_analysis_results'):
+    os.mkdir('./meta_analysis_results')
+
+class _metamodel_parameter_routine:
+    #routines for the calculus of multiple sobol indices, with
+    #varying thresholds and varying sizes for the LHS DOE used
+    #for creating the metamodel
+
+
+    def __init__(self, variance_young,
+                       scale_young,
+                       variance_diam,
+                       scale_diam,
+                       var_f_pos,
+                       var_f_norm):
+        self.variance_young = variance_young
+        self.scale_young = scale_young
+        self.variance_diam = variance_diam
+        self.scale_diam = variance_diam
+        self.var_f_pos = var_f_pos
+        self.var_f_norm = var_f_norm
+
+        #This parameters are the means and are fixed
+        self.mean_young = 210000 #MPa
+        self.mean_diam = 10 #mm
+        self.mean_f_pos = 500 #mm
+        self.mean_f_norm = 100 #N
+
+        #parameters of the beam model
+        self.fem_vertices = get_fem_vertices(min_vertices, max_vertices, n_elements)
+
+        # The two scalar random variables :
+        self.pos_force = ot.Normal(self.mean_f_pos, self.var_f_pos)
+        self.pos_force.setName('F_Pos_')
+
+        self.norm_force  = ot.Normal(self.mean_f_norm, self.var_f_norm)
+        self.norm_force.setName('F_Norm_')
+
+        #The different thresholds that we test
+        self.threshold_list = [1e-1,1e-3,1e-6,1e-8]
+
+        self.LHS_Sizes = [25,50,100,175,250]
+        self.NU_list = [1/2,5/2,100]
+        self._base_name = None
+        self._sub_dir = None
+
+    def _exec_routine(self):
+        #Here in the rountine we are going to calculate the sobol indices
+        #corresponding to the different combination of variances and scales.
+        #For each of these sobol indices, we try diverse thresholds for the
+        #KL decomposition, diverse NU parameters for the matern model, as well
+        #as divese LHS sizes, for the calculus the metamodel, and calculus of
+        #the sobol indices on this metamodel.
+        self.getBasePathAndFileName()
+        name_base = copy(self._base_name)
+
+        #first we iterate over the thresholds:
+        for threshold in self.threshold_list :
+            thresh_str = np.format_float_scientific(threshold, precision = 1,exp_digits=1)
+            name_base = name_base+'th'+thresh_str+'_'
+            print('threshold is',thresh_str)
+
+            #then we iterate over the nus:
+            for nu in self.NU_list :
+                nu_str = str(round(nu, 3))
+                name_base = name_base+'nu'+nu_str+'_'
+                kl_results_E, kl_results_D = self.getKLDecompositionYoungDiam(threshold, nu)
+                AggregatedKLRes = self.getAggregatedKLResults(kl_results_E, kl_results_D)
+                FEM_model = self.getFEMModel(AggregatedKLRes)
+                self._exec_sub_routine(AggregatedKLRes, FEM_model)
+
+
+    def _exec_sub_routine(self, AggregatedKLRes, FEM_model):
+        # Here we do the calulus work.
+        # First we calculate the "real sobol indices" on the real
+        # model with a sample size of 2000
+        # Then we calculate the response of the model to the different LHS
+        # samples, and each metamodel associated to it
+        # Then we recalculate the sobol indices with the metamodel
+        RandomNormalVector = getRandomNormalVector(AggregatedKLRes)
+        SEED0 = 948546882996
+        SEED1 = 98577599025
+        SEED2 = 911745283
+        SEED3 = 68071771823
+        SEED4 = 387349900932
+        SEED5 = 78245918772
+        SEED6 = 1275728859
+        doe_sobol_experiment_N2000, _ = getSobolExperiment(AggregatedKLRes, 1000, SEED0)
+        doe_kriging_LHS25 = optimizedLHS(RandomNormalVector, 25, SEED1)
+        doe_kriging_LHS50 = optimizedLHS(RandomNormalVector, 50, SEED2)
+        doe_kriging_LHS150 = optimizedLHS(RandomNormalVector, 150, SEED3)
+        doe_kriging_LHS300 = optimizedLHS(RandomNormalVector, 300, SEED4)
+        doe_kriging_valid = optimizedLHS(RandomNormalVector, 1000, SEED5)
+        #now we evaluate the function for the metamodels
+        doe_kriging_LHS25_VM, doe_kriging_LHS25_MD = FEM_model(doe_kriging_LHS25)
+        doe_kriging_LHS50_VM, doe_kriging_LHS50_MD = FEM_model(doe_kriging_LHS50)
+        doe_kriging_LHS150_VM, doe_kriging_LHS150_MD = FEM_model(doe_kriging_LHS150)
+        doe_kriging_LHS300_VM, doe_kriging_LHS300_MD = FEM_model(doe_kriging_LHS300)
+        #And here for the Sobol Indices
+        doe_sobol_experiment_N2000_VM, doe_sobol_experiment_N2000_MD = FEM_model(doe_sobol_experiment_N2000)
+        doe_kriging_valid_VM, doe_kriging_valid_MD = FEM_model(doe_kriging_valid)
+        R2_LHS25, kriging_model_LHS25 = self.metamodel_kriging_validation(doe_kriging_LHS25, doe_kriging_LHS25_MD, doe_kriging_valid, doe_kriging_valid_MD)
+        R2_LHS50, kriging_model_LHS50 = self.metamodel_kriging_validation(doe_kriging_LHS50, doe_kriging_LHS50_MD, doe_kriging_valid, doe_kriging_valid_MD)
+        R2_LHS150, kriging_model_LHS150 = self.metamodel_kriging_validation(doe_kriging_LHS150, doe_kriging_LHS150_MD, doe_kriging_valid, doe_kriging_valid_MD)
+        R2_LHS300, kriging_model_LHS300 = self.metamodel_kriging_validation(doe_kriging_LHS300, doe_kriging_LHS300_MD, doe_kriging_valid, doe_kriging_valid_MD)
+
+    def metamodel_kriging_validation(self, doe_in, doe_out, doe_validation_in, doe_validation_out):
+        kriging_model = metamodeling_kriging(doe_in, doe_out,
+                    optim_type='multi_start', size_multistart = 10)
+        kriging_model.run()
+        kriging_model.getMetaModelValidation(doe_validation_in, doe_validation_out)
+        R2 = kriging_model.validation_results.getR2()[0] #for now works only with 1D outputs
+        return R2, kriging_model
+
+    def getBasePathAndFileName(self):
+        base_string ='EXP_'+'VE'+str(self.variance_young)+'_'+'SE'+str(self.scale_young)\
+            +'_'+'VD'+str(self.variance_diam) +'_'+'SD'+str(self.scale_diam)\
+            +'_'+'VFP'+str(self.var_f_pos)    +'_'+'VFN'+str(self.var_f_norm)+'_'
+        self.sub_dir = './meta_analysis_results/'+base_string
+        self._base_name = base_string
+        if not os.path.isdir(self.sub_dir):
+            os.mkdir(self.sub_dir)
+
+    def getKLDecompositionYoungDiam(self, threshold, nu):
+        kl_results_E = get_process_kl_decomposition(
+                        mean = self.mean_young, amplitude = self.variance_young , scale = self.scale_young,
+                        nu = nu, mesh = self.fem_vertices, dimension = dim,
+                        name = 'E_', threshold = threshold)
+
+        kl_results_D = get_process_kl_decomposition(
+                        mean = self.mean_diam, amplitude = self.variance_diam, scale = self.scale_diam,
+                        nu = nu, mesh = self.fem_vertices, dimension = dim,
+                        name = 'D_', threshold = threshold)
+        return kl_results_E, kl_results_D
+
+    def getAggregatedKLResults(self, kl_results_E, kl_results_D):
+        kl_results_list = [kl_results_E, kl_results_D, self.pos_force, self.norm_force]
+        AggregatedKLRes = klfs.AggregatedKarhunenLoeveResults(kl_results_list)
+        AggregatedKLRes.setMean(0, self.mean_young) # At other indices the means are initialized from the distributions
+        AggregatedKLRes.setMean(1, self.mean_diam)
+        AggregatedKLRes.setLiftWithMean(True)
+        return AggregatedKLRes
+
+    def getFEMModel(self, AggregatedKLRes):
+        # definition of the model :
+        _MODEL = MODEL.PureBeam()
+        # initialization of the function wrapper :
+        FUNC = klfs.KarhunenLoeveGeneralizedFunctionWrapper(
+                    AggregatedKarhunenLoeveResults = AggregatedKLRes,
+                    func        = None,
+                    func_sample = _MODEL.batchEval,
+                    n_outputs   = 2)
+        def FUNCwrap(arg):
+            output = FUNC(arg)
+            vonMises = ot.Sample(np.array(np.stack([np.squeeze(np.asarray(output[0][i])) for i in range(len(output[0]))])))
+            maxDefl = output[1][0]
+            return vonMises, maxDefl
+        return FUNCwrap
+
+
+

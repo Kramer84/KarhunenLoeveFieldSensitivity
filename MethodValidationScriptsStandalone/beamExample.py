@@ -27,7 +27,7 @@ X = numpy.arange(0,1000+1,10) #to include also 1000
 elem_coords = (X[1:]+X[:-1])/2
 
 def experience_mod(young_modulus, diameter, position_force, norm_force,
-                   vertices = vertices, vertex_list = vertex_list, 
+                   vertices = vertices, vertex_list = vertex_list,
                    elem_coords = elem_coords):
     cs_young_modulus = CubicSpline(elem_coords, young_modulus)
     cs_diameter = CubicSpline(elem_coords, diameter)
@@ -35,9 +35,13 @@ def experience_mod(young_modulus, diameter, position_force, norm_force,
     young_modu_new = numpy.divide(numpy.add(cs_young_modulus(vertices[1:]),cs_young_modulus(vertices[:-1])), 2)
     diameter_new = numpy.divide(numpy.add(cs_diameter(vertices[1:]),cs_diameter(vertices[:-1])), 2)
 
+    #Here we clip the values to not avec negative young moduli or diameter
+    young_modu_new = numpy.clip(a = young_modu_new, a_min = 1000, a_max = None)
+    diameter_new = numpy.clip(a = diameter_new, a_min = .1, a_max = None)
+
     system = SystemElements(EA = None, EI = None) # to make sure we delete the default values
     for k in range(len(vertex_list)-1):      # always a vertex more than element
-        system.add_element(location = [vertex_list[k], vertex_list[k+1]], 
+        system.add_element(location = [vertex_list[k], vertex_list[k+1]],
                             d = diameter_new[k],
                             E = young_modu_new[k],
                             gamma = 7850)
@@ -49,7 +53,7 @@ def experience_mod(young_modulus, diameter, position_force, norm_force,
     try :
         solution = system.solve(force_linear = False,
                                 verbosity = 50,
-                                max_iter = 300, 
+                                max_iter = 300,
                                 geometrical_non_linear = False,
                                 naked = False)
         deflection = numpy.array(system.get_node_result_range('uy'))
@@ -64,12 +68,12 @@ def experience_mod(young_modulus, diameter, position_force, norm_force,
         print('-- Name : ( mean, variance, min, max)* --')
         print('-- Name : ( value )** -------------------')
         print('-- * : Field , ** : Scalar ')
-        print('-- Youngs Modulus : ( {} , {}, {}, {})'.format( round(float(numpy.mean(young_modu_new)), 4), 
-                                                               round(float(numpy.std(young_modu_new)), 4), 
+        print('-- Youngs Modulus : ( {} , {}, {}, {})'.format( round(float(numpy.mean(young_modu_new)), 4),
+                                                               round(float(numpy.std(young_modu_new)), 4),
                                                                round(float(numpy.min(young_modu_new)), 4),
                                                                round(float(numpy.max(young_modu_new)), 4)))
-        print('-- Diameter : ( {} , {}, {}, {})'.format( round(float(numpy.mean(diameter_new)), 4), 
-                                                               round(float(numpy.std(diameter_new)), 4), 
+        print('-- Diameter : ( {} , {}, {}, {})'.format( round(float(numpy.mean(diameter_new)), 4),
+                                                               round(float(numpy.std(diameter_new)), 4),
                                                                round(float(numpy.min(diameter_new)), 4),
                                                                round(float(numpy.max(diameter_new)), 4)))
         print('-- Position Force : ( {} )'.format( round(float(position_force), 4 )))
@@ -80,7 +84,7 @@ def experience_mod(young_modulus, diameter, position_force, norm_force,
         shear = numpy.zeros((l_ver - 1,))
         moment = numpy.zeros((l_ver - 1,))
         element_results = numpy.vstack([young_modu_new, diameter_new, shear, moment])
-        norm_position = numpy.array([norm_force, position_force]) 
+        norm_position = numpy.array([norm_force, position_force])
 
     return element_results, deflection, norm_position
 
@@ -90,9 +94,9 @@ def nans(shape):
     a.fill(numpy.nan)
     return a
 
-def batchEval(random_young_modulus, 
-              random_diameter, 
-              random_forcePos, 
+def batchEval(random_young_modulus,
+              random_diameter,
+              random_forcePos,
               random_forceNorm):
     var1, var2, var3, var4 = random_young_modulus, random_diameter, random_forcePos, random_forceNorm
     result_list = Parallel(n_jobs=-1, verbose=10)(
@@ -114,7 +118,7 @@ def getVonMisesStress(monteCarloResults_elem):
     shear_MC             = monteCarloResults_elem[:,2,:]
     inertia_MC, area_MC  = moment_inertia_PlainRoundBeam(diameter_MC)
     maxbendingStress_MC  = getMaximumBendingStress(moment_MC, inertia_MC, diameter_MC)
-    shearStress_MC       = (4/3)*numpy.divide(shear_MC, area_MC)  
+    shearStress_MC       = (4/3)*numpy.divide(shear_MC, area_MC)
     vonMisesCriteria     = numpy.sqrt(numpy.square(maxbendingStress_MC) + numpy.multiply(numpy.square(shearStress_MC), 3))
     return vonMisesCriteria
 
@@ -132,15 +136,15 @@ class PureBeam(object):
 
     def batchEval(self, argList):
         inputs = list(self.convertSinglInputs(argList))
-        return batchEval(inputs[0], inputs[1], inputs[2], inputs[3]) 
-            
+        return batchEval(inputs[0], inputs[1], inputs[2], inputs[3])
+
     def convertSinglInputs(self, inputList):
         '''To confert the fields into scalars
         '''
         if isinstance(inputList[0],ot.ProcessSample):
             field_E  = numpy.stack([numpy.squeeze(numpy.asarray(inputList[0][i])) for i in range(inputList[0].getSize())])
             field_D  = numpy.stack([numpy.squeeze(numpy.asarray(inputList[1][i])) for i in range(inputList[1].getSize())])
-            var_Fpos = numpy.asarray([inputList[2][i][0,0] for i in range(inputList[2].getSize())]) 
+            var_Fpos = numpy.asarray([inputList[2][i][0,0] for i in range(inputList[2].getSize())])
             var_Fnor = numpy.asarray([inputList[3][i][0,0] for i in range(inputList[2].getSize())])
             print('field E shape', field_E.shape)
             print('var_Fnor shape', var_Fnor.shape)
