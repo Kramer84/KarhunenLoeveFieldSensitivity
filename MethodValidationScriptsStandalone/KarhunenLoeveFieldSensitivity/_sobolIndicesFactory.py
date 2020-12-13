@@ -128,9 +128,6 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
     def getClassName(self):
         return self.__class__.__name__
 
-    def getConfidenceLevel(self):
-        return self.ConfidenceLevel
-
     def getFirstOrderIndices(self):
         self.__fastResultCheck__()
         FO_indices = list()
@@ -241,10 +238,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
 
     def setBootstrapSize(self, bootstrapSize):
         self.__BootstrapSize__ = bootstrapSize
-
-    def setConfidenceLevel(self, confidenceLevel):
-        self.ConfidenceLevel = confidenceLevel
-
+        
     def setDesign(self, inputDesign=None, outputDesign=None, N=0):
         outputDesign = atLeastList(outputDesign)
         assert all_same([len(outputDesign[i]) for i in range(len(outputDesign))])

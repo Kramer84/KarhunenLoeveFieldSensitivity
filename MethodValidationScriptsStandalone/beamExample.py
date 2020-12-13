@@ -35,9 +35,11 @@ def experience_mod(young_modulus, diameter, position_force, norm_force,
     young_modu_new = numpy.divide(numpy.add(cs_young_modulus(vertices[1:]),cs_young_modulus(vertices[:-1])), 2)
     diameter_new = numpy.divide(numpy.add(cs_diameter(vertices[1:]),cs_diameter(vertices[:-1])), 2)
 
-    #Here we clip the values to not avec negative young moduli or diameter
+    #Here we clip the values to not have negative young moduli or diameter
     young_modu_new = numpy.clip(a = young_modu_new, a_min = 1000, a_max = None)
     diameter_new = numpy.clip(a = diameter_new, a_min = .1, a_max = None)
+    position_force = numpy.clip(position_force,1,999)
+    norm_force = numpy.clip(a = norm_force, a_min = 1, a_max = None)
 
     system = SystemElements(EA = None, EI = None) # to make sure we delete the default values
     for k in range(len(vertex_list)-1):      # always a vertex more than element
@@ -99,7 +101,7 @@ def batchEval(random_young_modulus,
               random_forcePos,
               random_forceNorm):
     var1, var2, var3, var4 = random_young_modulus, random_diameter, random_forcePos, random_forceNorm
-    result_list = Parallel(n_jobs=-1, verbose=10)(
+    result_list = Parallel(n_jobs=-1, verbose=2)(
                     delayed(experience_mod)(
                         var1[i], var2[i], var3[i], var4[i], vertices, vertex_list, elem_coords) for i in range(len(var4)))
     monteCarloResults_elem = numpy.stack(numpy.asarray(result_list)[...,0])
@@ -130,7 +132,6 @@ def moment_inertia_PlainRoundBeam(D):
 @jit(nopython=True)
 def getMaximumBendingStress(bendingMoment, inertia, diameter):
     return numpy.multiply(numpy.divide(bendingMoment, inertia),-1*diameter/2)
-
 
 class PureBeam(object):
 

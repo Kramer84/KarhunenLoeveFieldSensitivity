@@ -365,13 +365,13 @@ class _metamodel_parameter_routine:
         self.norm_force.setName('F_Norm_')
 
         #The different thresholds that we test
-        self.threshold_list = [1e-1,1e-3,1e-6,1e-8]
+        self.threshold_list = [.5,1e-1,1e-3,1e-5]
 
-        self.LHS_Sizes = [25,50,100,175,250]
         self.NU_list = [1/2,5/2,100]
         self._base_name = None
         self._sub_dir = None
 
+    @timer
     def _exec_routine(self):
         #Here in the rountine we are going to calculate the sobol indices
         #corresponding to the different combination of variances and scales.
@@ -385,17 +385,21 @@ class _metamodel_parameter_routine:
         #first we iterate over the thresholds:
         for threshold in self.threshold_list :
             thresh_str = np.format_float_scientific(threshold, precision = 1,exp_digits=1)
-            name_base = name_base+'th'+thresh_str+'_'
             print('threshold is',thresh_str)
+            sub_sub_dir = os.path.join(self.sub_dir ,'threshold{}'.format(thresh_str))
+            if not os.path.isdir(sub_sub_dir):
+                os.mkdir(sub_sub_dir)
 
             #then we iterate over the nus:
             for nu in self.NU_list :
                 nu_str = str(round(nu, 3))
-                name_base = name_base+'nu'+nu_str+'_'
+                csv_name = 'NU{}'.format(nu_str)+'.csv'
+                csv_file_path = os.path.join(sub_sub_dir,csv_name)
                 kl_results_E, kl_results_D = self.getKLDecompositionYoungDiam(threshold, nu)
                 AggregatedKLRes = self.getAggregatedKLResults(kl_results_E, kl_results_D)
                 FEM_model = self.getFEMModel(AggregatedKLRes)
-                self._exec_sub_routine(AggregatedKLRes, FEM_model)
+                result_sample = self._exec_sub_routine(AggregatedKLRes, FEM_model)
+                result_sample.exportToCSVFile(csv_file_path,';')
 
 
     def _exec_sub_routine(self, AggregatedKLRes, FEM_model):
@@ -411,26 +415,89 @@ class _metamodel_parameter_routine:
         SEED2 = 911745283
         SEED3 = 68071771823
         SEED4 = 387349900932
-        SEED5 = 78245918772
-        SEED6 = 1275728859
-        doe_sobol_experiment_N2000, _ = getSobolExperiment(AggregatedKLRes, 1000, SEED0)
+        SEED5 = 1275728859
+        doe_sobol_experiment_N1000, _ = getSobolExperiment(AggregatedKLRes, 1000, SEED0)
+        doe_metasobol_experiment_N50000, _ = getSobolExperiment(AggregatedKLRes, 50000, SEED5)
+
         doe_kriging_LHS25 = optimizedLHS(RandomNormalVector, 25, SEED1)
         doe_kriging_LHS50 = optimizedLHS(RandomNormalVector, 50, SEED2)
-        doe_kriging_LHS150 = optimizedLHS(RandomNormalVector, 150, SEED3)
-        doe_kriging_LHS300 = optimizedLHS(RandomNormalVector, 300, SEED4)
-        doe_kriging_valid = optimizedLHS(RandomNormalVector, 1000, SEED5)
+        doe_kriging_LHS100 = optimizedLHS(RandomNormalVector, 100, SEED3)
+        doe_kriging_valid = optimizedLHS(RandomNormalVector, 600, SEED4)
         #now we evaluate the function for the metamodels
         doe_kriging_LHS25_VM, doe_kriging_LHS25_MD = FEM_model(doe_kriging_LHS25)
         doe_kriging_LHS50_VM, doe_kriging_LHS50_MD = FEM_model(doe_kriging_LHS50)
-        doe_kriging_LHS150_VM, doe_kriging_LHS150_MD = FEM_model(doe_kriging_LHS150)
-        doe_kriging_LHS300_VM, doe_kriging_LHS300_MD = FEM_model(doe_kriging_LHS300)
+        doe_kriging_LHS100_VM, doe_kriging_LHS100_MD = FEM_model(doe_kriging_LHS100)
         #And here for the Sobol Indices
-        doe_sobol_experiment_N2000_VM, doe_sobol_experiment_N2000_MD = FEM_model(doe_sobol_experiment_N2000)
+        doe_sobol_experiment_N1000_VM, doe_sobol_experiment_N1000_MD = FEM_model(doe_sobol_experiment_N1000)
         doe_kriging_valid_VM, doe_kriging_valid_MD = FEM_model(doe_kriging_valid)
         R2_LHS25, kriging_model_LHS25 = self.metamodel_kriging_validation(doe_kriging_LHS25, doe_kriging_LHS25_MD, doe_kriging_valid, doe_kriging_valid_MD)
         R2_LHS50, kriging_model_LHS50 = self.metamodel_kriging_validation(doe_kriging_LHS50, doe_kriging_LHS50_MD, doe_kriging_valid, doe_kriging_valid_MD)
-        R2_LHS150, kriging_model_LHS150 = self.metamodel_kriging_validation(doe_kriging_LHS150, doe_kriging_LHS150_MD, doe_kriging_valid, doe_kriging_valid_MD)
-        R2_LHS300, kriging_model_LHS300 = self.metamodel_kriging_validation(doe_kriging_LHS300, doe_kriging_LHS300_MD, doe_kriging_valid, doe_kriging_valid_MD)
+        R2_LHS100, kriging_model_LHS100 = self.metamodel_kriging_validation(doe_kriging_LHS100, doe_kriging_LHS100_MD, doe_kriging_valid, doe_kriging_valid_MD)
+        #Now we have to calculate the sobol indices
+        result_point_DOE1000 = self.getSensitivityAnalysisResults(doe_sobol_experiment_N1000, doe_sobol_experiment_N1000_MD, 1000)
+        print('Sobol indices for 50000 size - metamodel')
+        print('LHS25')
+        result_point_DOE50000_LHS25 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS25, doe_metasobol_experiment_N50000, 50000, 25)
+        print('LHS50')
+        result_point_DOE50000_LHS50 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS50, doe_metasobol_experiment_N50000, 50000, 50)
+        print('LHS100')
+        result_point_DOE50000_LHS100 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS100, doe_metasobol_experiment_N50000, 50000, 100)
+        print('Sobol indices for 1000 size - metamodel')
+        print('LHS25')
+        result_point_DOE1000_LHS25 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS25, doe_sobol_experiment_N1000, 1000, 25)
+        print('LHS50')
+        result_point_DOE1000_LHS50 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS50, doe_sobol_experiment_N1000, 1000, 50)
+        print('LHS100')
+        result_point_DOE1000_LHS100 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS100, doe_sobol_experiment_N1000, 1000, 100)
+        description = result_point_DOE1000.getDescription()
+        ResultsSample = ot.Sample([result_point_DOE1000, result_point_DOE50000_LHS25, result_point_DOE50000_LHS50, result_point_DOE50000_LHS100, 
+                                  result_point_DOE1000_LHS25, result_point_DOE1000_LHS50, result_point_DOE1000_LHS100])
+        ResultsSample.setDescription(description)
+        return ResultsSample 
+
+
+
+    def getSensitivityAnalysisResults(self, sample_in, sample_out, size):
+        dim = sample_in.getDimension() # Dimensoin of the KL input vector
+        sensitivity_analysis = klfs.SobolKarhunenLoeveFieldSensitivityAlgorithm()
+        sensitivity_analysis.setDesign(sample_in, sample_out, size)
+        sensitivity_analysis.setEstimator(ot.MartinezSensitivityAlgorithm())
+        FO_indices = sensitivity_analysis.getFirstOrderIndices()[0]
+        conf_level = sensitivity_analysis.getFirstOrderIndicesInterval()[0]
+        lb = conf_level.getLowerBound()
+        ub = conf_level.getUpperBound()
+        print('FO_indices are',FO_indices)
+        print('lb, ub:\n',lb,'\n',ub)
+        result_point = ot.PointWithDescription([('meta',0.),('N_LHS',-1.),('size',size),('kl_dimension',dim),
+                                             ('SI_E',FO_indices[0][0]),('SI_E_lb',lb[0]),('SI_E_ub',ub[0]),
+                                             ('SI_D',FO_indices[1][0]),('SI_D_lb',lb[1]),('SI_D_ub',ub[1]),
+                                             ('SI_FP',FO_indices[2][0]),('SI_FP_lb',lb[2]),('SI_FP_ub',ub[2]),
+                                             ('SI_FN',FO_indices[3][0]),('SI_FN_lb',lb[3]),('SI_FN_ub',ub[3])])
+        print('------------- RESULTS ------------')
+        print('------------ REAL MODEL ----------')
+        print(result_point)
+        return result_point
+
+
+    def getSensitivityAnalysisResultsMetamodel(self, metamodel, doe_sobol, size, N_LHS):
+        meta_response = metamodel.__kriging_metamodel__(doe_sobol)
+        sensitivity_analysis = klfs.SobolKarhunenLoeveFieldSensitivityAlgorithm()
+        sensitivity_analysis.setDesign(doe_sobol, meta_response, size)
+        sensitivity_analysis.setEstimator(ot.MartinezSensitivityAlgorithm())
+        FO_indices = sensitivity_analysis.getFirstOrderIndices()[0]
+        conf_level = sensitivity_analysis.getFirstOrderIndicesInterval()[0]
+        lb = conf_level.getLowerBound()
+        ub = conf_level.getUpperBound()
+        result_point = ot.PointWithDescription([('meta',1.),('N_LHS',N_LHS),('size',size),('kl_dimension',dim),
+                                             ('SI_E',FO_indices[0][0]),('SI_E_lb',lb[0]),('SI_E_ub',ub[0]),
+                                             ('SI_D',FO_indices[1][0]),('SI_D_lb',lb[1]),('SI_D_ub',ub[1]),
+                                             ('SI_FP',FO_indices[2][0]),('SI_FP_lb',lb[2]),('SI_FP_ub',ub[2]),
+                                             ('SI_FN',FO_indices[3][0]),('SI_FN_lb',lb[3]),('SI_FN_ub',ub[3])])
+        print('------------- RESULTS ------------')
+        print('------------ META MODEL ----------')
+        print('-----------SIZE LHS : {} ---------'.format(int(N_LHS)))
+        print(result_point)
+        return result_point
 
     def metamodel_kriging_validation(self, doe_in, doe_out, doe_validation_in, doe_validation_out):
         kriging_model = metamodeling_kriging(doe_in, doe_out,
@@ -486,4 +553,35 @@ class _metamodel_parameter_routine:
         return FUNCwrap
 
 
+class globalMetaParameterAnalysis:
+    def __init__(self,):
+        # Variance distributions :
+        SEED = 43515687355
+        var_ampl_Young = ot.Uniform(100, 15000)
+        var_scale_Young = ot.Uniform(50,1000)
+        var_ampl_Diam = ot.Uniform(.01, .5)
+        var_scale_Diam = ot.Uniform(50,1000)
+        var_var_pos = ot.Uniform(1,100)
+        var_var_norm = ot.Uniform(1,20)
+        ComposedMetaParamDistribution = ot.ComposedDistribution([var_ampl_Young, var_scale_Young, var_ampl_Diam, var_scale_Diam, var_var_pos, var_var_norm])
+        RandomNormalVector = ot.ComposedDistribution([ot.Normal()] * 6) #Vector used for the LHS generation
+        normalizedLHS = optimizedLHS(RandomNormalVector, 20, SEED)
+        inverseIsoProbaTransform = ComposedMetaParamDistribution.getInverseIsoProbabilisticTransformation()
+        realLHS = inverseIsoProbaTransform(normalizedLHS)
+        print('realLHS is',realLHS)
+        self.run_experience(realLHS)
 
+    @timer
+    def run_experience(self, LHS):
+        for doe in LHS:
+            l = list(doe)
+            experiment = _metamodel_parameter_routine(*l)
+            experiment._exec_routine()
+            print('time for experiment')
+
+'''
+import _base_algorithms as ba
+test = ba._metamodel_parameter_routine(10000,250,.3,250,10,10)
+test._exec_routine()
+
+'''
