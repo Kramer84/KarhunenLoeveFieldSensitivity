@@ -17,6 +17,7 @@ sample_path = './sample_storage'
 if not os.path.isdir(sample_path):
     os.mkdir(sample_path)
 
+ot.ResourceMap.SetAsString('KrigingAlgorithm-LinearAlgebra', 'HMAT')
 
 def timer(func):
     @functools.wraps(func)
@@ -204,6 +205,7 @@ class metamodeling_kriging :
         self.__kriging_theta__ = None
         self.__kriging_results__ = None
         self.__kriging_metamodel__ = None
+        self.__kriging_model__ = None
         self.__size_multistart__ = kwargs['size_multistart'] if 'size_multistart' in kwargs else 5
         self.__lb__ = kwargs['lower_bound'] if 'lower_bound' in kwargs else None
         self.__ub__ = kwargs['upper_bound'] if 'upper_bound' in kwargs else None
@@ -230,9 +232,13 @@ class metamodeling_kriging :
         if isinstance(self.__kriging_theta__,(Sequence,Iterable, list)):
             self.__kriging_results__ = [_kt.getResult() for _kt in self.__kriging_theta__]
             self.__kriging_metamodel__ = [_km.getMetaModel() for _km in self.__kriging_results__]
+            self.__kriging_model__ = [_km.getModel() for _km in self.__kriging_results__]
+
         else :
             self.__kriging_results__ = self.__kriging_theta__.getResult()
             self.__kriging_metamodel__ = self.__kriging_results__.getMetaModel()
+            self.__kriging_model__ = self.__kriging_results__.getModel()
+
 
     def run(self):
         self._build_default()
@@ -248,8 +254,9 @@ class metamodeling_kriging :
 
     def _check_clean_nans(self, sampleIn, sampleOut):
         whereNan = list(set(np.argwhere(np.isnan(sampleOut))[:,0]))
-        print('NaN values found at index:',whereNan)
-        [(sampleOut.erase(int(val)), sampleIn.erase(int(val))) for val in whereNan]
+        if len(whereNan)>0:
+            print('NaN values found at index:',whereNan)
+            [(sampleOut.erase(int(val)), sampleIn.erase(int(val))) for val in whereNan]
 
     def getMetaModelValidation(self, sample_in_validation, sample_out_validation):
         assert self.__kriging_metamodel__ is not None, "Please first run calculus"
@@ -321,7 +328,7 @@ class __validation_results__(object) :
 
 
 #Basic parameters of the problem
-dim          = 1
+dim_field          = 1
 n_elements   = 99
 min_vertices = 0    #mm
 max_vertices = 1000 #mm
@@ -344,7 +351,7 @@ class _metamodel_parameter_routine:
         self.variance_young = variance_young
         self.scale_young = scale_young
         self.variance_diam = variance_diam
-        self.scale_diam = variance_diam
+        self.scale_diam = scale_diam
         self.var_f_pos = var_f_pos
         self.var_f_norm = var_f_norm
 
@@ -365,7 +372,7 @@ class _metamodel_parameter_routine:
         self.norm_force.setName('F_Norm_')
 
         #The different thresholds that we test
-        self.threshold_list = [.5,1e-1,1e-3,1e-5]
+        self.threshold_list = [1e-1,1e-3,1e-5]
 
         self.NU_list = [1/2,5/2,100]
         self._base_name = None
@@ -450,10 +457,10 @@ class _metamodel_parameter_routine:
         print('LHS100')
         result_point_DOE1000_LHS100 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS100, doe_sobol_experiment_N1000, 1000, 100)
         description = result_point_DOE1000.getDescription()
-        ResultsSample = ot.Sample([result_point_DOE1000, result_point_DOE50000_LHS25, result_point_DOE50000_LHS50, result_point_DOE50000_LHS100, 
+        ResultsSample = ot.Sample([result_point_DOE1000, result_point_DOE50000_LHS25, result_point_DOE50000_LHS50, result_point_DOE50000_LHS100,
                                   result_point_DOE1000_LHS25, result_point_DOE1000_LHS50, result_point_DOE1000_LHS100])
         ResultsSample.setDescription(description)
-        return ResultsSample 
+        return ResultsSample
 
 
 
@@ -466,21 +473,26 @@ class _metamodel_parameter_routine:
         conf_level = sensitivity_analysis.getFirstOrderIndicesInterval()[0]
         lb = conf_level.getLowerBound()
         ub = conf_level.getUpperBound()
-        print('FO_indices are',FO_indices)
-        print('lb, ub:\n',lb,'\n',ub)
         result_point = ot.PointWithDescription([('meta',0.),('N_LHS',-1.),('size',size),('kl_dimension',dim),
-                                             ('SI_E',FO_indices[0][0]),('SI_E_lb',lb[0]),('SI_E_ub',ub[0]),
-                                             ('SI_D',FO_indices[1][0]),('SI_D_lb',lb[1]),('SI_D_ub',ub[1]),
-                                             ('SI_FP',FO_indices[2][0]),('SI_FP_lb',lb[2]),('SI_FP_ub',ub[2]),
-                                             ('SI_FN',FO_indices[3][0]),('SI_FN_lb',lb[3]),('SI_FN_ub',ub[3])])
+                                             ('SI_E',round(FO_indices[0][0],5)),('SI_E_lb',round(lb[0],5)),('SI_E_ub',round(ub[0],5)),
+                                             ('SI_D',round(FO_indices[1][0],5)),('SI_D_lb',round(lb[1],5)),('SI_D_ub',round(ub[1],5)),
+                                             ('SI_FP',round(FO_indices[2][0],5)),('SI_FP_lb',round(lb[2],5)),('SI_FP_ub',round(ub[2],5)),
+                                             ('SI_FN',round(FO_indices[3][0],5)),('SI_FN_lb',round(lb[3],5)),('SI_FN_ub',round(ub[3],5))])
         print('------------- RESULTS ------------')
         print('------------ REAL MODEL ----------')
+        print('----------- SIZE DOE = {} -----------'.format(str(int(size))))
         print(result_point)
         return result_point
 
 
     def getSensitivityAnalysisResultsMetamodel(self, metamodel, doe_sobol, size, N_LHS):
-        meta_response = metamodel.__kriging_metamodel__(doe_sobol)
+        dim = doe_sobol.getDimension()
+        try :
+            meta_response = metamodel.__kriging_metamodel__(doe_sobol)
+        except Exception as e:
+            print('Caugt exception:\n',e)
+            print('filling response with zeros...')
+            meta_response = ot.Sample(np.zeros((doe_sobol.getSize(),1)))
         sensitivity_analysis = klfs.SobolKarhunenLoeveFieldSensitivityAlgorithm()
         sensitivity_analysis.setDesign(doe_sobol, meta_response, size)
         sensitivity_analysis.setEstimator(ot.MartinezSensitivityAlgorithm())
@@ -508,9 +520,9 @@ class _metamodel_parameter_routine:
         return R2, kriging_model
 
     def getBasePathAndFileName(self):
-        base_string ='EXP_'+'VE'+str(self.variance_young)+'_'+'SE'+str(self.scale_young)\
-            +'_'+'VD'+str(self.variance_diam) +'_'+'SD'+str(self.scale_diam)\
-            +'_'+'VFP'+str(self.var_f_pos)    +'_'+'VFN'+str(self.var_f_norm)+'_'
+        base_string ='EXP_'+'VE'+str(int(self.variance_young))+'_'+'SE'+str(int(self.scale_young))\
+            +'_'+'VD'+str(round(self.variance_diam,4)) +'_'+'SD'+str(int(self.scale_diam))\
+            +'_'+'VFP'+str(round(self.var_f_pos,3))    +'_'+'VFN'+str(round(self.var_f_norm,3))+'_'
         self.sub_dir = './meta_analysis_results/'+base_string
         self._base_name = base_string
         if not os.path.isdir(self.sub_dir):
@@ -519,12 +531,12 @@ class _metamodel_parameter_routine:
     def getKLDecompositionYoungDiam(self, threshold, nu):
         kl_results_E = get_process_kl_decomposition(
                         mean = self.mean_young, amplitude = self.variance_young , scale = self.scale_young,
-                        nu = nu, mesh = self.fem_vertices, dimension = dim,
+                        nu = nu, mesh = self.fem_vertices, dimension = dim_field,
                         name = 'E_', threshold = threshold)
 
         kl_results_D = get_process_kl_decomposition(
                         mean = self.mean_diam, amplitude = self.variance_diam, scale = self.scale_diam,
-                        nu = nu, mesh = self.fem_vertices, dimension = dim,
+                        nu = nu, mesh = self.fem_vertices, dimension = dim_field,
                         name = 'D_', threshold = threshold)
         return kl_results_E, kl_results_D
 
@@ -557,7 +569,7 @@ class globalMetaParameterAnalysis:
     def __init__(self,):
         # Variance distributions :
         SEED = 43515687355
-        var_ampl_Young = ot.Uniform(100, 15000)
+        var_ampl_Young = ot.Uniform(100, 13000)
         var_scale_Young = ot.Uniform(50,1000)
         var_ampl_Diam = ot.Uniform(.01, .5)
         var_scale_Diam = ot.Uniform(50,1000)
@@ -577,11 +589,19 @@ class globalMetaParameterAnalysis:
             l = list(doe)
             experiment = _metamodel_parameter_routine(*l)
             experiment._exec_routine()
-            print('time for experiment')
+            print('--------- Time for one experiment above -------\n\n\n\n\n')
+
+
+if __name__=='__main__':
+    routine = globalMetaParameterAnalysis()
 
 '''
 import _base_algorithms as ba
 test = ba._metamodel_parameter_routine(10000,250,.3,250,10,10)
 test._exec_routine()
+
+import _base_algorithms as ba
+routine = ba.globalMetaParameterAnalysis()
+
 
 '''

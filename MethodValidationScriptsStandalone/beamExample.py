@@ -101,7 +101,7 @@ def batchEval(random_young_modulus,
               random_forcePos,
               random_forceNorm):
     var1, var2, var3, var4 = random_young_modulus, random_diameter, random_forcePos, random_forceNorm
-    result_list = Parallel(n_jobs=-1, verbose=2)(
+    result_list = Parallel(n_jobs=-1, verbose=1)(
                     delayed(experience_mod)(
                         var1[i], var2[i], var3[i], var4[i], vertices, vertex_list, elem_coords) for i in range(len(var4)))
     monteCarloResults_elem = numpy.stack(numpy.asarray(result_list)[...,0])
