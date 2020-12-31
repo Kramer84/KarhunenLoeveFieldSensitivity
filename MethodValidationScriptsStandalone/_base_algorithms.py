@@ -69,6 +69,26 @@ def get_fem_vertices(min_vertices, max_vertices, n_elements):
     fem_vertices = mesher.build(interval)
     return fem_vertices
 
+def sequentialFunctionEvaulation(func, sample, limit=50000):
+    #This function evaulates func so that the input samples
+    # size is never over limit
+    sample_size = sample.getSize()
+    if sample_size > limit:
+        rest = sample_size%limit
+        base_size = limit
+        n_reps = int((sample_size-rest)/base_size)
+        outputs = list()
+        for i in range(n_reps):
+            outputs.append(func(sample[i*base_size:(i+1)*base_size,:]))
+        if rest > 0:
+            outputs.append(func(sample[(n_reps+1)*base_size:(n_reps+1)*base_size+rest,:]))
+        outputSample = outputs[0]
+        [outputSample.add(outputs[i]) for i in range(1,len(outputs))]
+        return outputSample
+    else :
+        outputSample = func(sample)
+        return outputSample
+
 def get_process_kl_decomposition(mean, coef_var=None, amplitude=None, scale=0, nu=1, mesh=None, dimension=1, name='', threshold= 1e-3):
     # for matern model only
     if amplitude is None and coef_var is not None:
@@ -442,6 +462,14 @@ class _metamodel_parameter_routine:
         R2_LHS100, kriging_model_LHS100 = self.metamodel_kriging_validation(doe_kriging_LHS100, doe_kriging_LHS100_MD, doe_kriging_valid, doe_kriging_valid_MD)
         #Now we have to calculate the sobol indices
         result_point_DOE1000 = self.getSensitivityAnalysisResults(doe_sobol_experiment_N1000, doe_sobol_experiment_N1000_MD, 1000)
+        self.exporteSampleAsCsv([doe_sobol_experiment_N1000,doe_metasobol_experiment_N50000,
+                doe_kriging_LHS25,doe_kriging_LHS50,doe_kriging_LHS100,doe_kriging_valid,
+                doe_kriging_LHS25_MD,doe_kriging_LHS50_MD,doe_kriging_LHS100_MD,
+                doe_sobol_experiment_N1000_MD,doe_kriging_valid_MD],
+                            ['doe_sobol_experiment_N1000','doe_metasobol_experiment_N50000',
+                'doe_kriging_LHS25','doe_kriging_LHS50','doe_kriging_LHS100','doe_kriging_valid',
+                'doe_kriging_LHS25_MD','doe_kriging_LHS50_MD','doe_kriging_LHS100_MD',
+                'doe_sobol_experiment_N1000_MD','doe_kriging_valid_MD'])
         print('Sobol indices for 50000 size - metamodel')
         print('LHS25')
         result_point_DOE50000_LHS25 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS25, doe_metasobol_experiment_N50000, 50000, 25)
@@ -462,6 +490,12 @@ class _metamodel_parameter_routine:
         ResultsSample.setDescription(description)
         return ResultsSample
 
+    def exporteSampleAsCsv(self, listSamples, listNames):
+        if not os.path.isdir('./segfault_analysis/debug_storage'):
+            os.mkdir('./segfault_analysis/debug_storage')
+        assert len(listSamples)==len(listNames)
+        for i, sample in enumerate(listSamples):
+            sample.exportToCSVFile(os.path.join('./segfault_analysis/debug_storage',listNames[i]))
 
 
     def getSensitivityAnalysisResults(self, sample_in, sample_out, size):
@@ -488,7 +522,7 @@ class _metamodel_parameter_routine:
     def getSensitivityAnalysisResultsMetamodel(self, metamodel, doe_sobol, size, N_LHS):
         dim = doe_sobol.getDimension()
         try :
-            meta_response = metamodel.__kriging_metamodel__(doe_sobol)
+            meta_response = sequentialFunctionEvaulation(metamodel.__kriging_metamodel__, doe_sobol)
         except Exception as e:
             print('Caugt exception:\n',e)
             print('filling response with zeros...')
