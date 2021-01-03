@@ -174,7 +174,7 @@ def loadMetaAnalysisResults(metaAnalyisPath = './meta_analysis_results'):
                         ...] = np.reshape(np.array(sample[4 + i_lhs ,4:]),(4,3))
                     meta_analysis_array_mm50000[k_lhs, k_nu, k_thresh, i_lhs,
                         ...] = np.reshape(np.array(sample[1 + i_lhs ,4:]),(4,3))
-    return lhs_params, lhs_doe, meta_analysis_array_model, meta_analysis_array_mm1000, meta_analysis_array_mm50000
+    return lhs_params, lhs_doe, meta_analysis_array_model, meta_analysis_array_mm1000, meta_analysis_array_mm50000, kl_dimension_array, nu_array, thresh_array
 
 
 
@@ -225,11 +225,14 @@ class metaAnalysisVisualizer(HasTraits):
     index_nu = Int(0)
     index_thresh = Int(0)
     index_eval_size = Int(0)
+    threshold_value = Float(0)
+    nu_value = Float(0)
     figure = Instance(Figure,())
     next_realization = Button(label = 'Select next realization')
     previous_realization = Button(label = 'Select previous realization')
     change_threshold = Button(label = 'change threshold')
     change_nu = Button(label = 'change NU')
+    change_sobol_size_LHS = Button(label='change sobol experiment size metamodel')
 
     view = View(
              HSplit(
@@ -246,7 +249,18 @@ class metaAnalysisVisualizer(HasTraits):
                       height=.1),
                    Item('change_nu',
                       show_label=False,
-                      height=.1),)),
+                      height=.1),
+                   Item('change_sobol_size_LHS',
+                      show_label=False,
+                      height=.1),),
+
+                 Item('index_lhs',
+                    show_label=False),
+                 Item('threshold_value',
+                    show_label=False),
+                 Item('nu_value',
+                    show_label=False),
+                 ),
                Item('figure',
                 editor = _MPLFigureEditor(),
                 show_label=False,
@@ -268,6 +282,9 @@ class metaAnalysisVisualizer(HasTraits):
         self.meta_analysis_array_model = output[2]
         self.meta_analysis_array_mm1000 = output[3]
         self.meta_analysis_array_mm50000 = output[4]
+        self.kl_dimension_array = output[5]
+        self.nu_array = output[6]
+        self.thresh_array = output[7]
 
     def _figure_default(self):
         """Initialises the display."""
@@ -286,10 +303,7 @@ class metaAnalysisVisualizer(HasTraits):
         return figure
 
     def getDataFromIndex(self):
-        if self.index_lhs >= 0 and
-           self.index_nu >= 0 and
-           self.index_thresh >= 0 and
-           self.index_eval_size == 0:
+        if self.index_lhs >= 0 and self.index_nu >= 0 and self.index_thresh >= 0 and self.index_eval_size == 0:
 
             sobol_model = self.meta_analysis_array_model[self.index_lhs,self.index_nu,self.index_thresh,:, 0]
             err_model = self.meta_analysis_array_model[self.index_lhs,self.index_nu, self.index_thresh, :, 1:]
@@ -307,10 +321,9 @@ class metaAnalysisVisualizer(HasTraits):
             err_metaLHS100 = self.meta_analysis_array_mm1000[self.index_lhs,self.index_nu,self.index_thresh,2,:, 1:]
             err_metaLHS100 = np.array([err_metaLHS100[:,0],err_metaLHS100[:,1]])
 
-        elif self.index_lhs >= 0 and
-           self.index_nu >= 0 and
-           self.index_thresh >= 0 and
-           self.index_eval_size == 1:
+            return sobol_model, err_model, sobol_metaLHS25, err_metaLHS25, sobol_metaLHS50, err_metaLHS50, sobol_metaLHS100, err_metaLHS100
+
+        elif self.index_lhs >= 0 and self.index_nu >= 0 and self.index_thresh >= 0 and self.index_eval_size == 1:
 
             sobol_model = self.meta_analysis_array_model[self.index_lhs,self.index_nu,self.index_thresh,:, 0]
             err_model = self.meta_analysis_array_model[self.index_lhs,self.index_nu, self.index_thresh, :, 1:]
@@ -328,16 +341,54 @@ class metaAnalysisVisualizer(HasTraits):
             err_metaLHS100 = self.meta_analysis_array_mm50000[self.index_lhs,self.index_nu,self.index_thresh,2,:, 1:]
             err_metaLHS100 = np.array([err_metaLHS100[:,0],err_metaLHS100[:,1]])
 
+            return sobol_model, err_model, sobol_metaLHS25, err_metaLHS25, sobol_metaLHS50, err_metaLHS50, sobol_metaLHS100, err_metaLHS100
 
+        else :
+            #dummy sobol / dummy error
+            ds = np.zeros((4,))+.25
+            de = np.ones((2,4))*.1
+            return ds, de, ds, de, ds, de, ds, de
 
-    def _index_lhs_changed(self):
-        figure = self.figure
-        figure.clear()
-
-
-    def _next_realization_fired(self):
+    def _init_index(self):
         if self.index_lhs == -1 :
             self.index_lhs = 0
+
+    def _index_lhs_changed(self):
+        sobol_model, err_model, sobol_metaLHS25, err_metaLHS25, sobol_metaLHS50, err_metaLHS50, sobol_metaLHS100, err_metaLHS100 = self.getDataFromIndex()
+        figure = self.figure
+        figure.clear()
+        set_indices_figure(figure,
+            sobol_model, err_model,
+            sobol_metaLHS25, err_metaLHS25,
+            sobol_metaLHS50, err_metaLHS50,
+            sobol_metaLHS100, err_metaLHS100)
+        canvas = self.figure.canvas
+        if canvas is not None:
+            canvas.draw()
+            print('Canvas drawn')
+
+    def _next_realization_fired(self):
+        self._init_index()
+        self.index_lhs = (self.index_lhs + 1)%self.lhs_doe.shape[0]
+
+    def _previous_realization_fired(self):
+        self._init_index()
+        self.index_lhs = (self.index_lhs - 1)%self.lhs_doe.shape[0]
+
+    def _change_sobol_size_LHS_fired(self):
+        self._init_index()
+        if self.index_eval_size == 0 :
+            self.index_eval_size = 1
+        else :
+            self.index_eval_size = 0
+
+    def _change_threshold_fired(self):
+        self._init_index()
+        self.index_thresh = (self.index_thresh + 1)%2
+
+    def _change_nu_fired(self):
+        self._init_index()
+        self.index_nu = (self.index_nu + 1)%2
 
 
     def mpl_setup(self):
