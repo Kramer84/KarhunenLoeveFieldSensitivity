@@ -183,6 +183,7 @@ def set_indices_figure(fig,
                     sobol_metaLHS25, err_metaLHS25,
                     sobol_metaLHS50, err_metaLHS50,
                     sobol_metaLHS100, err_metaLHS100):
+    xlabels = ['Sobol Young', 'Sobol Diameter', 'Sobol Force Position', 'Sobol Force Norm']
     x_val = np.array([0,1,2,3])
     ax = fig.add_subplot(111)
     ax = fig.axes[0]
@@ -192,26 +193,30 @@ def set_indices_figure(fig,
                     y = sobol_model,
                     yerr=[np.absolute(sobol_model-err_model[0,...]),
                           np.absolute(sobol_model-err_model[1,...])],
-                    fmt='s', color='navy', ecolor='navy')
+                    fmt='s', color='navy', ecolor='navy', label ='Model')
 
     sobol_meta_LHS25 = ax.errorbar(
                     x = x_val + offset ,
                     y = sobol_metaLHS25,
                     yerr=[np.absolute(sobol_metaLHS25-err_metaLHS25[0,...]),
                           np.absolute(sobol_metaLHS25-err_metaLHS25[1,...])],
-                    fmt='s', color='yellow', ecolor='yellow')
+                    fmt='s', color='yellow', ecolor='yellow', label = 'LHS25')
     sobol_meta_LHS50 = ax.errorbar(
                     x = x_val + 2*offset ,
                     y = sobol_metaLHS50,
                     yerr=[np.absolute(sobol_metaLHS50-err_metaLHS50[0,...]),
                           np.absolute(sobol_metaLHS50-err_metaLHS50[1,...])],
-                    fmt='s', color='darkorange', ecolor='darkorange')
+                    fmt='s', color='darkorange', ecolor='darkorange', label = 'LHS50')
     sobol_meta_LHS100 = ax.errorbar(
                     x = x_val + 3*offset ,
                     y = sobol_metaLHS100,
                     yerr=[np.absolute(sobol_metaLHS100-err_metaLHS100[0,...]),
                           np.absolute(sobol_metaLHS100-err_metaLHS100[1,...])],
-                    fmt='s', color='red', ecolor='red')
+                    fmt='s', color='red', ecolor='red', label = 'LHS100')
+    ax.set_ylim(0,1)
+    ax.set_xticks(x_val+.2)
+    ax.set_xticklabels(xlabels)
+    ax.legend(loc='upper right')
     return fig
 
 
@@ -225,8 +230,16 @@ class metaAnalysisVisualizer(HasTraits):
     index_nu = Int(0)
     index_thresh = Int(0)
     index_eval_size = Int(0)
+
     threshold_value = Float(0)
     nu_value = Float(0)
+    size_sobol_expriment_metamodel = Int(1000)
+
+    young_modulus_params = Str('')
+    diameter_params = Str('')
+    force_norm_params = Str('')
+    force_pos_params = Str('')
+
     figure = Instance(Figure,())
     next_realization = Button(label = 'Select next realization')
     previous_realization = Button(label = 'Select previous realization')
@@ -253,13 +266,40 @@ class metaAnalysisVisualizer(HasTraits):
                    Item('change_sobol_size_LHS',
                       show_label=False,
                       height=.1),),
+                VGroup(
+                  Item('young_modulus_params',
+                     show_label=True,
+                     label = 'E (VAR / SCALE) :',
+                     style='readonly'),
+                  Item('diameter_params',
+                     show_label=True,
+                     label = 'D (VAR / SCALE) :',
+                     style='readonly'),
+                  Item('force_norm_params',
+                     show_label=True,
+                     label = 'FN (VAR) :',
+                     style='readonly'),
+                  Item('force_pos_params',
+                     show_label=True,
+                     label = 'FP (VAR) :',
+                     style='readonly'),),
 
-                 Item('index_lhs',
-                    show_label=False),
-                 Item('threshold_value',
-                    show_label=False),
-                 Item('nu_value',
-                    show_label=False),
+                VGroup(
+                  Item('index_lhs',
+                     show_label=True,
+                     style='readonly'),
+                  Item('threshold_value',
+                     show_label=True,
+                     label='Threshold',
+                     style='readonly'),
+                  Item('nu_value',
+                     show_label=True,
+                     label='Nu',
+                     style='readonly'),
+                  Item('size_sobol_expriment_metamodel',
+                     show_label=True,
+                     label='Experiment size MM',
+                     style='readonly')),
                  ),
                Item('figure',
                 editor = _MPLFigureEditor(),
@@ -349,11 +389,11 @@ class metaAnalysisVisualizer(HasTraits):
             de = np.ones((2,4))*.1
             return ds, de, ds, de, ds, de, ds, de
 
-    def _init_index(self):
-        if self.index_lhs == -1 :
-            self.index_lhs = 0
-
-    def _index_lhs_changed(self):
+    def regenerate_plot(self):
+        self.young_modulus_params = str(round(self.lhs_doe[self.index_lhs, 0],5))+'MPa' + ' / '+ str(round(self.lhs_doe[self.index_lhs, 1],5))+'mm'
+        self.diameter_params = str(round(self.lhs_doe[self.index_lhs, 2],5))+'mm'+ ' / '+ str(round(self.lhs_doe[self.index_lhs, 3],5))+'mm'
+        self.force_norm_params = str(round(self.lhs_doe[self.index_lhs, 5],5))+'N'
+        self.force_pos_params = str(round(self.lhs_doe[self.index_lhs, 4],5))+'mm'
         sobol_model, err_model, sobol_metaLHS25, err_metaLHS25, sobol_metaLHS50, err_metaLHS50, sobol_metaLHS100, err_metaLHS100 = self.getDataFromIndex()
         figure = self.figure
         figure.clear()
@@ -365,7 +405,26 @@ class metaAnalysisVisualizer(HasTraits):
         canvas = self.figure.canvas
         if canvas is not None:
             canvas.draw()
-            print('Canvas drawn')
+
+    def _init_index(self):
+        if self.index_lhs == -1 :
+            self.index_lhs = 0
+        self.threshold_value = self.thresh_array[self.index_lhs, self.index_nu, self.index_thresh]
+        self.nu_value = self.nu_array[self.index_lhs, self.index_nu, self.index_thresh]
+
+    def _index_lhs_changed(self):
+        self.regenerate_plot()
+
+    def _index_thresh_changed(self):
+        self.regenerate_plot()
+        self.threshold_value = self.thresh_array[self.index_lhs, self.index_nu, self.index_thresh]
+
+    def _index_eval_size_changed(self):
+        self.regenerate_plot()
+
+    def _index_nu_changed(self):
+        self.regenerate_plot()
+        self.nu_value = self.nu_array[self.index_lhs, self.index_nu, self.index_thresh]
 
     def _next_realization_fired(self):
         self._init_index()
@@ -379,16 +438,18 @@ class metaAnalysisVisualizer(HasTraits):
         self._init_index()
         if self.index_eval_size == 0 :
             self.index_eval_size = 1
+            self.size_sobol_expriment_metamodel = 50000
         else :
             self.index_eval_size = 0
+            self.size_sobol_expriment_metamodel = 1000
 
     def _change_threshold_fired(self):
         self._init_index()
-        self.index_thresh = (self.index_thresh + 1)%2
+        self.index_thresh = (self.index_thresh + 1)%3
 
     def _change_nu_fired(self):
         self._init_index()
-        self.index_nu = (self.index_nu + 1)%2
+        self.index_nu = (self.index_nu + 1)%3
 
 
     def mpl_setup(self):
