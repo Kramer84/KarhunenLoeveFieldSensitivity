@@ -17,6 +17,17 @@ sample_path = './sample_storage'
 if not os.path.isdir(sample_path):
     os.mkdir(sample_path)
 
+import os, sys
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+sys.path.append(parentdir)
+
+try :
+    import pythontools as pt
+except ImportError as ie :
+    raise ie
+import KarhunenLoeveFieldSensitivity as klfs
+from notebooksAndExamples import beamExample as MODEL
 ot.ResourceMap.SetAsString('KrigingAlgorithm-LinearAlgebra', 'HMAT')
 
 def timer(func):
