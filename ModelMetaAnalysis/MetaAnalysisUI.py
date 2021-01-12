@@ -390,10 +390,10 @@ class metaAnalysisVisualizer(HasTraits):
             return ds, de, ds, de, ds, de, ds, de
 
     def regenerate_plot(self):
-        self.young_modulus_params = str(round(self.lhs_doe[self.index_lhs, 0],5))+'MPa' + ' / '+ str(round(self.lhs_doe[self.index_lhs, 1],5))+'mm'
-        self.diameter_params = str(round(self.lhs_doe[self.index_lhs, 2],5))+'mm'+ ' / '+ str(round(self.lhs_doe[self.index_lhs, 3],5))+'mm'
-        self.force_norm_params = str(round(self.lhs_doe[self.index_lhs, 5],5))+'N'
-        self.force_pos_params = str(round(self.lhs_doe[self.index_lhs, 4],5))+'mm'
+        self.young_modulus_params = str(round(self.lhs_doe[self.index_lhs, 0] / 210000 ,4))+'  /  '+ str(round(self.lhs_doe[self.index_lhs, 1] / 1000,4))
+        self.diameter_params = str(round(self.lhs_doe[self.index_lhs, 2]/10,4))+ '  /  '+ str(round(self.lhs_doe[self.index_lhs, 3] / 1000,4))
+        self.force_norm_params = str(round(self.lhs_doe[self.index_lhs, 5]/100,4))
+        self.force_pos_params = str(round(self.lhs_doe[self.index_lhs, 4]/500,4))
         sobol_model, err_model, sobol_metaLHS25, err_metaLHS25, sobol_metaLHS50, err_metaLHS50, sobol_metaLHS100, err_metaLHS100 = self.getDataFromIndex()
         figure = self.figure
         figure.clear()
@@ -454,6 +454,11 @@ class metaAnalysisVisualizer(HasTraits):
 
     def mpl_setup(self):
         pass
+
+
+if __name__ == '__main__':
+  view = metaAnalysisVisualizer()
+  view.configure_traits()
 
 
 '''
