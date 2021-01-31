@@ -239,6 +239,7 @@ class metaAnalysisVisualizer(HasTraits):
     diameter_params = Str('')
     force_norm_params = Str('')
     force_pos_params = Str('')
+    kl_size_params = Int(0)
 
     figure = Instance(Figure,())
     next_realization = Button(label = 'Select next realization')
@@ -282,6 +283,10 @@ class metaAnalysisVisualizer(HasTraits):
                   Item('force_pos_params',
                      show_label=True,
                      label = 'FP (VAR) :',
+                     style='readonly'),
+                  Item('kl_size_params',
+                     show_label=True,
+                     label = 'Size KL :',
                      style='readonly'),),
 
                 VGroup(
@@ -394,6 +399,7 @@ class metaAnalysisVisualizer(HasTraits):
         self.diameter_params = str(round(self.lhs_doe[self.index_lhs, 2]/10,4))+ '  /  '+ str(round(self.lhs_doe[self.index_lhs, 3] / 1000,4))
         self.force_norm_params = str(round(self.lhs_doe[self.index_lhs, 5]/100,4))
         self.force_pos_params = str(round(self.lhs_doe[self.index_lhs, 4]/500,4))
+        self.kl_size_params = int(self.kl_dimension_array[self.index_lhs, self.index_nu, self.index_thresh])
         sobol_model, err_model, sobol_metaLHS25, err_metaLHS25, sobol_metaLHS50, err_metaLHS50, sobol_metaLHS100, err_metaLHS100 = self.getDataFromIndex()
         figure = self.figure
         figure.clear()

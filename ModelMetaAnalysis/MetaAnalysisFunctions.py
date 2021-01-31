@@ -10,9 +10,6 @@ import pandas as pd
 import openturns as ot
 
 import pythontools as pt
-import KarhunenLoeveFieldSensitivity as klfs
-import beamExample as MODEL
-
 sample_path = './sample_storage'
 if not os.path.isdir(sample_path):
     os.mkdir(sample_path)
@@ -447,6 +444,9 @@ class _metamodel_parameter_routine:
         # Then we calculate the response of the model to the different LHS
         # samples, and each metamodel associated to it
         # Then we recalculate the sobol indices with the metamodel
+        modes = AggregatedKLRes.__mode_count__
+        N_KL_Young = modes[0]
+        N_KL_Diam = modes[1]
         RandomNormalVector = getRandomNormalVector(AggregatedKLRes)
         SEED0 = 948546882996
         SEED1 = 98577599025
@@ -457,6 +457,7 @@ class _metamodel_parameter_routine:
         doe_sobol_experiment_N1000, _ = getSobolExperiment(AggregatedKLRes, 1000, SEED0)
         doe_metasobol_experiment_N50000, _ = getSobolExperiment(AggregatedKLRes, 50000, SEED5)
 
+        #Here we create the design of experiments (DOE) for the metamodels and the validation
         doe_kriging_LHS25 = optimizedLHS(RandomNormalVector, 25, SEED1)
         doe_kriging_LHS50 = optimizedLHS(RandomNormalVector, 50, SEED2)
         doe_kriging_LHS100 = optimizedLHS(RandomNormalVector, 100, SEED3)
@@ -465,39 +466,25 @@ class _metamodel_parameter_routine:
         doe_kriging_LHS25_VM, doe_kriging_LHS25_MD = FEM_model(doe_kriging_LHS25)
         doe_kriging_LHS50_VM, doe_kriging_LHS50_MD = FEM_model(doe_kriging_LHS50)
         doe_kriging_LHS100_VM, doe_kriging_LHS100_MD = FEM_model(doe_kriging_LHS100)
-        #And here for the Sobol Indices
+        #And here we evaluate the function for the Sobol Indices
         doe_sobol_experiment_N1000_VM, doe_sobol_experiment_N1000_MD = FEM_model(doe_sobol_experiment_N1000)
         doe_kriging_valid_VM, doe_kriging_valid_MD = FEM_model(doe_kriging_valid)
         R2_LHS25, kriging_model_LHS25 = self.metamodel_kriging_validation(doe_kriging_LHS25, doe_kriging_LHS25_MD, doe_kriging_valid, doe_kriging_valid_MD)
         R2_LHS50, kriging_model_LHS50 = self.metamodel_kriging_validation(doe_kriging_LHS50, doe_kriging_LHS50_MD, doe_kriging_valid, doe_kriging_valid_MD)
         R2_LHS100, kriging_model_LHS100 = self.metamodel_kriging_validation(doe_kriging_LHS100, doe_kriging_LHS100_MD, doe_kriging_valid, doe_kriging_valid_MD)
         #Now we have to calculate the sobol indices
-        result_point_DOE1000 = self.getSensitivityAnalysisResults(doe_sobol_experiment_N1000, doe_sobol_experiment_N1000_MD, 1000)
-        self.exporteSampleAsCsv([doe_sobol_experiment_N1000,doe_metasobol_experiment_N50000,
-                doe_kriging_LHS25,doe_kriging_LHS50,doe_kriging_LHS100,doe_kriging_valid,
-                doe_kriging_LHS25_MD,doe_kriging_LHS50_MD,doe_kriging_LHS100_MD,
-                doe_sobol_experiment_N1000_MD,doe_kriging_valid_MD],
-                            ['doe_sobol_experiment_N1000','doe_metasobol_experiment_N50000',
-                'doe_kriging_LHS25','doe_kriging_LHS50','doe_kriging_LHS100','doe_kriging_valid',
-                'doe_kriging_LHS25_MD','doe_kriging_LHS50_MD','doe_kriging_LHS100_MD',
-                'doe_sobol_experiment_N1000_MD','doe_kriging_valid_MD'])
+        result_point_DOE1000 = self.getSensitivityAnalysisResults(doe_sobol_experiment_N1000, doe_sobol_experiment_N1000_MD, 1000, N_KL_Young, N_KL_Diam)
+
         print('Sobol indices for 50000 size - metamodel')
         print('LHS25')
-        result_point_DOE50000_LHS25 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS25, doe_metasobol_experiment_N50000, 50000, 25)
+        result_point_DOE50000_LHS25 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS25, doe_metasobol_experiment_N50000, 50000, 25, N_KL_Young, N_KL_Diam, R2_LHS25)
         print('LHS50')
-        result_point_DOE50000_LHS50 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS50, doe_metasobol_experiment_N50000, 50000, 50)
+        result_point_DOE50000_LHS50 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS50, doe_metasobol_experiment_N50000, 50000, 50, N_KL_Young, N_KL_Diam, R2_LHS25)
         print('LHS100')
-        result_point_DOE50000_LHS100 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS100, doe_metasobol_experiment_N50000, 50000, 100)
-        print('Sobol indices for 1000 size - metamodel')
-        print('LHS25')
-        result_point_DOE1000_LHS25 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS25, doe_sobol_experiment_N1000, 1000, 25)
-        print('LHS50')
-        result_point_DOE1000_LHS50 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS50, doe_sobol_experiment_N1000, 1000, 50)
-        print('LHS100')
-        result_point_DOE1000_LHS100 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS100, doe_sobol_experiment_N1000, 1000, 100)
+        result_point_DOE50000_LHS100 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS100, doe_metasobol_experiment_N50000, 50000, 100, N_KL_Young, N_KL_Diam, R2_LHS25)
+
         description = result_point_DOE1000.getDescription()
-        ResultsSample = ot.Sample([result_point_DOE1000, result_point_DOE50000_LHS25, result_point_DOE50000_LHS50, result_point_DOE50000_LHS100,
-                                  result_point_DOE1000_LHS25, result_point_DOE1000_LHS50, result_point_DOE1000_LHS100])
+        ResultsSample = ot.Sample([result_point_DOE1000, result_point_DOE50000_LHS25, result_point_DOE50000_LHS50, result_point_DOE50000_LHS100])
         ResultsSample.setDescription(description)
         return ResultsSample
 
@@ -509,7 +496,7 @@ class _metamodel_parameter_routine:
             sample.exportToCSVFile(os.path.join('./segfault_analysis/debug_storage',listNames[i]))
 
 
-    def getSensitivityAnalysisResults(self, sample_in, sample_out, size):
+    def getSensitivityAnalysisResults(self, sample_in, sample_out, size, N_KL_Young, N_KL_Diam):
         dim = sample_in.getDimension() # Dimensoin of the KL input vector
         sensitivity_analysis = klfs.SobolKarhunenLoeveFieldSensitivityAlgorithm()
         sensitivity_analysis.setDesign(sample_in, sample_out, size)
@@ -519,6 +506,7 @@ class _metamodel_parameter_routine:
         lb = conf_level.getLowerBound()
         ub = conf_level.getUpperBound()
         result_point = ot.PointWithDescription([('meta',0.),('N_LHS',-1.),('size',size),('kl_dimension',dim),
+                                             ('N_KL_Young',N_KL_Young), ('N_KL_Diam',N_KL_Diam), ('R2',-1),
                                              ('SI_E',round(FO_indices[0][0],5)),('SI_E_lb',round(lb[0],5)),('SI_E_ub',round(ub[0],5)),
                                              ('SI_D',round(FO_indices[1][0],5)),('SI_D_lb',round(lb[1],5)),('SI_D_ub',round(ub[1],5)),
                                              ('SI_FP',round(FO_indices[2][0],5)),('SI_FP_lb',round(lb[2],5)),('SI_FP_ub',round(ub[2],5)),
@@ -530,7 +518,7 @@ class _metamodel_parameter_routine:
         return result_point
 
 
-    def getSensitivityAnalysisResultsMetamodel(self, metamodel, doe_sobol, size, N_LHS):
+    def getSensitivityAnalysisResultsMetamodel(self, metamodel, doe_sobol, size, N_LHS, N_KL_Young, N_KL_Diam, R2):
         dim = doe_sobol.getDimension()
         try :
             meta_response = sequentialFunctionEvaulation(metamodel.__kriging_metamodel__, doe_sobol)
@@ -546,6 +534,7 @@ class _metamodel_parameter_routine:
         lb = conf_level.getLowerBound()
         ub = conf_level.getUpperBound()
         result_point = ot.PointWithDescription([('meta',1.),('N_LHS',N_LHS),('size',size),('kl_dimension',dim),
+                                             ('N_KL_Young',N_KL_Young), ('N_KL_Diam',N_KL_Diam), ('R2',R2),
                                              ('SI_E',FO_indices[0][0]),('SI_E_lb',lb[0]),('SI_E_ub',ub[0]),
                                              ('SI_D',FO_indices[1][0]),('SI_D_lb',lb[1]),('SI_D_ub',ub[1]),
                                              ('SI_FP',FO_indices[2][0]),('SI_FP_lb',lb[2]),('SI_FP_ub',ub[2]),
@@ -648,5 +637,29 @@ test._exec_routine()
 import _base_algorithms as ba
 routine = ba.globalMetaParameterAnalysis()
 
+
+'''
+
+'''
+Est-ce qu'il est pertinent d'utiliser un métamodèle pour calculer les indices de Sobol' ?
+    - > Oui! Mais, ...
+
+
+Quelle précision du Kriegage faut il avoir pour parvenir à des indices de Sobol' cohérents en passant par le MM ?
+
+    -> Refaire calcul, recuperer R2, Q2 + enregistre 'kriging_theta'
+
+Comment évoluent les indices de Sobol lorsqu'on fait varier les paramètres des modèles de covariance des champs?
+    -> PairPlot (Seaborn) ! Ou pandas (
+        -> Abscisse : (amplitudes, scales ou vars ) , ordonnées : SobolIndice , couleur : Sobol
+
+
+Comment influe la "complexité" du champ stochastique sur l'approximation des indices de Sobol' par le métamodèle?
+    - > Approximation du champ par KL (en dehors de l'analyse de sensibilité)
+
+    - > Montrer que l'utilisation du kriegage diminue drastiquement le nombre d'appels au
+     modèle réel
+
+    - > Montrer à partir de quelle différence entre la taille du LHS et la dimension du vecteur CNR (Xi)  l'approximation de l'indice de Sobol' debient trop mauvaise  (BOF)
 
 '''
