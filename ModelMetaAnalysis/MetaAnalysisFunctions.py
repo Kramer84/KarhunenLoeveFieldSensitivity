@@ -603,12 +603,22 @@ class globalMetaParameterAnalysis:
     def __init__(self,):
         # Variance distributions :
         SEED = 43515687355
-        var_ampl_Young = ot.Uniform(100, 13000)
-        var_scale_Young = ot.Uniform(50,1000)
-        var_ampl_Diam = ot.Uniform(.01, .5)
-        var_scale_Diam = ot.Uniform(50,1000)
-        var_var_pos = ot.Uniform(1,100)
-        var_var_norm = ot.Uniform(1,20)
+        
+        scale_beam = 1000. #mm
+        mean_young = 210000 #MPa
+        mean_diam = 10 #mm
+        mean_f_pos = 500 #mm
+        mean_f_norm = 100
+        
+        var_ampl_Young = ot.Uniform(0.001*mean_young, 0.1*mean_young)
+        var_scale_Young = ot.Uniform(0.2*scale,1.*scale)
+        var_ampl_Diam = ot.Uniform(0.001*mean_diam, 0.1*mean_diam)
+        var_scale_Diam = ot.Uniform(0.2*scale,1.*scale)
+        var_var_pos = ot.Uniform(0.001*mean_f_pos, 0.1*mean_f_pos)
+        var_var_norm = ot.Uniform(0.001*mean_f_norm, 0.1*mean_f_norm)
+        var_nu = ot.Uniform(0.3, 3)
+
+        
         ComposedMetaParamDistribution = ot.ComposedDistribution([var_ampl_Young, var_scale_Young, var_ampl_Diam, var_scale_Diam, var_var_pos, var_var_norm])
         RandomNormalVector = ot.ComposedDistribution([ot.Normal()] * 6) #Vector used for the LHS generation
         normalizedLHS = optimizedLHS(RandomNormalVector, 20, SEED)

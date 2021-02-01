@@ -645,6 +645,14 @@ Pour contourner cette difficulté, le choix a été fait de scinder le programme
 
 Un schéma explicatif de la méthodologie et de l'architecture des codes se trouve en annexe. \\
 
+
+\begin{figure}[H]
+   \centering   
+   \includegraphics[scale=0.5]{./exchangerPics/exchangerDeformations.png}
+      \caption{Example de déformations possible de l'échangeur de chaleur avec cette méthode}
+         \label{deformationsExchanger}
+\end{figure}
+
 \subsubsection{Commentaires et mise en contexte}
 
 Bien que entièrement fonctionnel, la méthodologie mise en place se heurte encore à des limites externes. En effet, au cours du projet, des questionnement ont eu lieu quant à l'outil à utiliser pour les simulations thermo-mécaniques, et l'utilisation de Simcenter a été remise en question au profit du logiciel Altair.\\ 
@@ -658,7 +666,7 @@ Ce faisant, l'absence de données concernant l'échangeur de chaleur ont entrav�
 Nous avons donc décidé de mettre en pause cette partie du projet tant que des informations supplémentaires n'étaient pas obtenues, et de se concentrer sur l'intégration des codes et méthodes développés dans \textit{openTURNS}, comme de faire une étude plus en détail de l'example de la poutre en flexion, et de voir l'implication des différents paramètres de modélisation en jeu lors d'une telle analyse. 
 
 \section{Derniers 5 mois de stage }
-Comme mentionné précédemment, ces derniers mois de stage nous on permis de nous focaliser sur l'intégration des méthodes dans \textit{openTURNS}, tout comme d'analyser plus en détail cette méthode.
+Comme mentionné précédemment, ces derniers mois de stage nous on permis de nous focaliser sur l'intégration des méthodes dansc l'environnement d'\textit{openTURNS}, tout comme d'analyser plus en détail la méthode, notamment en étudiant les liens entre les paramètres des champs et leur influence sur l'analyse de sensibilité.
 
 \subsection{Intégration dans openTURNS}
 \subsubsection{Specifications pour l'intégration dans openTURNS}
@@ -668,30 +676,129 @@ Le but de la partie intégration, était de réecrire les codes de manière à c
 Puisque le choix a été fait de travailler dans un cas général de système pouvant prendre en entrée une combinaison arbitraire de lois aléatoires scalaires et de champs aléatoires a dimensions variables, et de retransformer le système de manière à ce qu'il ne prenne en entrée qu'un vecteur aléatoire normal centré réduit, l'utilisation des méthodes incluses dans \textit{openTURNS} était indispensable, notamment pour pouvoir traiter l'entierté des lois aléatoires présentes dans \textit{openTURNS}, tout comme tout type de champ stochastique, qu'il soit issu de lois de covariance, ou bien à partie d'une regression sur des données.
 
 \begin{itemize}
-  \item Pour permettre l'utilisation de tout type de champ, peu importe l'origine, l'idée était de travailler non pas sur le procéssus stochastique (qui est un objet à part dans \textit{openTURNS}) mais sur l'objet contenant la décomposition de Karhunen Loeve, appelé \textbf{KarhunenLoeveResults} dans l'API. 
+
+  \item \textbf{AggregatedKarhunenLoeveResults} 
+  \begin{itemize}
+    \item Pour permettre l'utilisation de tout type de champ, peu importe l'origine, l'idée était de travailler non pas sur le procéssus stochastique (qui est un objet à part dans \textit{openTURNS}) mais sur l'objet contenant la décomposition de Karhunen Loeve, appelé \textbf{KarhunenLoeveResults} dans l'API. 
   
   Cet objet permet de passer directement du vecteur centrée normal réduit au champ et inversemment. 
-  \item Pour les lois aléatoires scalaires ceci est encore plus simple, puisque tout les lois scalaiers dans \textit{openTURNS} possèdent les méthodes \textbf{.IsoProbabilisticTransformation} et \textbf{.InverseIsoProbabilisticTransformation} qui permettent de passer d'une loi quelconque à une loi normale centrée réduite et inversment.
+    \item Pour les lois aléatoires scalaires ceci est encore plus simple, puisque tout les lois scalaiers dans \textit{openTURNS} possèdent les méthodes \textbf{.IsoProbabilisticTransformation} et \textbf{.InverseIsoProbabilisticTransformation} qui permettent de passer d'une loi quelconque à une loi normale centrée réduite et inversment.
   
-  \item Ces objets et méthodes combinées ont permis de créer le premier objet nécessaire à l'analyse de sensibilité sur champs stochastiques et a été appelé ici \textbf{AggregatedKarhunenLoeveResults}. Cet objet est crée en lui fournissant une liste ordonnée de \textbf{KarhunenLoeveResults} et de lois de distribution scalaires (il n'est pas possibile ici d'utiliser des lois composées, des vecteurs aléatoire ou encore des décompositions de procéssus stochastiques composés, puisque l'utilisation de tels objets ammenerait trop d'ambiguités). Ensuite cet objet offre la possibilité de transformer des vecteurs aléatoires centrés normaux réduits (ou ensemble de vecteurs appelés \textbf{samples}) en une liste de champs stochastiques et de variables scalaires, ou de faire cette transformation inverse. \emph{Cette modélisation soulève de nombreux problèmes pour le portage de ces codes dans le langage C++, en effet dans ce langage \textbf{il n'existe pas de conteneur semblable à une liste pouvant contenir des objets de différents types.} Cette contrainte impliquera qu'il faudra par-exemple séparer les différents objets et les indexer à part, et reconstruire la liste python dans une sur-couche adaptée.} 
+    \item Ces objets et méthodes combinées ont permis de créer le premier objet nécessaire à l'analyse de sensibilité sur champs stochastiques et a été appelé ici \textbf{AggregatedKarhunenLoeveResults}. Cet objet est crée en lui fournissant une liste ordonnée de \textbf{KarhunenLoeveResults} et de lois de distribution scalaires (il n'est pas possibile ici d'utiliser des lois composées, des vecteurs aléatoire ou encore des décompositions de procéssus stochastiques composés, puisque l'utilisation de tels objets ammenerait trop d'ambiguités). Ensuite cet objet offre la possibilité de transformer des vecteurs aléatoires centrés normaux réduits (ou ensemble de vecteurs appelés \textbf{samples}) en une liste de champs stochastiques et de variables scalaires, ou de faire cette transformation inverse. \emph{Cette modélisation soulève de nombreux problèmes pour le portage de ces codes dans le langage C++, en effet dans ce langage \textbf{il n'existe pas de conteneur semblable à une liste pouvant contenir des objets de différents types.} Cette contrainte impliquera qu'il faudra par-exemple séparer les différents objets et les indexer à part, et reconstruire la liste python dans une sur-couche adaptée.} 
   Cet objet serait entièrement nouveau dans l'environnement \textit{openTURNS}.
+  \end{itemize}
   
-  \item Vu qu'une analyse de sensibilité s'appuie toujours sur une combinaison particulière de lois aléatoires et d'un système à anlyser, il fallait un moyen simple pour permettre de facilement changer des paramètres dans les lois aléatoires, sans pour autant compromettre l'interaction lois/modèle. En effet, changer des paramètres comme le seuil d'approximation (threshold) de la méthode de Karhunen-Loeve sur un champ stochastique a de très importants effets sur le nombre de modes à utiliser pour représenter le champ avec une telle précision (Dans le pire des cas, le nombre de modes serait égal au nombre d'élément contenus dans l'espace discretisé sur lequel on représente le champ). Ceci implique donc que le vecteur aléatoire qui pilote nos champs et variables scalaires est de taille variable, ce qui rend difficile, voire impossible de manuellement réecrire la fonction représentant notre système pour qu'elle prenne en entrée seulement le vecteur aléatoire. Ceci devient vraiment visible lorsqu'on cherche à faire une analyse de l'influence des paramètres des lois aléatoires sur l'analyse de Sobol', vu qu'à priori, à \textit{threshold} constant, tout combinaison différente de paramètrs des champs stochastiques va entrainer une longeur différente du vecteur aléatoire censé piloter notre système. 
+  
+  \item \textbf{KarhunenLoeveGeneralizedFunctionWrapper}
+  \begin{itemize}
+    \item Vu qu'une analyse de sensibilité s'appuie toujours sur une combinaison particulière de lois aléatoires et d'un système à anlyser, il fallait un moyen simple pour permettre de facilement changer des paramètres dans les lois aléatoires, sans pour autant compromettre l'interaction lois/modèle. En effet, changer des paramètres comme le seuil d'approximation (threshold) de la méthode de Karhunen-Loeve sur un champ stochastique a de très importants effets sur le nombre de modes à utiliser pour représenter le champ avec une telle précision (Dans le pire des cas, le nombre de modes serait égal au nombre d'élément contenus dans l'espace discretisé sur lequel on représente le champ). Ceci implique donc que le vecteur aléatoire qui pilote nos champs et variables scalaires est de taille variable, ce qui rend difficile, voire impossible de manuellement réecrire la fonction représentant notre système pour qu'elle prenne en entrée seulement le vecteur aléatoire. Ceci devient vraiment visible lorsqu'on cherche à faire une analyse de l'influence des paramètres des lois aléatoires sur l'analyse de Sobol', vu qu'à priori, à \textit{threshold} constant, tout combinaison différente de paramètrs des champs stochastiques va entrainer une longeur différente du vecteur aléatoire censé piloter notre système. 
   Ceci fait que dans la philosophie de cette méthode, on travaille surtout avec des fonctions prennant en entrée une liste de champs (appelés \textbf{Field} dans \textit{openTURNS}) et de variables scalaires, ou encore prennant en entrée une liste d'échantillons de champs et d'échantillons de points, si la fonction a été écrite pour traiter de nombreux cas en parallèle par exemple.
   Pour supprimer ce besoin de réecrire la fonction manuellement pour qu'elle prenne en entrée le vecteur aléatoire, on a crée un \textit{wrapper} qui permet de transformer la fonction du système réel en une nouvelle fonction ne prenant en entrée que ce vecteur aléatoire. Cet objet s'appelle \textbf{KarhunenLoeveGeneralizedFunctionWrapper} et prend en entrée le modèle "réel" et l'objet \textbf{AggregatedKarhunenLoeveResults} défini précedemment.
-  
-  \item Pour la partie analyse de sensibilité, nous utilisons la méthode classique basé sur une experience de monte-carlo, comme introduit dans la méthode issue du papier de \cite{Wei2017May}. La différence avec la méthode classique basée sur monte-carlo pour le calcul des indices de Sobol' est la manière de génerer la matrice des mélanges. Le schéma explicatif de ce mélange se trouve en figure \ref{expGenStoField}. L'implémantation de ce mélange se fait simplement, et peut facilement se traduire en C++. Pour la construction de l'objet permettant la génération d'échantillons, nous passons l'objet \textbf{AggregatedKarhunenLoeveResults}, la taille de l'échantillon et le booléen indiquant si l'on souhaite calculer les indices du second ordre ou non. Cette classe est appellée ici \textbf{KarhunenLoeveSobolIndicesExperiment}. Cette classe est conforme à la classe \textbf{SobolIndicesExperiment} dans \textit{openTUNRS}, pour un fonctionnement identique des codes. 
-  
-  \item Enfin, pour le calcul même des indices de Sobol', différentes méthodes existent. Pour n'en citer que celles qui sont implémentées dans \textit{openTURNS}, il y a la méthode de \textit{Martinez}, de \textit{Saltelli}, de \textit{Jansen} ou encore de \textit{Mauntz Kucherenko}. Comme ces méthodes utilisent uniquement la réponse du modèle aux valeurs contenues dans la matrice de mélange il n'y a à-priori pas besoin d'avoir des information concernant la matrice de mélange. Néanmoins, les classes pour le calcul des indices de Sobol' d'openturns, requierent en entrée la matrice de mélange, premièrement pour récuperer le nom des différentes variables, et vérifier si la dimension de la matrice de mélange est bien cohérente avec le nombre d'élement contenus dans la réponse du modèle, en se basant sur la formule $ N(2+d) $, \textbf{N} étant la taille de l'échantillon, et \textbf{d} la dimension du problème. Néanomins, avec la méthode impliquant la décomposition de Karhunen-Loeve, la dimension de la matrice de mélange 
-  
-  
-  
-  
+  \end{itemize}  
+ 
+  \item \textbf{KarhunenLoeveSobolIndicesExperiment}
+  \begin{itemize}
+    \item Pour la partie analyse de sensibilité, nous utilisons la méthode classique basé sur une experience de monte-carlo, comme introduit dans la méthode issue du papier de \cite{Wei2017May}. La différence avec la méthode classique basée sur monte-carlo pour le calcul des indices de Sobol' est la manière de génerer la matrice des mélanges. Le schéma explicatif de ce mélange se trouve en figure \ref{expGenStoField}. L'implémantation de ce mélange se fait simplement, et peut facilement se traduire en C++. Pour la construction de l'objet permettant la génération d'échantillons, nous passons l'objet \textbf{AggregatedKarhunenLoeveResults}, la taille de l'échantillon et le booléen indiquant si l'on souhaite calculer les indices du second ordre ou non. Cette classe est appellée ici \textbf{KarhunenLoeveSobolIndicesExperiment}. Cette classe est conforme à la classe \textbf{SobolIndicesExperiment} dans \textit{openTUNRS}, pour un fonctionnement identique des codes. 
+  \end{itemize}
   
   
-   
-
+  \item \textbf{KarhunenLoeveSobolIndicesExperiment}
+  \begin{itemize}  
+    \item Enfin, pour le calcul même des indices de Sobol', différentes méthodes existent. Pour n'en citer que celles qui sont implémentées dans \textit{openTURNS}, il y a la méthode de \textit{Martinez}, de \textit{Saltelli}, de \textit{Jansen} ou encore de \textit{Mauntz Kucherenko}. Comme ces méthodes utilisent uniquement la réponse du modèle aux valeurs contenues dans la matrice de mélange il n'y a à-priori pas besoin d'avoir des information concernant la matrice de mélange. Néanmoins, les classes pour le calcul des indices de Sobol' d'openturns, requierent en entrée la matrice de mélange, premièrement pour récuperer le nom des différentes variables, et vérifier si la dimension de la matrice de mélange est bien cohérente avec le nombre d'élement contenus dans la réponse du modèle, en se basant sur la formule $ N(2+d) $, \textbf{N} étant la taille de l'échantillon, et \textbf{d} la dimension du problème. Néanomins, avec la méthode impliquant la décomposition de Karhunen-Loeve, la dimension de la matrice de mélange est généralement superieure à la dimension réelle du problème, et les fonctions pour le calcul des indices implémentés dans \textit{openTURNS} ne preuvent pas directement être utilisées. L'on peut néanmoins créer une "fausse" matrice de mélange vide et qui est de la bonne dimension pour parvenir à tromper les méthodes d'openturns. Ceci est facilité par un objet appelé \textbf{KarhunenLoeveSobolIndicesExperiment} qui prend en entré la matrice de mélange et la réponse du modèle, tout comme un des estimateurs d'\textit{openTURNS}. Ceci permet de garder une utilisation qui reste très proche des modules déja implémentés. 
+   \end{itemize}
+ 
 \end{itemize}
+
+
+\begin{figure}[H]
+   \centering   
+   \hspace*{-1.5in}
+   \noindent \includegraphics[scale=0.55]{DiagrammeExtensionOT.png}
+      \caption{Schema de l'architecture des codes proposéé, en bleu les nouveaux codes}
+         \label{SchemaArchitectureCodes}
+\end{figure}
+
+
+\subsubsection{Présentation devant le comité d'openTURNS}
+
+Cette méthode a été présentée devant le comité d'\textit{openTURNS} pour voir si elle pouvait directement s'insérer dans ce module et si elle rentrait bien dans sa philosophie. Après discussion, il en est sortit que la méthode était intéressante d'un point de vue méthodologique, puisque certains acteurs, notamment \textbf{Airbus}, ont souvent affaire à des modèles ou sont impliqués divers champs aléatoires de dimension différente, par exemple en essayant d'introduire des déformations surfaciques et des variations de température volumiques dans une pièce d'avion en utilisant des champs stochastiques. \\
+Mais l'implémentation de cette méthode a néanmoins ses limites, notamment de part sa trop grande spécialisation. \emph{En effet, cette méthode utilise uniquement la décomposition de Karhunen-Loeve pour faire le lien entre l'espace quelconque et l'espace de réference normal centré réduit, et il existe d'autres méthodes pour faire ce lien, par exemple la méthode du chaos-polynômial, non exploré ici. Il serait intéressant de genéraliser encore plus cette méthode en laissant l'utilisateur choisir quelle méthode iln souhaite choisir pour représenter ses champs.}
+
+\subsection{Analyse plus détaillée du lien entre paramètres des champs stochastiques et indices de Sobol, et introduction d'un métamodèle par Kriegage.'}
+	
+	Une des difficultées lors d'une anlyse de sensibilité par experience de Monte-Carlo, est le nomre d'appels important de la fonction représentant notre modèle à analyser. Dans certains cas ou le temps d'évaluation d'une réalisation mets plusieures heures voir jours à se réaliser l'analyse devient impossible à éffectuer. Ceci est encore plus vrai dans la méthode que nous avons introduit, car les champs stochastiques s'appliquent sur des maillages - impliquant l'utilisation d'éléments finis, et les simulations de déformation ou de transfert de chaleur par exemple sont des processus très longs. \\
+	Pour parvenir quand même à éffectuer l'analyse de sensibilité sur le modèle, une des possibilités est d'introduire une fonction de haut niveau, qui par optimisation sur un ensemble d'évaluations limité du modèle va parvenir à simuler la réponse du modèle pour d'autres valeurs d'entrée. Bien-sûr, cette fonction de haut niveau aura un temps d'excecution inferieur de plusieurs ordre de grandeur au modèle d'origine (génerallement inferieur à la seconde). Cette nouvelle représentation du modèle s'appèle \textbf{metamodèle}. Il existe différentes méthodes pour créer des métamodèles, notamment les méthodes basé sur le chaos-polynomial, la méthode du Kriegage, ou encore des méthodes d'apprentissage profond (deep learning). Dans notre cas nous allons seulement explorer cette méthode en utilisant un métamodèle par Kriegage, pour rester dans le cadre du projet. \\
+	
+	En plus de l'analyse des effets qu'à l'utilisation d'un métamodèle par Kriegage sur l'analyse de Sobol', nous allons étudier le modèle de covariance que nous avons majoritairement utilisé, le modèle de Matern, tout comme l'effet de ses paramètres sur la décomposition de Karhunen-Loeve. Pour l'analyse de sensibilité nous allons réutiliser notre exemple de poutre en flexion se trouvant dans la section \textbf{Exemples théoriques simples - premiers codes - page 9.}. 
+	
+	\subsubsection{Analyse du modèle de Matern}
+	 
+	Le modèle de Matérn, ou encore appelé noyeau de Matérn est une fonction de covariance souvent utilisée pour modéliser des champs stochastiques. Elle définit la covariance statistique entre deux points d'un espace métrique. Comme cette fonction de covariance est uniquement dépendante de la distance entre deux points elle est stationnaire, si la distance est euclidienne elle est aussi isotropique. \\
+	
+	La fonction de covariance du modèle de Matérn dans un espace $X : \omega \times D \rightarrow \Re $ est donnée par : 
+	
+	\begin{equation}
+	C = \sigma^{2}\frac{2^{1-\nu}}{\Gamma(\nu)}\left(\sqrt{2\nu}\Vert\frac{s-t}{\theta}\Vert_{2}\right)^{\nu} K_{\nu} \left(\sqrt{2\nu}\Vert\frac{s-t}{\theta}\Vert_{2}\right) , \forall(s,t) \in D \times D
+	\end{equation}
+	
+	et la fonction de corrélation $ \rho $ par : 
+	
+	\begin{equation}
+	\rho(s,t) = \frac{2^{1-\nu}}{\Gamma(\nu)}\left(\sqrt{2\nu}\Vert s-t \Vert_{2}\right)^{\nu} K_{\nu} \left(\sqrt{2\nu}\Vert s-t \Vert_{2}\right) , \forall(s,t) \in D \times D
+	\end{equation}
+
+	avec :
+	
+   \[
+      \begin{array}{lp{0.8\linewidth}}	
+	    \theta & : coefficient d'echelle (scale) \\
+	    \sigma & : amplitude du processus \\
+		\nu    & : coefficient $\nu$ 	\\
+		\Gamma & : Fonction Gamma \\
+		K      & : Fonction de Bessel
+      \end{array}
+   \]	
+
+	Nous allons  étudier l'influence des paramètres controlables de ce modèle, notamment les paramètres d'échelle et le coefficient $\nu$, sur un maillage de 100 éléments de longueur unitaire et avec une amplitude fixée à 10. 
+	Comme nous observons toujours les réalisation d'un champ sur un éspace borné, les paramètres d'échelle et les dimensions de l'espace s'influencent mutuellement. Pour mitiger cela, nous allons toujours étudier nos observations en fonction du rapport entre le facteur d'échelle et la norme de l'espace. De même pour l'amplitude et les variances, nous allons représenter le rapport entre l'écart type et l'amplitude pour normaliser les résultats. \\
+	
+	D'abord l'évolution du rapport entre l'écart-type et l'amplitude du modèle par rapport au rapport entre le facteur d'échelle et la norme de l'espace, pour l'écart-type intra réalisation : 
+	
+\begin{figure}[H]
+   \centering   
+   \noindent \includegraphics[width = \linewidth]{stdDevIntra.png}
+      \caption{}
+         \label{stdDevIntra}
+\end{figure}
+	
+	Nous observons que globalement, lorsque le rapport entre le facteur d'échelle et la norme de l'espace baisse, l'écart type intra-réalisation tend vers l'amplitude. Ceci veut dire qu'au sein d'une unique réalisation de ce modèle sur le maillage l'on va pouvoir observer d'importantes variations d'amplitude.
+	Au niveau du coefficient nu, on oboserve que plus celui-ci est bas ( < 1 ), plus les variations d'amplitude au sein d'une même réalisation vont importantes. 
+	
+	L'on peut aussi observer le nombre de moyen maximums locaux par unité de longeur par rapport au rapport entre le facteur d'échelle et la norme de l'espace : 
+	
+\begin{figure}[H]
+   \centering   
+   \noindent \includegraphics[width = \linewidth]{peakScale.png}
+      \caption{}
+         \label{peakScale}
+\end{figure}
+
+Comme pour mesurer un maximum il faut que les deux valeurs adjacentes lui soient inferieures, il faut au moins 3 noeuds du maillage pour qu'un maximum puisse exister. Un rapport de 0.3 signifie ici que le champ stochastique est tres saccadé avec une alternance de maximus et minimums locaux. L'on observe que plus le coefficient $\nu$ est grand, moins le comportement est saccadé. \par
+
+Finalement, on observe que pour un $\nu$ superieur à 3, son influence reste globalement identique sur le champ. \\
+
+Avec ces figures l'on pourrait à priori déterminer quels paramètres du modèle de Matérn choisir à partir d'observations mesurées sur un échantillon sujet à des variabilités stochastiques, en mesurant par example le nombre de maximums par élément de longueur et l'écart type des valeurs mesurées par échantillon. \\ 
+
+Pour l'ecart type inter-réalisation, celui-ci est equivalant à l'amplitude du modèle de Matérn, par définition.  \\
+
+Maintenant observons les effets de ces paramètres sur le comportement de la décomposition de Karhunen-Loève du champs stochastique. 
+
+\subsubsection{Interaction entre la modèle de Matérn et la décomposition de Karhunen-Loève}
+
+
+
+
+
 
 
 \section{Conclusions}
