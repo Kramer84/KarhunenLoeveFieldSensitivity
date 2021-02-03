@@ -144,7 +144,7 @@ Pour parvenir a tester les méthodes trouvées lors de la recherche bibliographi
 Il s'agit d'un modèle de poutre en appui sur ses deux extrémités
 \begin{figure}[H]
    \centering   
-   \includegraphics[scale=0.20]{beam_structure.png}
+   \includegraphics[width=\linewidth]{beam_structure.png}
       \caption{Modélisation d'une poutre en appui sur ses deux extrémités avec la bibliothèque anastruct}
          \label{fig:nonfloat}
 \end{figure}
@@ -154,7 +154,7 @@ En plus de ces deux grandeurs gouvernées par des champs, la densité du matéri
 
 \begin{figure}[H]
    \centering   
-   \includegraphics[scale=0.33]{beam_experience.png}
+   \includegraphics[width=\linewidth]{beam_experience.png}
       \caption{Échantillon de 5 réalisations de la poutre en flexion. [Sur la gauche : Processus gouvernant le module de young, Processus gouvernant le diamètre, contrainte de Von Mises] | [Sur la droite : Contrainte de cisaillement, moment de flexion, déflexion] }
          \label{beamExperience}
 \end{figure}
@@ -185,7 +185,7 @@ Les codes sont accessibles via \textit{\textbf{github}}: \\
 
 \begin{figure}[H]
    \centering   
-   \includegraphics[scale=0.175]{schema_postprocessing.png}
+   \includegraphics[width=\linewidth]{schema_postprocessing.png}
       \caption{Organsiation des variables d'entrée, expliquant l'étape de postprocessing}
          \label{posprocessing}
 \end{figure}
@@ -447,7 +447,7 @@ Finalement, l'on récupère les indices de Sobol' pour les différents élements
    \includegraphics[scale=0.255]{sensibiliteVonMises10K.png}
       \caption{Sensibilité de la contrainte de Von-Mises aux champs (Module d'Young, diamètre) et variables d'entrée.(densité, position, Norme de la force
       )}
-         \label{MaxDeflec}
+         \label{VonMises}
 \end{figure}
 L'on peut voir qu'il y a très peu d'écarts entre les indices d'ordre total et premier ordre. Les effets d'interaction sont donc très peu présents entre les variables d'entrée.\\
 \\
@@ -787,19 +787,65 @@ Comme pour mesurer un maximum il faut que les deux valeurs adjacentes lui soient
 
 Finalement, on observe que pour un $\nu$ superieur à 3, son influence reste globalement identique sur le champ. \\
 
-Avec ces figures l'on pourrait à priori déterminer quels paramètres du modèle de Matérn choisir à partir d'observations mesurées sur un échantillon sujet à des variabilités stochastiques, en mesurant par example le nombre de maximums par élément de longueur et l'écart type des valeurs mesurées par échantillon. \\ 
+Avec ces figures l'on pourrait à priori déterminer quels paramètres du modèle de Matérn choisir à partir d'observations mesurées sur un échantillon sujet à des variabilités stochastiques, en mesurant par example le nombre de maximums locaux par élément de longueur et l'écart type des valeurs mesurées par échantillon. \\ 
 
-Pour l'ecart type inter-réalisation, celui-ci est equivalant à l'amplitude du modèle de Matérn, par définition.  \\
+Pour l'ecart type inter-réalisation, celui-ci est equivalant à l'amplitude du modèle de Matérn, par définition.  \par
 
 Maintenant observons les effets de ces paramètres sur le comportement de la décomposition de Karhunen-Loève du champs stochastique. 
 
 \subsubsection{Interaction entre la modèle de Matérn et la décomposition de Karhunen-Loève}
 
+	 La décomposition de Karhunen-Loeve d'un processus stochastique est sa représentation en tant que combinaision linaire infine de fonctions orthogonales, similairement à la décomposition de fourier, sur un interval borné. \par
+	 Contrairement à la décomposition en série de Fourier ou les coefficients sont des nombres fixes et la base d'expansion est un ensemble de fonctions sinusoidales, dans le cas de la décomposition de Karhunen-Loeve les coefficients sont des variables aléatoires et la base d'expansion dépend du processus. Le choix de la base orthogonale va dépendre de la fonction de covariance du processus. \par
+	 L'idée essentielle pour la décomposition de Karhunen-Loève est de résoudre l'équation intégrale de Fredholm associée au noyeau du processus, ce qui définit un espace de Hilbert à noyeau reproduisant. Les solutions a ce problème sont soit analytiques soit basées sur des méthodes numériques. Pour un processus stochastique Gaussien on peut écrire la décomposition de Karhunen-Loève tronquée à l'ordre M suivante:
+	 
+%Approximation de Kahrunen Loeve 
+   \[
+      \begin{array}{lp{0.8\linewidth}}
+         H(\textbf{x}, \theta) & Approx. Procéssus Gaussien \\
+         \lambda_{i}          & Valeur Propre de la matrice de covariance \\
+         \xi_{i}             & Variable Normale Centrée Réduite \\
+         \varphi_{i}(\textbf{x}) & Vecteur propre de la matrice de covariance
+      \end{array}
+   \]
 
+   \begin{eqnarray}
+H(\textbf{x}, \theta) & = & \sum_{i=1}^{M}\sqrt{\lambda_{i}}\xi_{i}(\theta)\varphi_{i}(\textbf{x});
+   \end{eqnarray}\\
 
+Chaque réalisation de ce champ peut ensuite être représentée comme un vecteur de scalaires unique à cette réalisation. La décomposition de Karhunen-Loève permet d'avoir une bijection entre l'espace de réalisation du champ et un espace $\Re^{M}$ de variables suivant une loi normale centrée réduite. Ceci est aussi intéressant du fait qu'il est possible d'explorer l'entierté de l'espace du champ en utilisant des échantillonages (type LHS) dans l'espace $\Re^{M}$. \par
 
+	 La décomposition de Karhunen-Loeve est entièrement définie dans \textit{openTURNS}, que ce soit pour la décomposition de Karhunen-Loève des fonctions de covariance avec \textbf{ot.KarhunenLoeveP1Algorithm} qui utilise une base fonctionnelle pour 	approximer la fonction de covariance et \textbf{ot.KarhunenLoeveQuadratureAlgorithm} qui utilise une approximation quadratique de l'intégrale du problème de Fredholm. Pour la décomposition d'échantillons il y l'approche SVD qui utilise une version modifié de l'approximation quadratique en approximant d'abord la fonction de covariance sur l'échantillon. \par 
+	 
+	 Le paramètre commun à ces méthodes et le seuil qui détermine l'amplitude relative minimale des valeurs propres à considérer lors de la décomposition par rapport à la somme des valeurs propres précédentes. Ce paramètre détermine donc la précision de l'approximation tout comme le nombre de modes nécessaires pour représenter le processus. \par 
+	 
+	 Nous allons observer l'effet qu'a le seuil sur la précision de l'approximation de Karhunen-Loève du modèle de Matérn étudié précédement. Pour cela nous allons observer l'évolution des courbes tracées précédedment pour charactériser le modèle de Matérn en approximant à chaque fois le modèle avec différents seuils. 
+	 
+	 D'abord l'évolution du rapport entre l'écart type intra réalisation et l'amplitude du processus : 
+	 
+\begin{figure}[H]
+   \centering   
+   \noindent \includegraphics[width = \linewidth]{stdDevIntraKL.png}
+      \caption{}
+         \label{stdDevIntraKL}
+\end{figure}
+	 
+	 Chaque couleur du graphique représente l'ensemble de la figure \ref{stdDevIntra} approximé avec un seuil différent. On observe que plus le seuil est petit, plus l'approximation est bonne pour les modèles ayant un faible Nu et un faible rapport entre facteur d'échelle et taille du domaine. \\
+	 Ces modèles étant ceux avec le plus grand écart-type intra réalisation, ce sont ceux avec la plus grande variabilité au sein d'une même réalisation, et la représentation de cette complexité nécessite un nombre plus important de modes, donc un seuil plus faible. \\ 
+	 On observe aussi ici que l'approximation est suffisante une fois le seuil inferieur ou égal à $1e-3$, \emph{on pourrait supposer ici que cette limite est en lien avec le domaine de définition du processus, qui ici ne possède que 100 neuds.} 
 
+\newpage
+	 
+	 On observe un résultat similaire avec le nombre moyen de maximums locaux par élément de longueur: 
 
+\begin{figure}[H]
+   \centering   
+   \noindent \includegraphics[width = \linewidth]{MeanPeakValKL.png}
+      \caption{}
+         \label{MeanPeakValKL}
+\end{figure}
+	 
+	Plus le seuil est grand, moins il est possible de simuler des champs avec un nombre importants de maximums locaux par élément de longeur, en d'autres termes l'on ne peut pas simuler de champs bruités qu'avec un seuil faible.
 
 \section{Conclusions}
 

@@ -375,13 +375,15 @@ class _metamodel_parameter_routine:
                        variance_diam,
                        scale_diam,
                        var_f_pos,
-                       var_f_norm):
+                       var_f_norm,
+                       nu):
         self.variance_young = variance_young
         self.scale_young = scale_young
         self.variance_diam = variance_diam
         self.scale_diam = scale_diam
         self.var_f_pos = var_f_pos
         self.var_f_norm = var_f_norm
+        self.nu = nu 
 
         #This parameters are the means and are fixed
         self.mean_young = 210000 #MPa
@@ -400,11 +402,10 @@ class _metamodel_parameter_routine:
         self.norm_force.setName('F_Norm_')
 
         #The different thresholds that we test
-        self.threshold_list = [1e-1,1e-3,1e-5]
+        self.threshold = 1e-3
 
-        self.NU_list = [1/2,5/2,100]
         self._base_name = None
-        self._sub_dir = None
+        self.sub_dir = None
 
     @timer
     def _exec_routine(self):
@@ -415,26 +416,11 @@ class _metamodel_parameter_routine:
         #as divese LHS sizes, for the calculus the metamodel, and calculus of
         #the sobol indices on this metamodel.
         self.getBasePathAndFileName()
-        name_base = copy(self._base_name)
-
-        #first we iterate over the thresholds:
-        for threshold in self.threshold_list :
-            thresh_str = np.format_float_scientific(threshold, precision = 1,exp_digits=1)
-            print('threshold is',thresh_str)
-            sub_sub_dir = os.path.join(self.sub_dir ,'threshold{}'.format(thresh_str))
-            if not os.path.isdir(sub_sub_dir):
-                os.mkdir(sub_sub_dir)
-
-            #then we iterate over the nus:
-            for nu in self.NU_list :
-                nu_str = str(round(nu, 3))
-                csv_name = 'NU{}'.format(nu_str)+'.csv'
-                csv_file_path = os.path.join(sub_sub_dir,csv_name)
-                kl_results_E, kl_results_D = self.getKLDecompositionYoungDiam(threshold, nu)
-                AggregatedKLRes = self.getAggregatedKLResults(kl_results_E, kl_results_D)
-                FEM_model = self.getFEMModel(AggregatedKLRes)
-                result_sample = self._exec_sub_routine(AggregatedKLRes, FEM_model)
-                result_sample.exportToCSVFile(csv_file_path,';')
+        kl_results_E, kl_results_D = self.getKLDecompositionYoungDiam()
+        AggregatedKLRes = self.getAggregatedKLResults(kl_results_E, kl_results_D)
+        FEM_model = self.getFEMModel(AggregatedKLRes)
+        result_sample = self._exec_sub_routine(AggregatedKLRes, FEM_model)
+        result_sample.exportToCSVFile(self.sub_dir,';')
 
 
     def _exec_sub_routine(self, AggregatedKLRes, FEM_model):
@@ -554,24 +540,22 @@ class _metamodel_parameter_routine:
         return R2, kriging_model
 
     def getBasePathAndFileName(self):
-        base_string ='EXP_'+'VE'+str(int(self.variance_young))+'_'+'SE'+str(int(self.scale_young))\
+        file_name ='EXP_'+'VE'+str(int(self.variance_young))+'_'+'SE'+str(int(self.scale_young))\
             +'_'+'VD'+str(round(self.variance_diam,4)) +'_'+'SD'+str(int(self.scale_diam))\
-            +'_'+'VFP'+str(round(self.var_f_pos,3))    +'_'+'VFN'+str(round(self.var_f_norm,3))+'_'
-        self.sub_dir = './meta_analysis_results/'+base_string
-        self._base_name = base_string
-        if not os.path.isdir(self.sub_dir):
-            os.mkdir(self.sub_dir)
+            +'_'+'VFP'+str(round(self.var_f_pos,3))    +'_'+'VFN'+str(round(self.var_f_norm,3))+'_'+'NU'+str(round(self.nu ,3))+'.csv'
+        self.sub_dir = './meta_analysis_results/'+file_name
+        self._base_name = file_name
 
-    def getKLDecompositionYoungDiam(self, threshold, nu):
+    def getKLDecompositionYoungDiam(self):
         kl_results_E = get_process_kl_decomposition(
                         mean = self.mean_young, amplitude = self.variance_young , scale = self.scale_young,
-                        nu = nu, mesh = self.fem_vertices, dimension = dim_field,
-                        name = 'E_', threshold = threshold)
+                        nu = self.nu, mesh = self.fem_vertices, dimension = dim_field,
+                        name = 'E_', threshold = self.threshold)
 
         kl_results_D = get_process_kl_decomposition(
                         mean = self.mean_diam, amplitude = self.variance_diam, scale = self.scale_diam,
-                        nu = nu, mesh = self.fem_vertices, dimension = dim_field,
-                        name = 'D_', threshold = threshold)
+                        nu = self.nu, mesh = self.fem_vertices, dimension = dim_field,
+                        name = 'D_', threshold = self.threshold)
         return kl_results_E, kl_results_D
 
     def getAggregatedKLResults(self, kl_results_E, kl_results_D):
@@ -611,17 +595,17 @@ class globalMetaParameterAnalysis:
         mean_f_norm = 100
         
         var_ampl_Young = ot.Uniform(0.001*mean_young, 0.1*mean_young)
-        var_scale_Young = ot.Uniform(0.2*scale,1.*scale)
+        var_scale_Young = ot.Uniform(0.2*scale_beam,1.*scale_beam)
         var_ampl_Diam = ot.Uniform(0.001*mean_diam, 0.1*mean_diam)
-        var_scale_Diam = ot.Uniform(0.2*scale,1.*scale)
+        var_scale_Diam = ot.Uniform(0.2*scale_beam,1.*scale_beam)
         var_var_pos = ot.Uniform(0.001*mean_f_pos, 0.1*mean_f_pos)
         var_var_norm = ot.Uniform(0.001*mean_f_norm, 0.1*mean_f_norm)
         var_nu = ot.Uniform(0.3, 3)
 
         
-        ComposedMetaParamDistribution = ot.ComposedDistribution([var_ampl_Young, var_scale_Young, var_ampl_Diam, var_scale_Diam, var_var_pos, var_var_norm])
-        RandomNormalVector = ot.ComposedDistribution([ot.Normal()] * 6) #Vector used for the LHS generation
-        normalizedLHS = optimizedLHS(RandomNormalVector, 20, SEED)
+        ComposedMetaParamDistribution = ot.ComposedDistribution([var_ampl_Young, var_scale_Young, var_ampl_Diam, var_scale_Diam, var_var_pos, var_var_norm,var_nu])
+        RandomNormalVector = ot.ComposedDistribution([ot.Normal()] * 7) #Vector used for the LHS generation
+        normalizedLHS = optimizedLHS(RandomNormalVector, 100, SEED)
         inverseIsoProbaTransform = ComposedMetaParamDistribution.getInverseIsoProbabilisticTransformation()
         realLHS = inverseIsoProbaTransform(normalizedLHS)
         print('realLHS is',realLHS)
@@ -629,11 +613,15 @@ class globalMetaParameterAnalysis:
 
     @timer
     def run_experience(self, LHS):
-        for doe in LHS:
-            l = list(doe)
-            experiment = _metamodel_parameter_routine(*l)
-            experiment._exec_routine()
-            print('--------- Time for one experiment above -------\n\n\n\n\n')
+        for i, doe in enumerate(LHS):
+            if i > 83 :
+                l = list(doe)
+                experiment = _metamodel_parameter_routine(*l)
+                experiment._exec_routine()
+                print('--------- Time for one experiment above -------\n\n\n\n\n')
+            else :
+                print('Passed LHS N°{} with values:'.format(str(i)))
+                print(', '.join([str(round(LHS[i][j],4)) for j in range(len(LHS[0]))]))
 
 
 if __name__=='__main__':
