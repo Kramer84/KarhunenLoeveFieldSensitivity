@@ -16,17 +16,29 @@
 \usepackage{mathtools}
 \usepackage{gensymb}
 \usepackage[toc,page]{appendix}
+\usepackage{caption}
 
 \begin{document}
-%
-   \title{Rapport de stage PHIMECA}
+%  
+	
+   \title{Rapport de stage : \\ 
+   Développement de méthodes pour l'analyse de sensibilité de modèles gouvernés par des processus stochastiques.}
 
-   \author{Kristof Attila Simady \\ e-mail: Kristof.simady@sigma-clermont.fr}
+   \author{Kristof Attila Simady \\ e-mail: kristof.simady@sigma-clermont.fr \\[1cm]
+   			{\small Tuteur stage: Antoine DUMAS}\\[0.5cm]
+   			{\small Tuteur école: Nicolas GAYTON, Michel DREAN}}
           
-   \date{05/03/2020}
+   \date{12/02/2020}
 
    \maketitle
    
+   \begin{figure}[!b]
+   \centering \noindent \hspace{-4.5cm}
+   \includegraphics[width= \paperwidth]{header_sigma.png}
+      \caption*{}
+         \label{header_sigma}
+   \end{figure} 
+  
   \newpage   
    
    \tableofcontents
@@ -56,7 +68,8 @@ Je remercie enfin le reste de l'équipe, Oussama B., Fabien T., Julien S., Marc 
 Ce document est autant un rapport de stage qu'une note à qui voudrait se servir des différentes méthodes explorées et codes développés.
 
 \newpage
-\section{Premiers 5 mois de stage}
+%Recherche bibliographique, premières approches et applications au modèle d'étude
+\section{Recherche bibliographique, premières approches et applications au modèle d'étude - 5 premier mois}
 \subsection{Introduction}
 Dans le cadre d'analyse probabiliste et fiabiliste, il est d'usage d’effectuer des analyses de sensibilité sur une ou plusieurs grandeurs d’intérêt, grâce à divers moyens comme les indices de Sobol' ou les analyses de corrélation. \\
 Ces analyses sont néanmoins souvent cantonnées à des modèles n'ayant en sortie et entrée que des grandeurs scalaires, pour lesquelles de nombreuses méthodes existent dans la littérature.\\
@@ -707,7 +720,7 @@ Ce faisant, l'absence de données concernant l'échangeur de chaleur ont entrav�
 
 Nous avons donc décidé de mettre en pause cette partie du projet tant que des informations supplémentaires n'étaient pas obtenues, et de se concentrer sur l'intégration des codes et méthodes développés dans \textit{openTURNS}, comme de faire une étude plus en détail de l’exemple de la poutre en flexion, et de voir l'implication des différents paramètres de modélisation en jeu lors d'une telle analyse. \newpage
 
-\section{Derniers 5 mois de stage }
+\section{Intégration des méthodes dans l'environnement d'openTURNS, analyse statistique du modèle de Matérn et de la décomposition de Karhunen Loève, et analyse de sensibilité par méta-modèle. 5 derniers mois de stage}
 Comme mentionné précédemment, ces derniers mois de stage nous on permis de nous focaliser sur l'intégration des méthodes dans l'environnement d'\textit{openTURNS}, tout comme d'analyser plus en détail la méthode, notamment en étudiant les liens entre les paramètres des champs et leur influence sur l'analyse de sensibilité.
 
 \subsection{Intégration dans openTURNS}
@@ -869,7 +882,7 @@ H(\textbf{x}, \theta) & = & \sum_{i=1}^{M}\sqrt{\lambda_{i}}\xi_{i}(\theta)\varp
 
 Chaque réalisation de ce champ peut ensuite être représentée comme un vecteur de scalaires unique à cette réalisation. La décomposition de Karhunen-Loève permet d'avoir une bijection entre l'espace de réalisation du champ et un espace $\Re^{M}$ de variables suivant une loi normale centrée réduite. Ceci est aussi intéressant du fait qu'il est possible d'explorer l’ensemble de l'espace du champ en utilisant des échantillonnages (type LHS) dans l'espace $\Re^{M}$. \par
 
-	 La décomposition de Karhunen-Loeve est entièrement définie dans \textit{openTURNS}, que ce soit pour la décomposition de Karhunen-Loève des fonctions de covariance avec \textbf{ot.KarhunenLoeveP1Algorithm} qui utilise une base fonctionnelle pour 	approximer la fonction de covariance et \textbf{ot.KarhunenLoeveQuadratureAlgorithm} qui utilise une approximation quadratique de l'intégrale du problème de Fredholm. Pour la décomposition d'échantillons il y l'approche SVD qui utilise une version modifié de l'approximation quadratique en approximant d'abord la fonction de covariance sur l'échantillon. \par 
+	 La décomposition de Karhunen-Loeve est entièrement définie dans \textit{openTURNS}, que ce soit pour la décomposition de Karhunen-Loève des fonctions de covariance avec \textbf{ot.KarhunenLoeveP1Algorithm} qui utilise une base fonctionnelle pour 	approximer la fonction de covariance et \\ \textbf{ot.KarhunenLoeveQuadratureAlgorithm} qui utilise une approximation quadratique de l'intégrale du problème de Fredholm. Pour la décomposition d'échantillons il y l'approche SVD qui utilise une version modifié de l'approximation quadratique en approximant d'abord la fonction de covariance sur l'échantillon. \par 
 	 
 	 Le paramètre commun à ces méthodes et le seuil qui détermine l'amplitude relative minimale des valeurs propres à considérer lors de la décomposition par rapport à la somme des valeurs propres précédentes. Ce paramètre détermine donc la précision de l'approximation tout comme le nombre de modes nécessaires pour représenter le processus. \par 
 	 
