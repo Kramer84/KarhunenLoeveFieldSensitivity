@@ -465,9 +465,9 @@ class _metamodel_parameter_routine:
         print('LHS25')
         result_point_DOE50000_LHS25 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS25, doe_metasobol_experiment_N50000, 50000, 25, N_KL_Young, N_KL_Diam, R2_LHS25)
         print('LHS50')
-        result_point_DOE50000_LHS50 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS50, doe_metasobol_experiment_N50000, 50000, 50, N_KL_Young, N_KL_Diam, R2_LHS25)
+        result_point_DOE50000_LHS50 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS50, doe_metasobol_experiment_N50000, 50000, 50, N_KL_Young, N_KL_Diam, R2_LHS50)
         print('LHS100')
-        result_point_DOE50000_LHS100 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS100, doe_metasobol_experiment_N50000, 50000, 100, N_KL_Young, N_KL_Diam, R2_LHS25)
+        result_point_DOE50000_LHS100 = self.getSensitivityAnalysisResultsMetamodel(kriging_model_LHS100, doe_metasobol_experiment_N50000, 50000, 100, N_KL_Young, N_KL_Diam, R2_LHS100)
 
         description = result_point_DOE1000.getDescription()
         ResultsSample = ot.Sample([result_point_DOE1000, result_point_DOE50000_LHS25, result_point_DOE50000_LHS50, result_point_DOE50000_LHS100])

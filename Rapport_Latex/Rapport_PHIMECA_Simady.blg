@@ -5,45 +5,45 @@ The style file: apalike.bst
 Database file #1: Bibliographie_rapport_PHIMECA_Simady.bib
 Warning--empty journal in Goka2019Jun
 Warning--empty journal in OpenTURNS
-You've used 9 entries,
+You've used 10 entries,
             1935 wiz_defined-function locations,
-            533 strings with 5496 characters,
-and the built_in function-call counts, 2993 in all, are:
-= -- 298
-> -- 98
+            541 strings with 5756 characters,
+and the built_in function-call counts, 3484 in all, are:
+= -- 343
+> -- 126
 < -- 8
-+ -- 30
-- -- 30
-* -- 236
-:= -- 543
-add.period$ -- 25
-call.type$ -- 9
-change.case$ -- 60
-chr.to.int$ -- 9
-cite$ -- 11
-duplicate$ -- 118
-empty$ -- 213
-format.name$ -- 47
-if$ -- 569
++ -- 40
+- -- 40
+* -- 283
+:= -- 630
+add.period$ -- 28
+call.type$ -- 10
+change.case$ -- 70
+chr.to.int$ -- 10
+cite$ -- 12
+duplicate$ -- 132
+empty$ -- 244
+format.name$ -- 58
+if$ -- 662
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 8
-newline$ -- 46
-num.names$ -- 27
-pop$ -- 46
+missing$ -- 9
+newline$ -- 51
+num.names$ -- 30
+pop$ -- 54
 preamble$ -- 1
-purify$ -- 60
+purify$ -- 70
 quote$ -- 0
-skip$ -- 97
+skip$ -- 107
 stack$ -- 0
-substring$ -- 205
-swap$ -- 6
+substring$ -- 244
+swap$ -- 7
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 54
+type$ -- 60
 warning$ -- 2
-while$ -- 26
+while$ -- 29
 width$ -- 0
-write$ -- 110
+write$ -- 123
 (There were 2 warnings)

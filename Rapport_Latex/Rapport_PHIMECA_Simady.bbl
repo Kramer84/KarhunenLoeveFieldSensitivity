@@ -11,6 +11,11 @@ Goka, E. (2019).
   Modélisation des imperfections de fabrication pour une analyse réaliste et
   robuste du comportement des systèmes}.
 
+\bibitem[Janon et~al., 2014]{janon_klein_lagnoux_nodet_prieur_2014}
+Janon, A., Klein, T., Lagnoux, A., Nodet, M., and Prieur, C. (2014).
+\newblock Asymptotic normality and efficiency of two sobol index estimators.
+\newblock {\em ESAIM: Probability and Statistics}, 18:342–364.
+
 \bibitem[Lilburne and Tarantola, 2009]{Lilburne2009Feb}
 Lilburne, L. and Tarantola, S. (2009).
 \newblock {Sensitivity analysis of spatial models}.
