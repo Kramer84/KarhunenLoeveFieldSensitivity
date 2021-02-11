@@ -105,6 +105,8 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         raise NotImplementedError
 
     def getAggregatedFirstOrderIndices(self):
+        '''Function to get the agrregated first order indices
+        '''
         self.__fastResultCheck__()
         aggFO_indices = list()
         for i in range(self.__nOutputs__):

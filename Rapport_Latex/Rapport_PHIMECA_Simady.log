@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.10.29)  10 FEB 2021 02:05
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.10.29)  11 FEB 2021 17:17
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -384,25 +384,31 @@ Package caption Info: Standard document class detected.
 Package caption Info: float package is loaded.
 Package caption Info: hyperref package is loaded.
 )
+(/usr/share/texlive/texmf-dist/tex/latex/titling/titling.sty
+Package: titling 2009/09/04 v2.1d maketitle typesetting
+\thanksmarkwidth=\skip57
+\thanksmargin=\skip58
+\droptitle=\skip59
+)
 (./Rapport_PHIMECA_Simady.aux)
 \openout1 = `Rapport_PHIMECA_Simady.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 22.
+LaTeX Font Info:    ... okay on input line 22.
 
 (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -427,7 +433,7 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 \AtBeginShipoutBox=\box51
-Package hyperref Info: Link coloring OFF on input line 21.
+Package hyperref Info: Link coloring OFF on input line 22.
 
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2019/09/16 v2.46 Cross-referencing by name of section
@@ -440,42 +446,47 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count305
 )
-LaTeX Info: Redefining \ref on input line 21.
-LaTeX Info: Redefining \pageref on input line 21.
-LaTeX Info: Redefining \nameref on input line 21.
+LaTeX Info: Redefining \ref on input line 22.
+LaTeX Info: Redefining \pageref on input line 22.
+LaTeX Info: Redefining \nameref on input line 22.
 
 (./Rapport_PHIMECA_Simady.out) (./Rapport_PHIMECA_Simady.out)
 \@outlinefile=\write3
 \openout3 = `Rapport_PHIMECA_Simady.out'.
 
-LaTeX Info: Redefining \celsius on input line 21.
-Package gensymb Info: Faking symbols for \degree and \celsius on input line 21.
+LaTeX Info: Redefining \celsius on input line 22.
+Package gensymb Info: Faking symbols for \degree and \celsius on input line 22.
 
 
 
 Package gensymb Warning: Not defining \perthousand.
 
-LaTeX Info: Redefining \ohm on input line 21.
-Package gensymb Info: Using \Omega for \ohm on input line 21.
+LaTeX Info: Redefining \ohm on input line 22.
+Package gensymb Info: Using \Omega for \ohm on input line 22.
 
 Package gensymb Warning: Not defining \micro.
 
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
-<header_sigma.png, id=128, 1127.21124pt x 277.035pt>
-File: header_sigma.png Graphic file (type png)
-<use header_sigma.png>
-Package pdftex.def Info: header_sigma.png  used on input line 37.
-(pdftex.def)             Requested size: 597.50787pt x 146.84898pt.
+<Logo_SIGMA_Clermont.png, id=124, 714.67pt x 405.515pt>
+File: Logo_SIGMA_Clermont.png Graphic file (type png)
+<use Logo_SIGMA_Clermont.png>
+Package pdftex.def Info: Logo_SIGMA_Clermont.png  used on input line 36.
+(pdftex.def)             Requested size: 178.66705pt x 101.3785pt.
 
-Overfull \hbox (126.69215pt too wide) in paragraph at lines 36--38
-   [] 
+Overfull \hbox (63.51077pt too wide) in paragraph at lines 35--38
+[]  []
  []
 
+<LogoPhiHaut.png, id=126, 590.205pt x 474.77374pt>
+File: LogoPhiHaut.png Graphic file (type png)
+<use LogoPhiHaut.png>
+Package pdftex.def Info: LogoPhiHaut.png  used on input line 51.
+(pdftex.def)             Requested size: 189.75105pt x 152.6334pt.
 [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./header_sigma.png>]
-(./Rapport_PHIMECA_Simady.toc
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./Logo_SIGMA_Clermont.png>
+ <./LogoPhiHaut.png>] (./Rapport_PHIMECA_Simady.toc
 Overfull \hbox (14.6344pt too wide) in paragraph at lines 22--22
  [][] [][]\T1/cmr/m/n/10 Application de la méth-ode de la dé-for-ma-tion modale
  métrique 
@@ -487,139 +498,144 @@ Overfull \hbox (5.55331pt too wide) in paragraph at lines 30--30
  champs stochas- 
  []
 
-[2])
+)
 \tf@toc=\write4
 \openout4 = `Rapport_PHIMECA_Simady.toc'.
 
- [3]
-Overfull \hbox (15.65634pt too wide) in paragraph at lines 63--64
+pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.69   \newpage
+                [1] [2]
+Overfull \hbox (15.65634pt too wide) in paragraph at lines 86--87
 []\T1/cmr/m/n/10 Mes re-mer-ciements vont en-suite à Mr. Thierry YALA-MAS, qui 
 a su m'introduire
  []
 
-[4] [5]
-Overfull \hbox (8.21783pt too wide) in paragraph at lines 72--72
+[3] [4]
+Overfull \hbox (8.21783pt too wide) in paragraph at lines 95--95
 []\T1/cmr/bx/n/14.4 Recherche bib-li-ographique, pre-mières ap-proches
  []
 
-[6] [7]
-Overfull \hbox (24.08922pt too wide) in paragraph at lines 108--108
+[5] [6]
+Overfull \hbox (24.08922pt too wide) in paragraph at lines 131--131
 \T1/cmr/m/n/10 clas-sique-ment en se bas-ant sur la bib-lio-thèque \T1/cmr/m/it
 /10 open-TURNS \T1/cmr/m/n/10 développé par PHIMECA,
  []
 
 
-Overfull \hbox (6.37918pt too wide) in paragraph at lines 110--112
+Overfull \hbox (6.37918pt too wide) in paragraph at lines 133--135
 \T1/cmr/m/it/10 ment of Un-cer-tain-ties and Risk & Statis-tics \T1/cmr/m/n/10 
 )[[]]. 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 110--112
+Underfull \hbox (badness 10000) in paragraph at lines 133--135
 
  []
 
 
-Overfull \hbox (22.38617pt too wide) in paragraph at lines 118--118
+Overfull \hbox (22.38617pt too wide) in paragraph at lines 141--141
 []\T1/cmr/m/n/10 Plus spé-ci-fique-ment, cette méthodolo-gie était à ap-pli-que
 r à un mod-èle d'échangeur
  []
 
-[8]
-<stochastic_process2d.png, id=240, 1139.00531pt x 426.84468pt>
+[7]
+<stochastic_process2d.png, id=239, 1139.00531pt x 426.84468pt>
 File: stochastic_process2d.png Graphic file (type png)
 <use stochastic_process2d.png>
-Package pdftex.def Info: stochastic_process2d.png  used on input line 131.
+Package pdftex.def Info: stochastic_process2d.png  used on input line 154.
 (pdftex.def)             Requested size: 284.75063pt x 106.7109pt.
 
-Overfull \hbox (8.11374pt too wide) in paragraph at lines 143--145
+Overfull \hbox (8.11374pt too wide) in paragraph at lines 166--168
 \T1/cmr/m/n/10 Une autre fonc-tion de co-vari-ance, celle de \T1/cmr/m/it/10 Ma
 térn\T1/cmr/m/n/10 , est aussi très util-isée, puisqu'elle
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 148--149
+Underfull \hbox (badness 10000) in paragraph at lines 171--172
 
  []
 
-[9 <./stochastic_process2d.png (PNG copy)>]
-Underfull \hbox (badness 10000) in paragraph at lines 182--183
+[8 <./stochastic_process2d.png (PNG copy)>]
+Underfull \hbox (badness 10000) in paragraph at lines 205--206
 
  []
 
 
-Overfull \hbox (3.55743pt too wide) in paragraph at lines 184--185
+Overfull \hbox (3.55743pt too wide) in paragraph at lines 207--208
 []\T1/cmr/m/n/10 Cette dé-com-po-si-tion per-met de représen-ter l'ensemble de 
 vari-abil-ité du champ
  []
 
-[10]
-<beam_structure.png, id=266, 1165.7151pt x 694.5147pt>
+[9]
+<beam_structure.png, id=265, 1165.7151pt x 694.5147pt>
 File: beam_structure.png Graphic file (type png)
 <use beam_structure.png>
-Package pdftex.def Info: beam_structure.png  used on input line 204.
+Package pdftex.def Info: beam_structure.png  used on input line 227.
 (pdftex.def)             Requested size: 345.0pt x 205.54768pt.
- [11 <./beam_structure.png>]
-<bending_beam_schema.png, id=281, 1002.74625pt x 595.22375pt>
+ [10 <./beam_structure.png>]
+<bending_beam_schema.png, id=279, 1002.74625pt x 595.22375pt>
 File: bending_beam_schema.png Graphic file (type png)
 <use bending_beam_schema.png>
-Package pdftex.def Info: bending_beam_schema.png  used on input line 215.
+Package pdftex.def Info: bending_beam_schema.png  used on input line 238.
 (pdftex.def)             Requested size: 345.0pt x 204.7893pt.
- [12 <./bending_beam_schema.png>]
+ [11 <./bending_beam_schema.png>]
 LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 2
-39.
+62.
 
 (/usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2019/12/16 v2.5j Standard LaTeX font definitions
 )
-<schema_postprocessing.png, id=293, 2048.65375pt x 1652.1725pt>
+<schema_postprocessing.png, id=291, 2048.65375pt x 1652.1725pt>
 File: schema_postprocessing.png Graphic file (type png)
 <use schema_postprocessing.png>
-Package pdftex.def Info: schema_postprocessing.png  used on input line 243.
+Package pdftex.def Info: schema_postprocessing.png  used on input line 266.
 (pdftex.def)             Requested size: 345.0pt x 278.21855pt.
- [13]
-Underfull \hbox (badness 10000) in paragraph at lines 255--256
+ [12]
+Underfull \hbox (badness 10000) in paragraph at lines 278--279
 
  []
 
-<sensitivity_rv_KL_anno.png, id=302, 319.1925pt x 643.40375pt>
+<sensitivity_rv_KL_anno.png, id=300, 319.1925pt x 643.40375pt>
 File: sensitivity_rv_KL_anno.png Graphic file (type png)
 <use sensitivity_rv_KL_anno.png>
-Package pdftex.def Info: sensitivity_rv_KL_anno.png  used on input line 262.
+Package pdftex.def Info: sensitivity_rv_KL_anno.png  used on input line 285.
 (pdftex.def)             Requested size: 77.01688pt x 155.24895pt.
-<sensitivity_field_KL.png, id=303, 1371.1225pt x 322.20375pt>
+<sensitivity_field_KL.png, id=301, 1371.1225pt x 322.20375pt>
 File: sensitivity_field_KL.png Graphic file (type png)
 <use sensitivity_field_KL.png>
-Package pdftex.def Info: sensitivity_field_KL.png  used on input line 267.
+Package pdftex.def Info: sensitivity_field_KL.png  used on input line 290.
 (pdftex.def)             Requested size: 209.58702pt x 49.24785pt.
 
-Overfull \hbox (54.33807pt too wide) in paragraph at lines 267--268
+Overfull \hbox (54.33807pt too wide) in paragraph at lines 290--291
  [][] 
  []
 
-[14 <./schema_postprocessing.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 272--273
+[13 <./schema_postprocessing.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 295--296
 
  []
 
-[15 <./sensitivity_rv_KL_anno.png> <./sensitivity_field_KL.png>]
-Overfull \hbox (8.38959pt too wide) in paragraph at lines 287--288
+[14 <./sensitivity_rv_KL_anno.png> <./sensitivity_field_KL.png>]
+Overfull \hbox (8.38959pt too wide) in paragraph at lines 310--311
 []\T1/cmr/m/n/10 L'approche se base sur la dé-com-po-si-tion de Karhunen-Loève 
 du champ stochas-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 316--317
+Underfull \hbox (badness 10000) in paragraph at lines 339--340
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 318--319
+Underfull \hbox (badness 10000) in paragraph at lines 341--342
 
  []
 
-[16]
-Overfull \hbox (6.48076pt too wide) in paragraph at lines 320--321
+[15]
+Overfull \hbox (6.48076pt too wide) in paragraph at lines 343--344
 []\T1/cmr/m/n/10 Soient $\OML/cmm/m/it/10 ^^V[] \OT1/cmr/m/n/10 = (\OML/cmm/m/i
 t/10 ^^V[]; [] ; ^^V[]\OT1/cmr/m/n/10 )$ \T1/cmr/m/n/10 et $\OML/cmm/m/it/10 ^^
 [[] \OT1/cmr/m/n/10 = (\OML/cmm/m/it/10 ^^[[]; [] ; ^^[[]\OT1/cmr/m/n/10 )$ \T1
@@ -627,7 +643,7 @@ t/10 ^^V[]; [] ; ^^V[]\OT1/cmr/m/n/10 )$ \T1/cmr/m/n/10 et $\OML/cmm/m/it/10 ^^
  []
 
 
-Overfull \hbox (16.1296pt too wide) in paragraph at lines 320--321
+Overfull \hbox (16.1296pt too wide) in paragraph at lines 343--344
 \T1/cmr/m/n/10 et écarts types des vari-ables aléa-toires et $\OML/cmm/m/it/10 
 ^^V[] \OT1/cmr/m/n/10 = (\OML/cmm/m/it/10 ^^V[]; [] ; ^^V[]\OT1/cmr/m/n/10 )$ \
 T1/cmr/m/n/10 et $\OML/cmm/m/it/10 ^^[[] \OT1/cmr/m/n/10 = (\OML/cmm/m/it/10 ^^
@@ -635,544 +651,544 @@ T1/cmr/m/n/10 et $\OML/cmm/m/it/10 ^^[[] \OT1/cmr/m/n/10 = (\OML/cmm/m/it/10 ^^
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 320--321
+Underfull \hbox (badness 10000) in paragraph at lines 343--344
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 333--334
+Underfull \hbox (badness 10000) in paragraph at lines 356--357
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 347--351
+Underfull \hbox (badness 10000) in paragraph at lines 370--374
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 347--351
+Underfull \hbox (badness 10000) in paragraph at lines 370--374
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 353--357
+Underfull \hbox (badness 10000) in paragraph at lines 376--380
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 353--357
+Underfull \hbox (badness 10000) in paragraph at lines 376--380
 
  []
 
-[17]
-Underfull \hbox (badness 10000) in paragraph at lines 370--371
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 378--379
+[16]
+Underfull \hbox (badness 10000) in paragraph at lines 393--394
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 398--399
+Underfull \hbox (badness 10000) in paragraph at lines 401--402
 
  []
 
 
-Overfull \hbox (21.16425pt too wide) in paragraph at lines 400--401
+Underfull \hbox (badness 10000) in paragraph at lines 421--422
+
+ []
+
+
+Overfull \hbox (21.16425pt too wide) in paragraph at lines 423--424
 []\T1/cmr/m/n/10 Néanmoins, il n'est pas pos-si-ble d'inclure in-clure celles-c
 i dans le plan d'expérience
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 400--401
+Underfull \hbox (badness 10000) in paragraph at lines 423--424
+
+ []
+
+[17]
+<Schema_Preparation_VA.pdf, id=349, 558.42128pt x 485.58412pt>
+File: Schema_Preparation_VA.pdf Graphic file (type pdf)
+<use Schema_Preparation_VA.pdf>
+Package pdftex.def Info: Schema_Preparation_VA.pdf  used on input line 428.
+(pdftex.def)             Requested size: 418.81493pt x 364.1872pt.
+
+Overfull \hbox (73.81493pt too wide) in paragraph at lines 428--429
+ [][] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 425--431
 
  []
 
 [18]
-<Schema_Preparation_VA.pdf, id=351, 558.42128pt x 485.58412pt>
-File: Schema_Preparation_VA.pdf Graphic file (type pdf)
-<use Schema_Preparation_VA.pdf>
-Package pdftex.def Info: Schema_Preparation_VA.pdf  used on input line 405.
-(pdftex.def)             Requested size: 418.81493pt x 364.1872pt.
-
-Overfull \hbox (73.81493pt too wide) in paragraph at lines 405--406
- [][] 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 402--408
+Underfull \hbox (badness 10000) in paragraph at lines 432--434
 
  []
 
-[19]
-Underfull \hbox (badness 10000) in paragraph at lines 409--411
-
- []
-
-[20 <./Schema_Preparation_VA.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 430--431
+[19 <./Schema_Preparation_VA.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 453--454
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 447--448
+Underfull \hbox (badness 10000) in paragraph at lines 470--471
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 452--453
+Underfull \hbox (badness 10000) in paragraph at lines 475--476
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 457--458
+Underfull \hbox (badness 10000) in paragraph at lines 480--481
 
  []
 
-[21]
-Underfull \hbox (badness 10000) in paragraph at lines 462--463
+[20]
+Underfull \hbox (badness 10000) in paragraph at lines 485--486
 
  []
 
 
-LaTeX Warning: Command \textbullet invalid in math mode on input line 475.
+LaTeX Warning: Command \textbullet invalid in math mode on input line 498.
 
 
-LaTeX Warning: Command \textbullet invalid in math mode on input line 475.
+LaTeX Warning: Command \textbullet invalid in math mode on input line 498.
 
 Missing character: There is no ˆ in font cmr5!
 
-Underfull \hbox (badness 10000) in paragraph at lines 476--478
+Underfull \hbox (badness 10000) in paragraph at lines 499--501
 
  []
 
-<sensibiliteDeflection10K.png, id=392, 753.81625pt x 584.1825pt>
+<sensibiliteDeflection10K.png, id=390, 753.81625pt x 584.1825pt>
 File: sensibiliteDeflection10K.png Graphic file (type png)
 <use sensibiliteDeflection10K.png>
-Package pdftex.def Info: sensibiliteDeflection10K.png  used on input line 494.
+Package pdftex.def Info: sensibiliteDeflection10K.png  used on input line 517.
 (pdftex.def)             Requested size: 146.99933pt x 113.91957pt.
-<sensibiliteVonMises10K.png, id=393, 1116.17pt x 553.06625pt>
+<sensibiliteVonMises10K.png, id=391, 1116.17pt x 553.06625pt>
 File: sensibiliteVonMises10K.png Graphic file (type png)
 <use sensibiliteVonMises10K.png>
-Package pdftex.def Info: sensibiliteVonMises10K.png  used on input line 501.
+Package pdftex.def Info: sensibiliteVonMises10K.png  used on input line 524.
 (pdftex.def)             Requested size: 284.6281pt x 141.03424pt.
-[22 <./sensibiliteDeflection10K.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 506--509
+[21 <./sensibiliteDeflection10K.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 529--532
 
  []
 
 
-Overfull \hbox (8.36917pt too wide) in paragraph at lines 506--509
+Overfull \hbox (8.36917pt too wide) in paragraph at lines 529--532
 \T1/cmr/m/n/10 Finalement une com-para-i-son en-tre un ex-em-ple de la doc-u-me
 n-ta-tion d'\T1/cmr/m/it/10 openTURNS
  []
 
-<comparisonOtMe.png, id=405, 1356.06625pt x 517.935pt>
+<comparisonOtMe.png, id=403, 1356.06625pt x 517.935pt>
 File: comparisonOtMe.png Graphic file (type png)
 <use comparisonOtMe.png>
-Package pdftex.def Info: comparisonOtMe.png  used on input line 512.
+Package pdftex.def Info: comparisonOtMe.png  used on input line 535.
 (pdftex.def)             Requested size: 345.80266pt x 132.07562pt.
 
-Overfull \hbox (0.80266pt too wide) in paragraph at lines 512--513
+Overfull \hbox (0.80266pt too wide) in paragraph at lines 535--536
  [][] 
  []
 
-[23 <./sensibiliteVonMises10K.png> <./comparisonOtMe.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 526--527
+[22 <./sensibiliteVonMises10K.png> <./comparisonOtMe.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 549--550
 
  []
 
-<principeEchangeur.png, id=416, 216.81pt x 195.73125pt>
+<principeEchangeur.png, id=414, 216.81pt x 195.73125pt>
 File: principeEchangeur.png Graphic file (type png)
 <use principeEchangeur.png>
-Package pdftex.def Info: principeEchangeur.png  used on input line 530.
+Package pdftex.def Info: principeEchangeur.png  used on input line 553.
 (pdftex.def)             Requested size: 108.40472pt x 97.86537pt.
-<exchangerModel.png, id=417, 737.75626pt x 518.93875pt>
+<exchangerModel.png, id=415, 737.75626pt x 518.93875pt>
 File: exchangerModel.png Graphic file (type png)
 <use exchangerModel.png>
-Package pdftex.def Info: exchangerModel.png  used on input line 543.
+Package pdftex.def Info: exchangerModel.png  used on input line 566.
 (pdftex.def)             Requested size: 221.32858pt x 155.68282pt.
-[24 <./principeEchangeur.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 548--549
+[23 <./principeEchangeur.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 571--572
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 550--551
+Underfull \hbox (badness 10000) in paragraph at lines 573--574
 
  []
 
 
-Overfull \hbox (2.97424pt too wide) in paragraph at lines 552--553
+Overfull \hbox (2.97424pt too wide) in paragraph at lines 575--576
 []\T1/cmr/m/n/10 Numériquement, la rup-ture se traduit par une con-trainte max-
 i-male supérieure
  []
 
-<SchemaAilettes.png, id=424, 698.61pt x 332.24126pt>
+<SchemaAilettes.png, id=422, 698.61pt x 332.24126pt>
 File: SchemaAilettes.png Graphic file (type png)
 <use SchemaAilettes.png>
-Package pdftex.def Info: SchemaAilettes.png  used on input line 556.
+Package pdftex.def Info: SchemaAilettes.png  used on input line 579.
 (pdftex.def)             Requested size: 314.3716pt x 149.50717pt.
-[25 <./exchangerModel.png> <./SchemaAilettes.png>]
-<maternNu.png, id=434, 795.97375pt x 729.72626pt>
+[24 <./exchangerModel.png> <./SchemaAilettes.png>]
+<maternNu.png, id=432, 795.97375pt x 729.72626pt>
 File: maternNu.png Graphic file (type png)
 <use maternNu.png>
-Package pdftex.def Info: maternNu.png  used on input line 568.
+Package pdftex.def Info: maternNu.png  used on input line 591.
 (pdftex.def)             Requested size: 238.79396pt x 218.91957pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 573--576
+Underfull \hbox (badness 10000) in paragraph at lines 596--599
 
  []
 
-[26 <./maternNu.png>]
-<VecteurModalCylindre.png, id=444, 999.735pt x 866.23625pt>
+[25 <./maternNu.png>]
+<VecteurModalCylindre.png, id=442, 999.735pt x 866.23625pt>
 File: VecteurModalCylindre.png Graphic file (type png)
 <use VecteurModalCylindre.png>
-Package pdftex.def Info: VecteurModalCylindre.png  used on input line 593.
+Package pdftex.def Info: VecteurModalCylindre.png  used on input line 616.
 (pdftex.def)             Requested size: 299.9228pt x 259.87288pt.
- [27]
-Underfull \hbox (badness 10000) in paragraph at lines 640--641
+ [26]
+Underfull \hbox (badness 10000) in paragraph at lines 663--664
 
  []
 
 
-LaTeX Warning: Command \` invalid in math mode on input line 643.
+LaTeX Warning: Command \` invalid in math mode on input line 666.
 
 Missing character: There is no è in font cmr7!
 
-LaTeX Warning: Command \` invalid in math mode on input line 643.
+LaTeX Warning: Command \` invalid in math mode on input line 666.
 
 Missing character: There is no è in font cmr7!
 
-Underfull \hbox (badness 10000) in paragraph at lines 643--644
+Underfull \hbox (badness 10000) in paragraph at lines 666--667
 
  []
 
-[28 <./VecteurModalCylindre.png>]
-Overfull \hbox (2.64099pt too wide) in paragraph at lines 646--648
+[27 <./VecteurModalCylindre.png>]
+Overfull \hbox (2.64099pt too wide) in paragraph at lines 669--671
 []\T1/cmr/m/n/10 Les vecteurs modaux sont en-suite nor-més, pour que les co-ef-
 fi-cient d'amplitude
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 651--652
+Underfull \hbox (badness 10000) in paragraph at lines 674--675
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 662--664
+Underfull \hbox (badness 10000) in paragraph at lines 685--687
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 665--668
+Underfull \hbox (badness 10000) in paragraph at lines 688--691
 
  []
 
-[29]
-<SchemaModesDeformation.png, id=466, 727.71875pt x 801.99625pt>
+[28]
+<SchemaModesDeformation.png, id=464, 727.71875pt x 801.99625pt>
 File: SchemaModesDeformation.png Graphic file (type png)
 <use SchemaModesDeformation.png>
-Package pdftex.def Info: SchemaModesDeformation.png  used on input line 675.
+Package pdftex.def Info: SchemaModesDeformation.png  used on input line 698.
 (pdftex.def)             Requested size: 327.47041pt x 360.89497pt.
 
-Overfull \hbox (1.80786pt too wide) in paragraph at lines 680--681
+Overfull \hbox (1.80786pt too wide) in paragraph at lines 703--704
 []\T1/cmr/m/n/10 Cette méth-ode était haute-ment fonc-tion-nelle, car les dé-fo
 r-ma-tions sont toutes
  []
 
-[30 <./SchemaModesDeformation.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 684--685
+[29 <./SchemaModesDeformation.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 707--708
 
  []
 
 
-Overfull \hbox (1.08105pt too wide) in paragraph at lines 686--687
+Overfull \hbox (1.08105pt too wide) in paragraph at lines 709--710
 \T1/cmr/m/n/10 Sim-cen-ter NX pos-sède un lan-gage de "script-ing" ap-pelé NX, 
 qui per-met d'utiliser
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 686--687
+Underfull \hbox (badness 10000) in paragraph at lines 709--710
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 688--689
+Underfull \hbox (badness 10000) in paragraph at lines 711--712
 
  []
 
-<SimcenterInterface.PNG, id=472, 1264.725pt x 790.45313pt>
+<SimcenterInterface.PNG, id=470, 1264.725pt x 790.45313pt>
 File: SimcenterInterface.PNG Graphic file (type png)
 <use SimcenterInterface.PNG>
-Package pdftex.def Info: SimcenterInterface.PNG  used on input line 692.
+Package pdftex.def Info: SimcenterInterface.PNG  used on input line 715.
 (pdftex.def)             Requested size: 227.64067pt x 142.27542pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 697--698
+Underfull \hbox (badness 10000) in paragraph at lines 720--721
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 699--700
+Underfull \hbox (badness 10000) in paragraph at lines 722--723
 
  []
 
-[31 <./SimcenterInterface.PNG>]
-Underfull \hbox (badness 10000) in paragraph at lines 701--702
+[30 <./SimcenterInterface.PNG>]
+Underfull \hbox (badness 10000) in paragraph at lines 724--725
 
  []
 
-<./exchangerPics/exchangerDeformations.png, id=482, 508.90125pt x 780.9175pt>
+<./exchangerPics/exchangerDeformations.png, id=480, 508.90125pt x 780.9175pt>
 File: ./exchangerPics/exchangerDeformations.png Graphic file (type png)
 <use ./exchangerPics/exchangerDeformations.png>
 Package pdftex.def Info: ./exchangerPics/exchangerDeformations.png  used on inp
-ut line 705.
+ut line 728.
 (pdftex.def)             Requested size: 254.45pt x 390.4578pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 712--714
+Underfull \hbox (badness 10000) in paragraph at lines 735--737
 
  []
 
-[32 <./exchangerPics/exchangerDeformations.png>] [33]
-Overfull \hbox (1.04715pt too wide) in paragraph at lines 723--723
+[31 <./exchangerPics/exchangerDeformations.png>] [32]
+Overfull \hbox (1.04715pt too wide) in paragraph at lines 746--746
 []\T1/cmr/bx/n/14.4 Intégration des méth-odes dans l'environnement
  []
 
 
-Overfull \hbox (9.69594pt too wide) in paragraph at lines 723--723
+Overfull \hbox (9.69594pt too wide) in paragraph at lines 746--746
 \T1/cmr/bx/n/14.4 Loève, et anal-yse de sen-si-bil-ité par méta-modèle.
  []
 
 
-Overfull \hbox (6.06418pt too wide) in paragraph at lines 724--725
+Overfull \hbox (6.06418pt too wide) in paragraph at lines 747--748
 \T1/cmr/m/n/10 nous fo-caliser sur l'intégration des méth-odes dans l'environne
 ment d'\T1/cmr/m/it/10 openTURNS\T1/cmr/m/n/10 ,
  []
 
 
-Overfull \hbox (5.1635pt too wide) in paragraph at lines 740--741
+Overfull \hbox (5.1635pt too wide) in paragraph at lines 763--764
 \T1/cmr/bx/n/10 Prob-a-bilis-tic-Trans-for-ma-tion \T1/cmr/m/n/10 et \T1/cmr/bx
 /n/10 .In-ver-seIso-Prob-a-bilis-tic-Trans-
  []
 
-[34]
-Overfull \hbox (0.98257pt too wide) in paragraph at lines 751--751
+[33]
+Overfull \hbox (0.98257pt too wide) in paragraph at lines 774--774
 []\T1/cmr/m/n/10 Ceci fait que dans la philoso-phie de cette méth-ode, on tra-v
 aille surtout
  []
 
-[35]
-Overfull \hbox (13.82379pt too wide) in paragraph at lines 766--766
+[34]
+Overfull \hbox (13.82379pt too wide) in paragraph at lines 789--789
 []\T1/cmr/m/n/10 Néanmoins, les classes pour le cal-cul des in-dices de Sobol' 
 d'\T1/cmr/m/it/10 openTURNS\T1/cmr/m/n/10 ,
  []
 
 
-Overfull \hbox (12.42422pt too wide) in paragraph at lines 766--766
+Overfull \hbox (12.42422pt too wide) in paragraph at lines 789--789
 \T1/cmr/m/n/10 re-quièrent en en-trée la ma-trice de mélange, pre-mière-ment po
 ur récupérer
  []
 
 
-Overfull \hbox (15.06247pt too wide) in paragraph at lines 768--768
+Overfull \hbox (15.06247pt too wide) in paragraph at lines 791--791
 \T1/cmr/m/n/10 Loève, la di-men-sion de la ma-trice de mélange est générale-men
 t supérieure
  []
 
 
-Overfull \hbox (14.71672pt too wide) in paragraph at lines 770--771
+Overfull \hbox (14.71672pt too wide) in paragraph at lines 793--794
 \T1/cmr/bx/n/10 eveSobolIndice-sEx-per-i-ment \T1/cmr/m/n/10 qui prend en en-tr
 é la ma-trice de mélange
  []
 
 
-Overfull \hbox (8.40845pt too wide) in paragraph at lines 770--771
+Overfull \hbox (8.40845pt too wide) in paragraph at lines 793--794
 \T1/cmr/m/n/10 et la réponse du mod-èle, tout comme un des es-ti-ma-teurs d'\T1
 /cmr/m/it/10 openTURNS\T1/cmr/m/n/10 .
  []
 
-<DiagrammeExtensionOT.png, id=504, 1025.8325pt x 577.15625pt>
+<DiagrammeExtensionOT.png, id=502, 1025.8325pt x 577.15625pt>
 File: DiagrammeExtensionOT.png Graphic file (type png)
 <use DiagrammeExtensionOT.png>
-Package pdftex.def Info: DiagrammeExtensionOT.png  used on input line 779.
+Package pdftex.def Info: DiagrammeExtensionOT.png  used on input line 802.
 (pdftex.def)             Requested size: 564.20963pt x 317.4369pt.
 
-Overfull \hbox (113.0263pt too wide) in paragraph at lines 778--780
+Overfull \hbox (113.0263pt too wide) in paragraph at lines 801--803
  []|  [] 
  []
 
-[36] [37 <./DiagrammeExtensionOT.png>]
-Overfull \hbox (4.8349pt too wide) in paragraph at lines 799--800
+[35] [36 <./DiagrammeExtensionOT.png>]
+Overfull \hbox (4.8349pt too wide) in paragraph at lines 822--823
 []\T1/cmr/m/n/10 En plus de l'analyse des ef-fets qu'à l'utilisation d'un méta-
 modèle par Krigeage
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 803--804
+Underfull \hbox (badness 10000) in paragraph at lines 826--827
 
  []
 
-[38]
-Underfull \hbox (badness 10000) in paragraph at lines 829--831
+[37]
+Underfull \hbox (badness 10000) in paragraph at lines 852--854
 
  []
 
-<stdDevIntra.png, id=522, 1196.47pt x 755.82375pt>
+<stdDevIntra.png, id=520, 1196.47pt x 755.82375pt>
 File: stdDevIntra.png Graphic file (type png)
 <use stdDevIntra.png>
-Package pdftex.def Info: stdDevIntra.png  used on input line 836.
+Package pdftex.def Info: stdDevIntra.png  used on input line 859.
 (pdftex.def)             Requested size: 345.0pt x 217.93771pt.
-[39 <./stdDevIntra.png>]
-<peakScale.png, id=529, 1165.35374pt x 762.85pt>
+[38 <./stdDevIntra.png>]
+<peakScale.png, id=527, 1165.35374pt x 762.85pt>
 File: peakScale.png Graphic file (type png)
 <use peakScale.png>
-Package pdftex.def Info: peakScale.png  used on input line 848.
+Package pdftex.def Info: peakScale.png  used on input line 871.
 (pdftex.def)             Requested size: 345.0pt x 225.83032pt.
 
-Overfull \hbox (5.52551pt too wide) in paragraph at lines 865--865
+Overfull \hbox (5.52551pt too wide) in paragraph at lines 888--888
 \T1/cmr/m/n/10 La dé-com-po-si-tion de Karhunen-Loève d'un pro-ces-sus stochas-
 tique est sa représen-
  []
 
-[40 <./PeakScale.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 881--882
+[39 <./PeakScale.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 904--905
 
  []
 
 
-Overfull \hbox (20.86205pt too wide) in paragraph at lines 885--885
+Overfull \hbox (20.86205pt too wide) in paragraph at lines 908--908
 \T1/cmr/bx/n/10 ot.KarhunenLoeveQuadratureAlgorithm \T1/cmr/m/n/10 qui utilise 
 une ap-prox-i-ma-tion quadra-
  []
 
 
-Overfull \hbox (10.04294pt too wide) in paragraph at lines 885--885
+Overfull \hbox (10.04294pt too wide) in paragraph at lines 908--908
 \T1/cmr/m/n/10 tique de l'intégrale du prob-lème de Fred-holm. Pour la dé-com-p
 o-si-tion d'échantillons
  []
 
 
-Overfull \hbox (9.75037pt too wide) in paragraph at lines 891--892
+Overfull \hbox (9.75037pt too wide) in paragraph at lines 914--915
 []\T1/cmr/m/n/10 D'abord l'évolution du rap-port en-tre l'écart type in-tra réa
 l-i-sa-tion et l'amplitude
  []
 
-<stdDevIntraKL.png, id=536, 977.6525pt x 688.5725pt>
+<stdDevIntraKL.png, id=534, 977.6525pt x 688.5725pt>
 File: stdDevIntraKL.png Graphic file (type png)
 <use stdDevIntraKL.png>
-Package pdftex.def Info: stdDevIntraKL.png  used on input line 895.
+Package pdftex.def Info: stdDevIntraKL.png  used on input line 918.
 (pdftex.def)             Requested size: 345.0pt x 242.98975pt.
-[41]
-Overfull \hbox (2.1282pt too wide) in paragraph at lines 900--903
+[40]
+Overfull \hbox (2.1282pt too wide) in paragraph at lines 923--926
 \T1/cmr/m/n/10 avec un seuil dif-férent. On ob-serve que plus le seuil est pe-t
 it, plus l'approximation
  []
 
 
-Overfull \hbox (1.33209pt too wide) in paragraph at lines 900--903
+Overfull \hbox (1.33209pt too wide) in paragraph at lines 923--926
 \T1/cmr/m/n/10 ceux avec la plus grande vari-abil-ité au sein d'une même réal-i
 -sa-tion, et la représen-
  []
 
-[42 <./stdDevIntraKL.png>]
-<MeanPeakValKL.png, id=549, 916.42375pt x 648.4225pt>
+[41 <./stdDevIntraKL.png>]
+<MeanPeakValKL.png, id=547, 916.42375pt x 648.4225pt>
 File: MeanPeakValKL.png Graphic file (type png)
 <use MeanPeakValKL.png>
-Package pdftex.def Info: MeanPeakValKL.png  used on input line 910.
+Package pdftex.def Info: MeanPeakValKL.png  used on input line 933.
 (pdftex.def)             Requested size: 345.0pt x 244.10767pt.
- [43 <./MeanPeakValKL.png>]
-Overfull \hbox (22.7472pt too wide) in paragraph at lines 926--926
+ [42 <./MeanPeakValKL.png>]
+Overfull \hbox (22.7472pt too wide) in paragraph at lines 949--949
 []\T1/cmr/m/n/10 Pour cor-recte-ment ef-fectuer cette anal-yse nous avons du fi
 xer quelques paramètres.
  []
 
-[44]
-<scatter_matrix.png, id=563, 1127.21124pt x 796.9775pt>
+[43]
+<scatter_matrix.png, id=561, 1127.21124pt x 796.9775pt>
 File: scatter_matrix.png Graphic file (type png)
 <use scatter_matrix.png>
-Package pdftex.def Info: scatter_matrix.png  used on input line 951.
+Package pdftex.def Info: scatter_matrix.png  used on input line 974.
 (pdftex.def)             Requested size: 518.52347pt x 366.61409pt.
 
-Overfull \hbox (103.47516pt too wide) in paragraph at lines 950--952
+Overfull \hbox (103.47516pt too wide) in paragraph at lines 973--975
  []|  [] 
  []
 
-[45 <./scatter_matrix.png>]
-<histogram_sobol.png, id=572, 940.51375pt x 792.9625pt>
+[44 <./scatter_matrix.png>]
+<histogram_sobol.png, id=570, 940.51375pt x 792.9625pt>
 File: histogram_sobol.png Graphic file (type png)
 <use histogram_sobol.png>
-Package pdftex.def Info: histogram_sobol.png  used on input line 960.
+Package pdftex.def Info: histogram_sobol.png  used on input line 983.
 (pdftex.def)             Requested size: 345.0pt x 290.8748pt.
 
-Overfull \hbox (4.09995pt too wide) in paragraph at lines 973--973
+Overfull \hbox (4.09995pt too wide) in paragraph at lines 996--996
 \T1/cmr/m/n/10 ap-prox-imées par des pro-ces-sus gaussiens. C'est une méth-ode 
 d'estimation linéaire
  []
 
-[46 <./histogram_sobol.png>]
-<sobol_interface.png, id=580, 1279.78125pt x 989.6975pt>
+[45 <./histogram_sobol.png>]
+<sobol_interface.png, id=578, 1279.78125pt x 989.6975pt>
 File: sobol_interface.png Graphic file (type png)
 <use sobol_interface.png>
-Package pdftex.def Info: sobol_interface.png  used on input line 979.
+Package pdftex.def Info: sobol_interface.png  used on input line 1002.
 (pdftex.def)             Requested size: 345.0pt x 266.79906pt.
-<histogram_sobol_LHS25.png, id=582, 710.655pt x 605.26125pt>
+<histogram_sobol_LHS25.png, id=580, 714.67pt x 608.2725pt>
 File: histogram_sobol_LHS25.png Graphic file (type png)
 <use histogram_sobol_LHS25.png>
-Package pdftex.def Info: histogram_sobol_LHS25.png  used on input line 988.
-(pdftex.def)             Requested size: 345.0pt x 293.83765pt.
- [47 <./sobol_interface.png>]
-<R2_evolution.png, id=591, 665.48625pt x 608.2725pt>
+Package pdftex.def Info: histogram_sobol_LHS25.png  used on input line 1011.
+(pdftex.def)             Requested size: 345.0pt x 293.63815pt.
+ [46 <./sobol_interface.png>]
+<R2_evolution.png, id=589, 665.48625pt x 608.2725pt>
 File: R2_evolution.png Graphic file (type png)
 <use R2_evolution.png>
-Package pdftex.def Info: R2_evolution.png  used on input line 1003.
+Package pdftex.def Info: R2_evolution.png  used on input line 1026.
 (pdftex.def)             Requested size: 345.0pt x 315.33826pt.
- [48 <./histogram_sobol_LHS25.png>]
-Overfull \hbox (2.27997pt too wide) in paragraph at lines 1008--1009
+ [47 <./histogram_sobol_LHS25.png>]
+Overfull \hbox (2.27997pt too wide) in paragraph at lines 1031--1032
 []\T1/cmr/m/n/10 On voit qu'à par-tir d'une di-men-sion de taille 50, l'approxi
 mation par Krigeage
  []
 
-[49 <./R2_evolution.png>] [50] (./Rapport_PHIMECA_Simady.bbl
+[48 <./R2_evolution.png>] [49] (./Rapport_PHIMECA_Simady.bbl
 Underfull \hbox (badness 1776) in paragraph at lines 44--48
 []\T1/cmr/m/n/10 Sudret, B. and Ki-ureghian, A. D. (2000).
  []
 
 )
-<SchemaDeformationNastran.jpg, id=609, 7300.27374pt x 4490.7775pt>
+<SchemaDeformationNastran.jpg, id=608, 7300.27374pt x 4490.7775pt>
 File: SchemaDeformationNastran.jpg Graphic file (type jpg)
 <use SchemaDeformationNastran.jpg>
-Package pdftex.def Info: SchemaDeformationNastran.jpg  used on input line 1029.
+Package pdftex.def Info: SchemaDeformationNastran.jpg  used on input line 1051.
 
 (pdftex.def)             Requested size: 7300.25604pt x 4490.7666pt.
 
-Overfull \hbox (34.48402pt too wide) in paragraph at lines 1029--1030
+Overfull \hbox (34.48402pt too wide) in paragraph at lines 1051--1052
  [][] 
  []
 
-[51]
+[50]
 Overfull \vbox (38.24745pt too high) has occurred while \output is active []
 
 
-[52 <./SchemaDeformationNastran.jpg>]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1034.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1034.
+[51 <./SchemaDeformationNastran.jpg>]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1056.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1056.
  (./Rapport_PHIMECA_Simady.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1034.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1034.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1056.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1056.
 
 Package rerunfilecheck Info: File `Rapport_PHIMECA_Simady.out' has not changed.
 
-(rerunfilecheck)             Checksum: 9E8FEE0BD48F2280012886341E540A2B;3703.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1034.
+(rerunfilecheck)             Checksum: F5425198164317A37AD3ADD7DC09854D;3655.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1056.
  ) 
 Here is how much of TeX's memory you used:
- 9646 strings out of 483140
- 157510 string characters out of 5965150
- 529938 words of memory out of 5000000
- 24264 multiletter control sequences out of 15000+600000
- 554264 words of font info for 66 fonts, out of 8000000 for 9000
+ 9705 strings out of 483140
+ 158444 string characters out of 5965150
+ 530735 words of memory out of 5000000
+ 24321 multiletter control sequences out of 15000+600000
+ 553145 words of font info for 62 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
  43i,16n,42p,1292b,465s stack positions out of 5000i,500n,10000p,200000b,80000s
  </home/motherloadubu/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx
@@ -1186,13 +1202,13 @@ texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm0700.600pk> </home/mother
 loadubu/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/ecti1000.600pk> </ho
 me/motherloadubu/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.60
 0pk> </home/motherloadubu/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/ec
-bx1200.600pk> </home/motherloadubu/.texlive2019/texmf-var/fonts/pk/ljfour/jknap
+rm1000.600pk> </home/motherloadubu/.texlive2019/texmf-var/fonts/pk/ljfour/jknap
 pen/ec/ecbx1000.600pk> </home/motherloadubu/.texlive2019/texmf-var/fonts/pk/ljf
-our/jknappen/ec/ecbx1440.600pk> </home/motherloadubu/.texlive2019/texmf-var/fon
-ts/pk/ljfour/jknappen/ec/ecrm1000.600pk> </home/motherloadubu/.texlive2019/texm
-f-var/fonts/pk/ljfour/jknappen/ec/ecrm0900.600pk> </home/motherloadubu/.texlive
-2019/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1200.600pk> </home/motherloadubu
-/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1728.600pk></usr/share/
+our/jknappen/ec/ecbx1200.600pk> </home/motherloadubu/.texlive2019/texmf-var/fon
+ts/pk/ljfour/jknappen/ec/ecrm1200.600pk> </home/motherloadubu/.texlive2019/texm
+f-var/fonts/pk/ljfour/jknappen/ec/ecbx1728.600pk> </home/motherloadubu/.texlive
+2019/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1440.600pk> </home/motherloadubu
+/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx2488.600pk></usr/share/
 texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texliv
 e/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texm
 f-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist
@@ -1203,10 +1219,10 @@ msfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
 cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy1
 0.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb><
 /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb>
-Output written on Rapport_PHIMECA_Simady.pdf (52 pages, 7230842 bytes).
+Output written on Rapport_PHIMECA_Simady.pdf (52 pages, 7292903 bytes).
 PDF statistics:
- 1257 PDF objects out of 1440 (max. 8388607)
- 613 compressed objects within 7 object streams
- 171 named destinations out of 1000 (max. 500000)
- 399 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1248 PDF objects out of 1440 (max. 8388607)
+ 609 compressed objects within 7 object streams
+ 170 named destinations out of 1000 (max. 500000)
+ 396 words of extra memory for PDF output out of 10000 (max. 10000000)
 

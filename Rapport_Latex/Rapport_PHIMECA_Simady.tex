@@ -17,27 +17,50 @@
 \usepackage{gensymb}
 \usepackage[toc,page]{appendix}
 \usepackage{caption}
+\usepackage{titling}
 
 \begin{document}
 %  
+
 	
-   \title{Rapport de stage : \\ 
-   Développement de méthodes pour l'analyse de sensibilité de modèles gouvernés par des processus stochastiques.}
-
-   \author{Kristof Attila Simady \\ e-mail: kristof.simady@sigma-clermont.fr \\[1cm]
-   			{\small Tuteur stage: Antoine DUMAS}\\[0.5cm]
-   			{\small Tuteur école: Nicolas GAYTON, Michel DREAN}}
-          
-   \date{12/02/2020}
-
-   \maketitle
+   \title{{\Huge Développement de méthodes pour l'analyse de sensibilité de modèles gouvernés par des processus stochastiques.
+   	}\\[2cm]{\Large Rapport de stage SIGMA+}\\[0.5cm]{\Large présenté par:}}
+	
+   \author{{\LARGE Kristof Attila Simady}}
    
-   \begin{figure}[!b]
-   \centering \noindent \hspace{-4.5cm}
-   \includegraphics[width= \paperwidth]{header_sigma.png}
-      \caption*{}
-         \label{header_sigma}
-   \end{figure} 
+   \date{\today}
+
+	\begin{titlepage}
+		\begin{figure}[!t]
+			\vspace{-3cm} \hspace{8cm}
+			\includegraphics[scale = 0.25]{Logo_SIGMA_Clermont.png}
+			\vspace{1cm}
+    	\end{figure}
+    	
+    	\center
+    
+    	\textbf{\thetitle}
+    	\vspace{2cm}
+    
+    	\textbf{\theauthor}
+		
+		\begin{figure}[b]
+		\vspace{-3cm}
+			\begin{minipage}[c]{.55\textwidth}
+				\hspace{-1cm}
+				\includegraphics[width=\linewidth]{LogoPhiHaut.png}
+			\end{minipage}
+			\hfill
+			\begin{minipage}[c]{.4\textwidth}
+   				{\large Entreprise : \textbf{PHIMECA}}\\[0.5cm]
+   				{\large Tuteur stage:\smallskip \\ \textbf{Antoine DUMAS}}\\[0.5cm]
+   	 			{\large Tuteur école:\smallskip \\ \textbf{Nicolas GAYTON},\smallskip \\ \textbf{Michel DREAN}}\\[0.5cm]
+   	 			{\large Date: 11 Février 2021}
+			\end{minipage}
+		\end{figure}   
+   
+   	\end{titlepage}
+  
   
   \newpage   
    
@@ -75,7 +98,7 @@ Dans le cadre d'analyse probabiliste et fiabiliste, il est d'usage d’effectuer
 Ces analyses sont néanmoins souvent cantonnées à des modèles n'ayant en sortie et entrée que des grandeurs scalaires, pour lesquelles de nombreuses méthodes existent dans la littérature.\\
 L'objectif du travail présenté ici, est d’effectuer ce type d'analyse sur des modèles ayant en entrée plusieurs champs aléatoires et des variables aléatoires scalaires et en sortie aussi des champs et grandeurs scalaires. \\ Pour compléter cela, il était bien sûr aussi demandé de d'abord créer un modèle simple gouverné par des champs stochastiques et de faire de l'analyse de sensibilité sur ce modèle. \\
 Il sera d'abord présenté différentes méthodes présentes dans la littérature, avec leurs potentiels avantages et défauts. \\ 
-Cette approche des l'analyse de sensibilité nous renvoie aussi sur des champs de recherche bien différents, car les méthodes peuvent autant venir du champ de la mécanique que de la géologie ou l'étude environnementale.
+Cette approche de l'analyse de sensibilité nous renvoie aussi sur des champs de recherche bien différents, car les méthodes peuvent autant venir du champ de la mécanique que de la géologie ou l'étude environnementale.
 
  
 \subsection{Recherche bibliographique}
@@ -83,9 +106,9 @@ Ce travail de recherche a été l'occasion de parcourir un grand nombre de trava
 
 On notera notamment les travaux de \cite{Lilburne2009Feb} qui donnent dans leur travail un état de l'art complet sur une partie des méthodes pour l'analyse de sensibilité de modèles spatialement corrélés. Ils font état notamment des difficultés d'analyse des processus stochastiques puisque leur présence implique généralement la présence de modèles complexes ayant un coût de calcul important,  rendant difficile l'utilisation de techniques tel que Monte-Carlo. Dans leur travaux ils expliquent que sur des modèles ayant une sortie spatialement corrélée les analyses se font soit sur une grandeur scalaire extraite, tel qu'une probabilité de défaillance, soit sur chaque élément unitaire de la sortie. Dans les méthodes à l'époque existantes on retrouve :
 \begin{itemize}
-\item Dans une méthode par \textbf{Saltelli} en 2000, une approche par Monte-Carlo est proposée, directement sur les champs stochastiques sans représentation intermédiaire, mais cette procédure est longue et nécessite de nombreux calculs lourds et complexes. De plus cette méthode à certaines limites conceptuelles à l'analyse de sensibilité sur des modèles spatiaux , notamment la satisfaction de critères mathématiques pour l'application de certaines méthodes d'analyse de sensibilité, la difficulté conceptuelle d'étudier un champ avec une représentation non scalaire, et la difficulté de simuler des entrées auto-corrélées et étudier les effets des structures spatiales. 
+\item Dans une méthode par \textbf{Saltelli} en 2000, une approche par Monte-Carlo est proposée, directement sur les champs stochastiques sans représentation intermédiaire, mais cette procédure est longue et nécessite de nombreux calculs lourds et complexes. De plus cette méthode a certaines limites conceptuelles à l'analyse de sensibilité sur des modèles spatiaux , notamment la satisfaction de critères mathématiques pour l'application de certaines méthodes d'analyse de sensibilité, la difficulté conceptuelle d'étudier un champ avec une représentation non scalaire, et la difficulté de simuler des entrées auto-corrélées et étudier les effets des structures spatiales. 
 
-\item La méthode \textbf{OAT} (One at the Time - \textit{trad} : un à la fois), ou on va faire varier individuellement les différentes entrées du modèles d'une certaine quantité définie et observer échanger des champs spatiaux et observer l'effet sur la sortie du modèle. Cette méthode est néanmoins peu précise et ne permet que de trouver des solutions locales.
+\item La méthode \textbf{OAT} (One at the Time - \textit{trad} : un à la fois), où on va faire varier individuellement les différentes entrées du modèles d'une certaine quantité définie et observer l'effet sur la sortie du modèle. Cette méthode est néanmoins peu précise et ne permet que de trouver des solutions locales.
 
 \item Une méthode par \textbf{Kioutsioukis} en 2004 propose quant à elle de modéliser le champs par certains paramètres statistiques scalaires et travailler par l’intermédiaire de cette représentation. Cette méthode ne fonctionne néanmoins que sur les champs très réguliers. 
 \end{itemize}
@@ -165,7 +188,7 @@ De par son importante utilisation en modélisation de processus stochastiques, u
 
 \paragraph{Théorie - Expansion de Karhunen-Loève} 
 
-La continuité des processus gaussiens et leur comportement quasi ondulaire, permet de les traiter de manière un peu analogue à la décomposition de fourrier, et de les décomposer en une somme infinie de variables aléatoires gaussiennes décorrélées. Cette méthode de décomposition vient du théorème de \emph{Karhunen-Loève}. \smallskip
+La continuité des processus gaussiens et leur comportement quasi ondulaire, permet de les traiter de manière un peu analogue à la décomposition de Fourier, et de les décomposer en une somme infinie de variables aléatoires gaussiennes décorrélées. Cette méthode de décomposition vient du théorème de \emph{Karhunen-Loève}. \smallskip
 La construction de cette série infinie se fait grâce aux vecteurs propres issus de la matrice de corrélation du modèle, et grâce à une base de vecteurs orthonormaux dans un espace Hilbertien. Les détails mathématiques de cette méthode peuvent être trouvées dans \cite{Sudret2000Jan}. \smallskip
 Lors de l’approximation de \emph{Karhunen-Loève}, la série est tronquée à l'ordre \textbf{M}.
 %Approximation de Kahrunen Loeve 
@@ -514,7 +537,7 @@ Finalement une comparaison entre un exemple de la documentation d'\textit{openTU
          \label{Comparison}
 \end{figure}
 
-Pour cet échantillon de taille 1000, l'indice de Sobol' calculé avec nos codes est relativement proche de ceux calculés avec \textit{openTURNS}, même si des écarts subsistent, notamment au niveau de la variance. Cette variance s'explique en partie par l'incertitude dans les variables d'entrées (tout échantillon de 1000 est à priori unique si l'on connait pas la SEED \footnote{La "graine" du générateur aléatoire, pour une même graine de départ la séquence de nombres aléatoires générée sera toujours la même}).
+Pour cet échantillon de taille 1000, l'indice de Sobol' calculé avec nos codes est relativement proche de ceux calculés avec \textit{openTURNS}, même si des écarts subsistent, notamment au niveau de la variance. Cette variance s'explique en partie par l'incertitude dans les variables d'entrées (tout échantillon de 1000 est à priori unique même si la SEED \footnote{La "graine" du générateur aléatoire, pour une même graine de départ la séquence de nombres aléatoires générée sera toujours la même}) n'est pas connue.
 
 Les codes ayant montré leur utilisabilité, il était enfin possible d'essayer d'appliquer cette méthodologie à un système plus complexe, un échangeur de chaleur air-air modélisé avec NASTRAN. 
  
@@ -703,7 +726,7 @@ Un schéma explicatif de la méthodologie et de l'architecture des codes se trou
 \begin{figure}[H]
    \centering   
    \includegraphics[scale=0.5]{./exchangerPics/exchangerDeformations.png}
-      \caption{Exemple de déformations possible de l'échangeur de chaleur avec cette méthode}
+      \caption{Exemple de déformations possible de l'échangeur de chaleur en couplant champ stochastiques et déformations modales métriques. }
          \label{deformationsExchanger}
 \end{figure}
 
@@ -818,7 +841,7 @@ En effet, cette méthode utilise uniquement la décomposition de Karhunen-Loeve 
 	
    \[
       \begin{array}{lp{0.8\linewidth}}	
-	    \theta & : coefficient d'echelle (scale) \\
+	    \theta & : coefficient d'échelle (scale) \\
 	    \sigma & : amplitude du processus \\
 		\nu    & : coefficient $\nu$ 	\\
 		\Gamma & : Fonction Gamma \\
@@ -827,9 +850,9 @@ En effet, cette méthode utilise uniquement la décomposition de Karhunen-Loeve 
    \]	
 
 	Nous allons  étudier l'influence des paramètres contrôlables de ce modèle, notamment les paramètres d'échelle et le coefficient $\nu$, sur un maillage de 100 éléments de longueur unitaire et avec une amplitude fixée à 10. 
-	Comme nous observons toujours les réalisation d'un champ sur un espace borné, les paramètres d'échelle et les dimensions de l'espace s'influencent mutuellement. Pour mitiger cela, nous allons toujours étudier nos observations en fonction du rapport entre le facteur d'échelle et la norme de l'espace. De même pour l'amplitude et les variances, nous allons représenter le rapport entre l'écart type et l'amplitude pour normaliser les résultats. \\
+	Comme nous observons toujours les réalisations d'un champ sur un espace borné, les paramètres d'échelle et les dimensions de l'espace s'influencent mutuellement. Pour mitiger cela, nous allons toujours étudier nos observations en fonction du rapport entre le facteur d'échelle et la norme de l'espace. De même pour l'amplitude et les variances, nous allons représenter le rapport entre l'écart type et l'amplitude pour normaliser les résultats. \\
 	
-	D'abord l'évolution du rapport entre l'écart-type et l'amplitude du modèle par rapport au rapport entre le facteur d'échelle et la norme de l'espace, pour l'écart-type intra réalisation : 
+	D'abord l'évolution du rapport entre l'écart-type et l'amplitude du modèle par rapport au rapport entre le facteur d'échelle et la norme de l'espace, pour l'écart-type intra-réalisation : 
 	
 \begin{figure}[H]
    \centering   
@@ -838,10 +861,10 @@ En effet, cette méthode utilise uniquement la décomposition de Karhunen-Loeve 
          \label{stdDevIntra}
 \end{figure}
 	
-	Nous observons que globalement, lorsque le rapport entre le facteur d'échelle et la norme de l'espace baisse, l'écart type intra-réalisation tend vers l'amplitude. Ceci veut dire qu'au sein d'une unique réalisation de ce modèle sur le maillage l'on va pouvoir observer d'importantes variations d'amplitude.
+	Nous observons que globalement, lorsque le rapport entre le facteur d'échelle et la norme de l'espace baisse, l'écart type intra-réalisation tend vers l'amplitude. Ceci veut dire qu'au sein d'une unique réalisation de ce modèle sur le maillage, on va pouvoir observer d'importantes variations d'amplitude.
 	Au niveau du coefficient nu, on observe que plus celui-ci est bas ( < 1 ), plus les variations d'amplitude au sein d'une même réalisation vont être importantes. 
 	
-	On peut aussi observer le nombre de moyen maximums locaux par unité de longueur par rapport au rapport entre le facteur d'échelle et la norme de l'espace : 
+	On peut aussi observer le nombre de moyen de maximums locaux par unité de longueur par rapport au rapport entre le facteur d'échelle et la norme de l'espace : 
 	
 \begin{figure}[H]
    \centering   
@@ -850,11 +873,11 @@ En effet, cette méthode utilise uniquement la décomposition de Karhunen-Loeve 
          \label{peakScale}
 \end{figure}
 
-Comme pour mesurer un maximum il faut que les deux valeurs adjacentes lui soient inférieures, il faut au moins 3 nœuds du maillage pour qu'un maximum puisse exister. Un rapport de 0.3 signifie ici que le champ stochastique est très saccadé avec une alternance de maximums et minimums locaux. L'on observe que plus le coefficient $\nu$ est grand, moins le comportement est saccadé. \par \bigskip
+Comme pour mesurer un maximum il faut que les deux valeurs adjacentes lui soient inférieures, il faut au moins 3 nœuds du maillage pour qu'un maximum puisse être défini . Un rapport de 0.3 signifie ici que le champ stochastique est très saccadé avec une alternance de maximums et minimums locaux. Plus le coefficient $\nu$ est grand, moins le comportement est saccadé. \par \bigskip
 
 Finalement, on observe que pour un $\nu$ supérieur à 3, son influence reste globalement identique sur le champ. \par \smallskip
 
-Avec ces figures l'on pourrait à priori déterminer quels paramètres du modèle de Matérn choisir à partir d'observations mesurées sur un échantillon sujet à des variabilités stochastiques, en mesurant par example le nombre de maximums locaux par élément de longueur et l'écart type des valeurs mesurées par échantillon. \par \smallskip 
+Avec ces figures il serait à priori possible de déterminer quels paramètres du modèle de Matérn choisir à partir d'observations mesurées sur un échantillon sujet à des variabilités stochastiques, en mesurant par example le nombre de maximums locaux par élément de longueur et l'écart type des valeurs mesurées par échantillon. \par \smallskip 
 
 Pour l’écart type inter-réalisation, celui-ci est équivalant à l'amplitude du modèle de Matérn, par définition.  \par
 
@@ -863,7 +886,7 @@ Maintenant observons les effets de ces paramètres sur le comportement de la dé
 \subsubsection{Interaction entre la modèle de Matérn et la décomposition de Karhunen-Loève}
 
 	 La décomposition de Karhunen-Loève d'un processus stochastique est sa représentation en tant que combinaison linaire infinie de fonctions orthogonales, similairement à la décomposition de Fourier, sur un intervalle borné. \par
-	 Contrairement à la décomposition en série de Fourier ou les coefficients sont des nombres fixes et la base d'expansion est un ensemble de fonctions sinusoïdales, dans le cas de la décomposition de Karhunen-Loeve les coefficients sont des variables aléatoires et la base d'expansion dépend du processus. Le choix de la base orthogonale va dépendre de la fonction de covariance du processus. \par
+	 Contrairement à la décomposition en série de Fourier où les coefficients sont des nombres fixes et la base d'expansion est un ensemble de fonctions sinusoïdales, dans le cas de la décomposition de Karhunen-Loève les coefficients sont des variables aléatoires et la base d'expansion dépend du processus. Le choix de la base orthogonale va dépendre de la fonction de covariance du processus. \par
 	 L'idée essentielle pour la décomposition de Karhunen-Loève est de résoudre l'équation intégrale de Fredholm associée au noyau du processus, ce qui définit un espace de Hilbert à noyau reproduisant. Les solutions a ce problème sont soit analytiques soit basées sur des méthodes numériques. Pour un processus stochastique Gaussien on peut écrire la décomposition de Karhunen-Loève tronquée à l'ordre M suivante:
 	 
 %Approximation de Kahrunen Loeve 
@@ -882,7 +905,7 @@ H(\textbf{x}, \theta) & = & \sum_{i=1}^{M}\sqrt{\lambda_{i}}\xi_{i}(\theta)\varp
 
 Chaque réalisation de ce champ peut ensuite être représentée comme un vecteur de scalaires unique à cette réalisation. La décomposition de Karhunen-Loève permet d'avoir une bijection entre l'espace de réalisation du champ et un espace $\Re^{M}$ de variables suivant une loi normale centrée réduite. Ceci est aussi intéressant du fait qu'il est possible d'explorer l’ensemble de l'espace du champ en utilisant des échantillonnages (type LHS) dans l'espace $\Re^{M}$. \par
 
-	 La décomposition de Karhunen-Loeve est entièrement définie dans \textit{openTURNS}, que ce soit pour la décomposition de Karhunen-Loève des fonctions de covariance avec \textbf{ot.KarhunenLoeveP1Algorithm} qui utilise une base fonctionnelle pour 	approximer la fonction de covariance et \\ \textbf{ot.KarhunenLoeveQuadratureAlgorithm} qui utilise une approximation quadratique de l'intégrale du problème de Fredholm. Pour la décomposition d'échantillons il y l'approche SVD qui utilise une version modifié de l'approximation quadratique en approximant d'abord la fonction de covariance sur l'échantillon. \par 
+	 La décomposition de Karhunen-Loeve est entièrement définie dans \textit{openTURNS}, que ce soit pour la décomposition de Karhunen-Loève des fonctions de covariance avec \textbf{ot.KarhunenLoeveP1Algorithm} qui utilise une base fonctionnelle pour 	approximer la fonction de covariance et \\ \textbf{ot.KarhunenLoeveQuadratureAlgorithm} qui utilise une approximation quadratique de l'intégrale du problème de Fredholm. Pour la décomposition d'échantillons il y a l'approche SVD qui utilise une version modifiée de l'approximation quadratique en approximant d'abord la fonction de covariance sur l'échantillon. \par 
 	 
 	 Le paramètre commun à ces méthodes et le seuil qui détermine l'amplitude relative minimale des valeurs propres à considérer lors de la décomposition par rapport à la somme des valeurs propres précédentes. Ce paramètre détermine donc la précision de l'approximation tout comme le nombre de modes nécessaires pour représenter le processus. \par 
 	 
@@ -915,11 +938,11 @@ Chaque réalisation de ce champ peut ensuite être représentée comme un vecteu
 	Plus le seuil est grand, moins il est possible de simuler des champs avec un nombre importants de maximums locaux par élément de longueur, en d'autres termes l'on ne peut pas simuler de champs bruités qu'avec un seuil faible.
 
 \subsubsection{Interaction entre les paramètres des variables aléatoires et indices de Sobol', et analyse de sensibilité par création de méta-modèle}
-Pour montrer l'influence des paramètres des lois aléatoires qui sont utilisées pour modéliser l'incertitude dans un système sur les indices de Sobol', nous avons fait une étude statistique avec 100 combinaison de paramètres différents et calculé les indices de Sobol' correspondants. Le modèle analysé était le modèle de poutre en flexion présenté précédemment. Nous avons cette fois enlevé l'incertitude dans la densité, puisque nous avons observé qu'elle n'avait pas d'influence sur cette étude. \par \smallskip
+Pour montrer l'influence des paramètres des lois aléatoires qui sont utilisées pour modéliser l'incertitude dans un système sur les indices de Sobol', nous avons fait une étude statistique avec 100 combinaisons de paramètres différents et calculé les indices de Sobol' correspondants. Le modèle analysé était le modèle de poutre en flexion présenté précédemment. Nous avons cette fois enlevé l'incertitude dans la densité, puisque nous avons observé qu'elle n'avait pas d'influence sur cette étude. \par \smallskip
 Pour arriver à montrer qu'il était possible de simuler correctement le modèle par l'intermédiaire de la décomposition de Karhunen-Loève, nous avons pour chaque combinaison de paramètres, créés un méta-modèle par Krigeage appris sur un échantillon de taille réduite et refait l'analyse de sensibilité sur ce nouveau modèle. \par \bigskip
 
 \paragraph{Interaction entre paramètres de lois probabilistes et indices de Sobol'}
-Dans le cas de l'exemple la poutre en flexion, quatre évènements aléatoires sont en jeux. La norme de la force appliquée et le décalage du point d'application par rapport au centre de la poutre sont deux évènements qui suivent des lois normales, et ont pour seul paramètre variable l'écart-type. \par \smallskip
+Dans le cas de l'exemple de la poutre en flexion, quatre évènements aléatoires sont en jeux. La norme de la force appliquée et le décalage du point d'application par rapport au centre de la poutre sont deux évènements qui suivent des lois normales, et ont pour seul paramètre variable l'écart-type. \par \smallskip
 
 Ensuite viennent le diamètre et le module de Young de la poutre en fonction de son axe, qui sont quant à eux deux évènements aléatoires modélisables par des processus stochastiques, dont les paramètres vont dépendre du modèle de covariance qui aura été choisi. Dans notre cas nous avons choisi d'utiliser le modèle de Matérn pour les raisons citées plus haut. Le modèle de Matérn a comme paramètres possibles le facteur d'échelle $\theta$, le coefficient $\nu$ qui détermine l'instabilité du processus, et enfin l'amplitude $\sigma$. \par \smallskip 
 
@@ -996,7 +1019,7 @@ Chaque méta-modèle a passé une étape de validation ou le coefficient de dét
 R^{2} = 1 - \frac{\sum_{i=1}^{n}(y_{i}-\hat{y}_{i})^{2}}{\sum_{i=1}^{n}(y_{i}-\overline{y}_{i})^{2}}
 \end{equation}
 
-Pour le méta-modèle construit sur l'échantillon crée à partir de l'hypercube latin de 25 points, on peut tracer la courbe du R2 en fonction de la taille du vecteur d'entrée du modèle, figure \
+Pour le méta-modèle construit sur l'échantillon crée à partir de l'hypercube latin de 25 points, on peut tracer la courbe du R2 en fonction de la taille du vecteur d'entrée du modèle, voir figure \ref{R2_evolution}.
 
 \begin{figure}[H]
    \centering
@@ -1021,7 +1044,6 @@ Enfin d'un point de vue personnel , ce stage aura rendu possible la maitrise de 
 
 \appendix 
 \appendixpage
-\addappheadtotoc
 
 \begin{figure}[H]
    \centering
