@@ -59,8 +59,8 @@ resutls[0].draw()
 
 ## Written with :
 
-* [openTURNS](https://github.com/openturns/openturns) - Codes and methods for efficient sensitivity analysis - CODE 
-* [anaStruct](https://github.com/ritchie46/anaStruct) - 2D efficient finite element analysis in python       - EXAMPLE
+* [openTURNS](https://github.com/openturns/openturns) - An Open source initiative for the Treatment of Uncertainties, Risks'N Statistics.
+* [anaStruct](https://github.com/ritchie46/anaStruct) - Analyse 2D Frames and trusses for slender structures. Determine the bending moments, shear forces, axial forces and displacements.
 
 ## Authors
 
