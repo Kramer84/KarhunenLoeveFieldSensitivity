@@ -1,42 +1,23 @@
 # KLFS : KarhunenLoeveFieldSensitivity
 ### SPSA : Stochastic Process Sensitivity Analysis ~ old name ~~
 
-This repository contains codes used for sensitity analysis on models governed by stochastic processes and random input variables. 
+This repository contains codes used for sensitity analysis of models where input uncertainties are modeled by stochastic processes and scalar distributions. 
+These codes are meant to be used in parallel with the [openTURNS](http://openturns.github.io) library.
 They were done in the frame of an internship at [PHIMECA](http://www.phimeca.com/) in Clermont-Ferrand.
 
 ## Aim of the project
 
-It is of common practice today to carry out sensitivity analysis on the item we desire to produce. It allows to get a beter understanding of the products behaviour during and after manufacture, and to master the uncertain nature of reality. This method allows us to know which parameter uncertainty will have the most influence on the products outcome, and *in fine*, know where to invest the most effort to reduce uncertainties.
+[Sensitivity analysis](https://en.wikipedia.org/wiki/Sensitivity_analysis) is the study of how the uncertainty in the output of a mathematical model or system (numerical or otherwise) can be divided and allocated to different sources of uncertainty in its inputs. A related practice is uncertainty analysis, which has a greater focus on uncertainty quantification and propagation of uncertainty; ideally, uncertainty and sensitivity analysis should be run in tandem. 
 
-Sensitivity analysis itself is, although being almost 30 years old, a rather new discipline with it's limitations. In fact, sensitivity analysis is usually carried out on scalar uncertainties (like a length, a diameter, a frequency...) and not so often on more complex random structures, as random fields. The aim of this project is to develop a set of usable codes, that will allow to carry out sensitivity analysis on models where the input uncertainty is not only scalar, but can also occur under the form of random fields. 
+Sensitivity analysis itself is, although being almost 30 years old, a rather new discipline with it's limitations. In fact, sensitivity analysis is usually carried out on scalar uncertainties and not so often on more complex random structures, as random fields. The aim of this project is to develop a set of usable codes, that will allow to carry out sensitivity analysis on models where the input uncertainty is not only scalar, but can also occur under the form of random fields. 
 
-The methodology was based on different research papers, with the principal idea gotten from a 2017 paper called **"Time-variant global reliability sensitivity analysis of structures with both input random variables and stochastic processes"** from **P. Wei, Y. Wang & C. Tang**. The methodology is explained in the report (in *French*...).
+The methodology was based on different research papers, with the principal idea gotten from a 2017 paper called **"Time-variant global reliability sensitivity analysis of structures with both input random variables and stochastic processes"** from **P. Wei, Y. Wang & C. Tang**. [Paper can be found here.](https://link.springer.com/article/10.1007/s00158-016-1598-8)
 
 ## Getting Started
 
-To use the codes, please install the virtual environment provided in the yaml file. A throughout example can be found in the 
-"Demo Analyse de sensibilité poutre" notebook, but for the moment only in french (Sorry).
+To use the codes, the only pre-requisite is openTURNS, and python 3.x.
 
-### Prerequisites
-
-Works with python 3.6, but should work with other versions of python through the intensive usage of numpy.
-
-Important packages used:
- - openTURNS
- - NumPy
- - Numba (not really used, but acceleration could be intersting)
- - anastruct (for the random beam example)
-
-### Installing
-
-To install the module, clone the repository and execute: 
-```
-python setup.py -install 
-```
-### Documentation
-[documentation](https://htmlpreview.github.io/?https://raw.githubusercontent.com/Kramer84/spsa/master/docs/_build/html/index.html)
-
-## Usage
+<!---
 
 #### Creating stochastic processes:
 
@@ -51,9 +32,6 @@ stochasticProcess.setCovarianceModel({'Model':'MaternModel','scale':[25,25],'amp
 realization = stochasticProcess.getRealization(True) #True to get it as a reshaped numpy array and not a openturns object
 plt.imshow(realization)
 ```
-*Realization of a two dimensional stochastic process*
-
-<img src="Rapport_Latex/fieldGenPics/processRealization.png" alt="Realization of a two dimensional stochastic process" width="300">
 
 #### Sensitivity analysis with stochastic fields:
 This is in the case where you have a function that takes as an input fields and random variables, but also random variables alone or only fields.
@@ -77,20 +55,13 @@ results = sensitivityAnalysis.SensitivityAnalysisResults
 resutls[0].draw()
 #This is a dummy example
 ```
-*Example of sobol indices (not relevant to the example)*
-
-<img src="Rapport_Latex/sensibiliteDeflection10K.png" alt="Example of sobol indices (not relevant to the example)" width="300">
+-->
 
 
-## Built With
+## Written with :
 
-* [openTURNS](https://github.com/openturns/openturns) - Codes and methods for efficient sensitivity analysis
-* [anaStruct](https://github.com/ritchie46/anaStruct) - 2D efficient finite element analysis in Python
-* [Numba](https://numba.pydata.org/)                  - Easy code acceleration 
-
-## Contributing
-
-As this project is done in the frame of an internship with the company PHIMECA in Clermont-Ferrand, France, i should be the only one commiting for now.
+* [openTURNS](https://github.com/openturns/openturns) - Codes and methods for efficient sensitivity analysis - CODE 
+* [anaStruct](https://github.com/ritchie46/anaStruct) - 2D efficient finite element analysis in python       - EXAMPLE
 
 ## Authors
 
