@@ -1,5 +1,4 @@
 # KLFS : KarhunenLoeveFieldSensitivity
-### SPSA : Stochastic Process Sensitivity Analysis ~ old name ~~
 
 This repository contains codes used for sensitity analysis of models where input uncertainties are modeled by stochastic processes and scalar distributions. 
 These codes are meant to be used in parallel with the [openTURNS](http://openturns.github.io) library.
