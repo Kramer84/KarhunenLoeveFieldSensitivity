@@ -13,5 +13,5 @@
 
 
 ##### _sobolIndicesFactory.py
-	Class to calculate the Sobol' indices of the design of experiment generated above
+	Class to calculate the Sobol' indices of the design of experiment generated above.
 

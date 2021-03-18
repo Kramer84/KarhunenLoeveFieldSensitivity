@@ -14,12 +14,17 @@ def all_same(items):
     return all(x == items[0] for x in items)
 
 def atLeastList(elem):
+    '''returns an element as a list and changes it type to a list if it's already
+    an iterable'''
     if isinstance(elem, Iterable) :
         return list(elem)
     else :
         return [elem]
 
 def addConstant2Iterable(obj, constant):
+    '''Method to add a constant to a process sample
+    ,Field, Point or Sample
+    '''
     if isinstance(obj, ot.ProcessSample):
         for k in range(obj.getSize()):
             obj[k] += constant
@@ -154,6 +159,8 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
 
     # new method
     def getMean(self, i = None):
+        '''Get the mean value of the stochastic processes and the scalar distributions
+        '''
         if i is not None:
             return self.__means__[i]
         else :
@@ -161,10 +168,15 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
 
     # new method
     def setMean(self, i, val ):
+        '''Sets the mean of the varaible at the index i to a value
+        '''
         self.__means__[i] = val
 
     # new method
     def setLiftWithMean(self, theBool):
+        '''Flag to say if we add the mean to the generated values of fields or scalars
+        If not, all the events are centered
+        '''
         self.__liftWithMean__ = theBool
 
     def getClassName(self):
