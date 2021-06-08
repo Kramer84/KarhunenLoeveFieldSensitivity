@@ -10,20 +10,31 @@ from collections import Sequence, Iterable
 from copy import copy, deepcopy
 
 def all_same(items):
-    #Checks if all items of a list are the same
+    '''Checks if all items in a list are the same
+    '''
     return all(x == items[0] for x in items)
 
 def atLeastList(elem):
-    '''returns an element as a list and changes it type to a list if it's already
-    an iterable'''
+    '''Returns an element as a list or changes its type to list if it's iterable
+    '''
     if isinstance(elem, Iterable) :
         return list(elem)
     else :
         return [elem]
 
 def addConstant2Iterable(obj, constant):
-    '''Method to add a constant to a process sample
-    ,Field, Point or Sample
+    '''Method to add a constant value to a openTURNS object.
+
+    Parameters
+    ----------
+        obj : ProcessSample, Field, Point, Sample
+            OT object to which add constant
+
+        constant : float, int
+
+    Note
+    ----
+    Adds the values in place so it does not return anything
     '''
     if isinstance(obj, ot.ProcessSample):
         for k in range(obj.getSize()):
@@ -41,11 +52,27 @@ def addConstant2Iterable(obj, constant):
                 obj[i,j] += constant
 
 
-class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistributions ##########
-    '''Function being a buffer between the processes and the sensitivity
-    Analysis
+class AggregatedKarhunenLoeveResults(object):
+    '''Class allowing us to aggregated scalar distributions and stochastic processes.
+
+    Thanks to the Karhunen-Loève expansion we can consider a process with a given
+    covariance model as a vector of random variables following a centered normal law.
+
+    By stacking the scalar distributions and the vectors representative of the fields we
+    obtain a unique vector representation of our aggregate.
+
+    It is a link between a non homogenous ensemble of fields and scalars to a unique vector
+    of scalars.
+
     '''
     def __init__(self, composedKLResultsAndDistributions):
+        '''Initializes the aggregation
+
+        Parameters
+        ----------
+        composedKLResultsAndDistributions : list
+            list of ordered ot.Distribution and ot.KarhunenLoeveResult objects
+        '''
         self.__KLResultsAndDistributions__ = atLeastList(composedKLResultsAndDistributions) #KLRL : Karhunen Loeve Result List
         assert len(self.__KLResultsAndDistributions__)>0
         self.__field_distribution_count__ = len(self.__KLResultsAndDistributions__)
@@ -111,6 +138,8 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
         self.__mode_description__ = self._getModeDescription()
 
     def __repr__(self):
+        '''Visual representation of the object
+        '''
         covarianceList = self.getCovarianceModel()
         eigValList = self.getEigenValues()
         meshList = self.getMesh()
@@ -125,8 +154,8 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
 
 
     def _checkSubNames(self):
-        '''Here we're gonna see if all the names are unique, so there can be
-        no confusion. We could also check ID's'''
+        """Check's the names of the objects passed to see if they are all unique
+        or if default ones have to be assigned"""
         if len(set(self.__process_distribution_description__)) != len(self.__process_distribution_description__) :
             print('The process names are not unique.')
             print('Using generic name. ')
@@ -138,6 +167,9 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
             self.__process_distribution_description__ = [self.__KLResultsAndDistributions__[i].getName() for i in range(self.__field_distribution_count__)]
 
     def _getModeDescription(self):
+        """Returns the description of each element of the input vector.
+        (The vector obtained once the processes expanded and stacked with the distribution)
+        """
         modeDescription = list()
         for i, nMode in enumerate(self.__mode_count__):
             for j in range(nMode):
@@ -160,6 +192,11 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
     # new method
     def getMean(self, i = None):
         '''Get the mean value of the stochastic processes and the scalar distributions
+
+        Parameters
+        ----------
+        i : int
+            index of distribution or process
         '''
         if i is not None:
             return self.__means__[i]
@@ -168,7 +205,15 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
 
     # new method
     def setMean(self, i, val ):
-        '''Sets the mean of the varaible at the index i to a value
+        '''Sets the mean of the variable at the index i to a value
+
+        Parameters
+        ----------
+        i : int
+            index of distribution or process
+        val : float, int
+            value to which we set the mean
+
         '''
         self.__means__[i] = val
 
@@ -176,57 +221,102 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
     def setLiftWithMean(self, theBool):
         '''Flag to say if we add the mean to the generated values of fields or scalars
         If not, all the events are centered
+
+        Parameters
+        ----------
+        theBool : bool
+            if to lift the distributions and processes to their non homogenous
+            original space with their mean value or centereds
         '''
         self.__liftWithMean__ = theBool
 
     def getClassName(self):
-        '''returns list of class names
+        '''Returns a list of the class each process/distribution belongs to.
         '''
         classNames=[self.__KLResultsAndDistributions__[i].__class__.__name__ for i in range(self.__field_distribution_count__) ]
         return list(set(classNames))
 
     def getCovarianceModel(self):
+        '''Returns a list of covariance models for each process.
+        '''
         return [self.__KLResultsAndDistributions__[i].getCovarianceModel() if hasattr(self.__KLResultsAndDistributions__[i], 'getCovarianceModel') else None for i in range(self.__field_distribution_count__) ]
 
     def getEigenValues(self):
+        '''Returns a list of the eigen values for each process.
+        '''
         return [self.__KLResultsAndDistributions__[i].getEigenValues() if hasattr(self.__KLResultsAndDistributions__[i], 'getEigenValues') else None for i in range(self.__field_distribution_count__) ]
 
     def getId(self):
+        '''Returns a list containing the ID of each process/distribution.
+        '''
         return [self.__KLResultsAndDistributions__[i].getId() for i in range(self.__field_distribution_count__) ]
 
     def getImplementation(self):
+        '''Returns a list containing the implementation of each process/distribution, else None.
+        '''
         return [self.__KLResultsAndDistributions__[i].getImplementation() if hasattr(self.__KLResultsAndDistributions__[i], 'getImplementation') else None for i in range(self.__field_distribution_count__) ]
 
     def getMesh(self):
+        '''Returns a list containing the mesh of each process or None if it's a distribution.
+        '''
         return [self.__KLResultsAndDistributions__[i].getMesh() if hasattr(self.__KLResultsAndDistributions__[i], 'getMesh') else None for i in range(self.__field_distribution_count__) ]
 
     def getModes(self):
+        '''Returns a list containing the modes of each process, None if distribution
+        '''
         return [self.__KLResultsAndDistributions__[i].getModes() if hasattr(self.__KLResultsAndDistributions__[i], 'getModes') else None for i in range(self.__field_distribution_count__) ]
 
     def getModesAsProcessSample(self):
+        '''Returns a list containing the modes as a pcess sample for each process in the aggregation.
+        '''
         return [self.__KLResultsAndDistributions__[i].getModesAsProcessSample() if hasattr(self.__KLResultsAndDistributions__[i], 'getModesAsProcessSample') else None for i in range(self.__field_distribution_count__) ]
 
     def getName(self):
+        '''Returns the name of the aggregation object.
+        '''
         return self.__name__
 
     def getProjectionMatrix(self):
+        '''Returns the projection matrix for each Karhunen-Loeve decomposition,
+        None if it's a distribution.
+        '''
         return [self.__KLResultsAndDistributions__[i].getProjectionMatrix() if hasattr(self.__KLResultsAndDistributions__[i], 'getProjectionMatrix') else None for i in range(self.__field_distribution_count__) ]
 
     def getScaledModes(self):
+        '''Returns the scaled modes for each Karhunen-Loeve decomposition,
+        None if it's a distribution.
+        '''
         return [self.__KLResultsAndDistributions__[i].getScaledModes() if hasattr(self.__KLResultsAndDistributions__[i], 'getScaledModes') else None for i in range(self.__field_distribution_count__) ]
 
     def getScaledModesAsProcessSample(self):
+        '''Returns the scaled modes as a proess sample for each Karhunen-Loeve decomposition,
+        None if it's a distribution.
+        '''
         return [self.__KLResultsAndDistributions__[i].getScaledModesAsProcessSample() if hasattr(self.__KLResultsAndDistributions__[i], 'getScaledModes') else None for i in range(self.__field_distribution_count__) ]
 
     def getThreshold(self):
+        '''Gets the global threshold for the Karhunen-Loeve expansions approximation.
+        '''
         return self.threshold
 
     def setName(self,name):
+        '''Sets the name of the aggregation object.
+        '''
         self.__name__ = name
 
     def liftAsProcessSample(self, coefficients):
         '''Function to lift a sample of coefficients into a collections of
-        process samples and points
+        process samples and points.
+
+        Parameters
+        ----------
+        coefficients : ot.Sample
+            sample of values, follwing a centered normal law in general
+
+        Returns
+        -------
+        processes : list
+            ordered list of samples of scalars (ot.Sample) and field samples (ot.ProcessSample)
         '''
         assert isinstance(coefficients, (ot.Sample, ot.SampleImplementation))
         print('Lifting as process sample')
@@ -262,7 +352,18 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
         return processes
 
     def liftAsField(self, coefficients):
-        '''function lifting a vector of coefficients into a field.
+                '''Function to lift a vector of coefficients into a list of
+        process samples and points.
+
+        Parameters
+        ----------
+        coefficients : ot.Point
+            one vector values, follwing a centered normal law in general
+
+        Returns
+        -------
+        to return : list
+            ordered list of scalars (ot.Point) and fields (ot.Field)
         '''
         assert isinstance(coefficients, (ot.Point)), 'function only lifts points'
         valid = self._checkCoefficients(coefficients)
@@ -432,57 +533,11 @@ class AggregatedKarhunenLoeveResults(object):  ### ComposedKLResultsAndDistribut
                     raise e
 
     def getAggregationOrder(self):
+        '''Gets the number of processes and distributions in the aggregation
+        '''
         return self.__field_distribution_count__
 
     def getSizeModes(self):
+        '''Gets the total number of coefficients used to represent the aggregation
+        '''
         return sum(self.__mode_count__)
-
-
-
-
-
-
-
-
-##    def lift(self, coefficients):  ### NOT SURE IF NEDDED
-##        '''lift a point into a list of functions  ### NOT SURE IF NEDDED
-##        '''  ### NOT SURE IF NEDDED
-##        assert isinstance(coefficients, (ot.Point)), 'function only lifts points'  ### NOT SURE IF NEDDED
-##        valid = self._checkCoefficients(coefficients)  ### NOT SURE IF NEDDED
-##        modes = copy(self.__mode_count__)  ### NOT SURE IF NEDDED
-##        if valid :  ### NOT SURE IF NEDDED
-##            to_return = []  ### NOT SURE IF NEDDED
-##            for i in range(self.__field_distribution_count__):  ### NOT SURE IF NEDDED
-##                if self.__isProcess__[i] :  ### NOT SURE IF NEDDED
-##                    if not self.__liftWithMean__:  ### NOT SURE IF NEDDED
-##                        to_return.append(self.__KLResultsAndDistributions__[i].lift(coefficients[i*modes[i]:(i+1)*modes[i]]))  ### NOT SURE IF NEDDED
-##                    else :  ### NOT SURE IF NEDDED
-##                        function = self.__KLResultsAndDistributions__[i].lift(coefficients[i*modes[i]:(i+1)*modes[i]])  ### NOT SURE IF NEDDED
-##                        cst_func = ot.SymbolicFunction(ot.Description_BuildDefault(function.getInputDimension(),'X'),[str(self.__means__[i])])  ### NOT SURE IF NEDDED
-##                        out_func = ot.LinearCombinationFunction([function,cst_func],[1,1])  ### NOT SURE IF NEDDED
-##                        to_return.append(out_func)  ### NOT SURE IF NEDDED
-##                else :  ### NOT SURE IF NEDDED
-##                    if not self.__liftWithMean__:  ### NOT SURE IF NEDDED
-##                        # it is not a process so only scalar distribution, centered  ### NOT SURE IF NEDDED
-##                        const = self.__KL_lifting__[i](coefficients[i*modes[i]:(i+1)*modes[i]])  ### NOT SURE IF NEDDED
-##                        # make dummy class.  ### NOT SURE IF NEDDED
-##                        class constFunc :  ### NOT SURE IF NEDDED
-##                            def __init__(self,x):  ### NOT SURE IF NEDDED
-##                                self.x = x  ### NOT SURE IF NEDDED
-##                            def __call__(self,*args):  ### NOT SURE IF NEDDED
-##                                return self.x  ### NOT SURE IF NEDDED
-##                        func = constFunc(const)  ### NOT SURE IF NEDDED
-##                        to_return.append(func)  ### NOT SURE IF NEDDED
-##                    else :  ### NOT SURE IF NEDDED
-##                        const = self.__KL_lifting__[i](coefficients[i*modes[i]:(i+1)*modes[i]])  ### NOT SURE IF NEDDED
-##                        # make dummy class.  ### NOT SURE IF NEDDED
-##                        class constFunc :  ### NOT SURE IF NEDDED
-##                            def __init__(self,x):  ### NOT SURE IF NEDDED
-##                                self.x = x  ### NOT SURE IF NEDDED
-##                            def __call__(self,*args):  ### NOT SURE IF NEDDED
-##                                return self.x  ### NOT SURE IF NEDDED
-##                        func = constFunc(const+self.__means__[i])  ### NOT SURE IF NEDDED
-##                        to_return.append(func)  ### NOT SURE IF NEDDED
-##            return to_return  ### NOT SURE IF NEDDED
-##        else :  ### NOT SURE IF NEDDED
-##            raise Exception('DimensionError : the vector of coefficient has the wrong shape')  ### NOT SURE IF NEDDED
