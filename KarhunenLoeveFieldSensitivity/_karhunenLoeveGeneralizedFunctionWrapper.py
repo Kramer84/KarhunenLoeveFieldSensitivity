@@ -6,7 +6,7 @@ __all__ = ['KarhunenLoeveGeneralizedFunctionWrapper']
 
 import openturns as ot
 from collections import Iterable, UserList, Sequence
-from copy import copy
+from copy import copy, deepcopy
 from numbers import Complex, Integral, Real, Rational, Number
 
 class KarhunenLoeveGeneralizedFunctionWrapper(object):
@@ -33,26 +33,36 @@ class KarhunenLoeveGeneralizedFunctionWrapper(object):
         self.__calls__ = 0
         self.__name__ = 'Unnamed'
         self.__setDefaultState__()
+        self.__output_backup__ = None
 
     def __setDefaultState__(self):
-        try :
-            if (self.func is not None or self.func_sample is not None) and self.__AKLR__ is not None :
+        """Gets the data from the inputs and intializes the attributes
+        of the object, either with data passed in __init__, or with an
+        empty default state.
+        """
+        if (self.func is not None or self.func_sample is not None) and self.__AKLR__ is not None :
+            try :
                 self.__inputDim__ = self.__AKLR__.getSizeModes()
                 self.setInputDescription(ot.Description(self.__AKLR__.__mode_description__))
                 self.setOutputDescription(ot.Description.BuildDefault(self.__nOutputs__, 'Y_'))
-            else :
-                self.func         = None
-                self.func_sample  = None
-                self.__AKLR__     = None
-                self.__nOutputs__ = 0
-                self.__inputDim__ = 0
-                self._inputDescription = ot.Description()
-                self._outputDescription = ot.Description()
-        except Exception as e:
-            print('Check if your aggregated karhunen loeve result object is correct')
-            raise e
+            except Exception as e:
+                print('Check if your aggregated karhunen loeve result object is correct')
+                raise e
+        else :
+            self.func         = None
+            self.func_sample  = None
+            self.__AKLR__     = None
+            self.__nOutputs__ = 0
+            self.__inputDim__ = 0
+            self._inputDescription = ot.Description()
+            self._outputDescription = ot.Description()
+
 
     def __call__(self, X):
+        """Method to allow for function calls. Chooses if to either
+        execute the batch, or single evaluation function, based on the
+        data structure.
+        """
         if isinstance(X, (ot.Point)) or (
             hasattr(X, '__getitem__') and not hasattr(X[0], '__getitem__')):
             return self._exec(X)
@@ -60,6 +70,9 @@ class KarhunenLoeveGeneralizedFunctionWrapper(object):
             return self._exec_sample(X)
 
     def _exec(self, X):
+        """Proxy method for the single evaluation
+        function that is passed to the class.
+        """
         assert len(X)==self.getInputDimension()
         inputFields = self.__AKLR__.liftAsField(X)
         #evaluating ...
@@ -71,12 +84,17 @@ class KarhunenLoeveGeneralizedFunctionWrapper(object):
             except TypeError as te:
                 print('did not manage to evaluate single function')
                 raise te
+        self.__output_backup__ = deepcopy(results)
+        # If the rest fails you can still get the data
         result = CustomList.atLeastList(result)
         result = self._convert_exec_ot(result)
         self.__calls__+=1
         return result
 
     def _exec_sample(self, X):
+        """Proxy method for the batch evaluation
+        function that is passed to the class.
+        """
         assert len(X[0])==self.getInputDimension()
         inputProcessSamples = self.__AKLR__.liftAsProcessSample(X)
         try :
@@ -87,6 +105,8 @@ class KarhunenLoeveGeneralizedFunctionWrapper(object):
             except TypeError as te:
                 print('did not manage to evaluate batch function')
                 raise te
+        self.__output_backup__ = deepcopy(results)
+        # If the rest fails you can still get the data
         result = CustomList.atLeastList(result)
         result = self._convert_exec_sample_ot(result)
         self.__calls__ += X.__len__()
@@ -94,8 +114,13 @@ class KarhunenLoeveGeneralizedFunctionWrapper(object):
 
 
     def _convert_exec_ot(self, output):
-        '''For a singular evaluation, the function must only return scalars,
-        points or fields.'''
+        """Converts the output of the function passed to the class into
+        a basic openturns object, and makes some checks on the dimensions.
+
+        Note
+        ----
+        If the checks fail, the output can still be found under self.__output_backup__
+        """
         print(
 '''Using the single evaluation function. Assumes that the outputs are in the
 same order than for the batch evaluation function. This one should only
@@ -155,8 +180,13 @@ return Points, Fields, Lists or numpy arrays.''')
         return outputList
 
     def _convert_exec_sample_ot(self, output):
-        '''For a singular evaluation, the function must only return
-        any combination of scalars, points or fields.'''
+        """Converts the output of the batch function passed to the class into
+        a basic openturns object, and makes some checks on the dimensions.
+
+        Note
+        ----
+        If the checks fail, the output can still be found under self.__output_backup__
+        """
         print(
 '''Using the batch evaluation function. Assumes that the outputs are in the
 same order than for the single evaluation function. This one should only
@@ -220,6 +250,8 @@ return ProcessSamples, Samples, Lists or numpy arrays.''')
         return outputList
 
     def _getGridShape(self, shape=()):
+        """Builds
+        """
         return [[0,1,shape[dim]-1] for dim in range(len(shape))]
 
     def _buildMesh(self,grid_shape):
