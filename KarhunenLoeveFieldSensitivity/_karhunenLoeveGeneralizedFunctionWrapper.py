@@ -250,11 +250,37 @@ return ProcessSamples, Samples, Lists or numpy arrays.''')
         return outputList
 
     def _getGridShape(self, shape=()):
-        """Builds
+        """Builds a regular grid of unit size, based on the passed shape tuple,
+
+        Arguments
+        ---------
+        shape : tuple of ints
+            Gives the number of steps per dimension.
+            example in 3D : (10,10,10)
+            for a regular shaped grip with 10 steps in each direction
+
+        Returns
+        -------
+        grid : comprehensive list
+            all the grid coordinates, in the unit cube.
         """
         return [[0,1,shape[dim]-1] for dim in range(len(shape))]
 
     def _buildMesh(self,grid_shape):
+        """Builds a openturns mesh in the unit cube, based on a
+        comprehesive list of grid coordinates as returned by the
+        _getGridShape method.
+
+        Arguments
+        ---------
+        grid_shape : comprehensive list
+            all the grid coordinates, in the unit cube.
+
+        Returns
+        -------
+        mesh : ot.Mesh
+            openturns Mesh object
+        """
         dimension = len(grid_shape)
         n_intervals = [int(grid_shape[i][2]) for i in range(dimension)]
         low_bounds = [grid_shape[i][0] for i in range(dimension)]
@@ -267,55 +293,135 @@ return ProcessSamples, Samples, Lists or numpy arrays.''')
         return mesh
 
     def getCallsNumber(self):
+        """Returns the number of calls to the function
+
+        Returns
+        -------
+            number of calls : int
+        """
         return self.__calls__
 
     def getClassName(self):
+        """Returns the name of the class
+
+        Returns
+        -------
+        name of the class : str
+        """
         return self.__class__.__name__
 
     def getId(self):
+        """Returns the Id of the object
+        """
         return id(self)
 
     def getImplementation(self):
+        """Analogous to openturns
+        """
         print('custom implementation')
         return None
 
     def getInputDescription(self):
+        """Returns the description of the input.
+
+        Returns
+        -------
+        inputDescription  : list of str
+        """
         return self._inputDescription
 
     def getInputDimension(self):
+        """Returns the number of inputs / variables
+
+        Returns
+        -------
+        inputDim : int
+        """
         return self.__inputDim__
 
     def getMarginal(self):
+        """Analogous to openturns
+        """
         print('custom implementation')
         return None
 
     def getName(self):
+        """Returns the name of the object
+        """
         return self.__name__
 
     def getOutputDescription(self):
+        """Returns the description of the output(s)
+
+        Returns
+        -------
+        outputDescription : list of str
+        """
         return self._outputDescription
 
     def setNumberOutputs(self, N):
+        """Sets the number of outputs of the function and batch function.
+
+        Arguments
+        ---------
+        N : int
+        """
         self.__nOutputs__ = N
 
     def getNumberOutputs(self):
+        """Returns the number of outputs
+
+        Returns
+        -------
+        nOutputs : int
+        """
         return self.__nOutputs__
 
     def getOutputDimension(self):
+        """Returns the dimension of each output
+
+        Returns
+        -------
+        outputDim : list of int
+        """
         return self.outputDim
 
     def setInputDescription(self, description):
+        """Sets the input description
+
+        Arguments
+        ---------
+        description : list of str
+        """
         self._inputDescription.clear()
         self._inputDescription = ot.Description(list(description))
 
 
     def setName(self, name):
+        """Sets the name of the object
+
+        Arguments
+        ---------
+        name : str
+        """
         self.__name__ = name
 
     def setNumberOutputs(self, N):
+        """Sets the number of outputs
+
+        Arguments
+        ---------
+        N : int
+        """
         self.__nOutputs__ = N
 
     def setOutputDescription(self, description):
+        """Sets the description of each separate outputs
+
+        Arguments
+        ---------
+        description : list of str
+        """
         assert len(description) == self.__nOutputs__
         "You must specify the name for each separate output, not for each element of each output"
         self._outputDescription.clear()
@@ -330,7 +436,7 @@ return ProcessSamples, Samples, Lists or numpy arrays.''')
 class CustomList(UserList):
     '''List-like object, but with methods allowing to find indexes and values
     inside of a certain threshold, or to iterate over the different sub-dimensions
-    of the list and to convert any sub-iterable into a list
+    of the list and to convert any sub-iterable into a list.
     '''
     def __init__(self, data=list()):
         data = CustomList.atLeastList(data)
@@ -353,6 +459,16 @@ class CustomList(UserList):
     def __repr__(self):
         return 'Custom list object with data:\n'+self.data.__repr__()
     def index(self, val, thresh=1e-5):
+        """Returns the index of each occurence of a value in the list with
+        a certain threshold
+
+        Arguments
+        ---------
+        val : int, float
+            the value to search
+        thresh : float (default : 1e-5)
+            maximal abolute value difference thresold
+        """
         dif = [abs(self.data[i]-val) for i in range(self.__len__())]
         idx = [dif[i]<=thresh for i in range(self.__len__())]
         try:
@@ -360,38 +476,73 @@ class CustomList(UserList):
         except ValueError:
             return None
     def count(self, val, thresh=1e-5):
+        """Counts the number of times a number occurs in the list with
+        a certain threshold
+
+        Arguments
+        ---------
+        val : int, float
+            the value to search
+        thresh : float (default : 1e-5)
+            maximal abolute value difference thresold
+        """
         dif = [abs(self.data[i]-val) for i in range(self.__len__())]
         idx = [dif[i]<=thresh for i in range(self.__len__())]
         return sum(idx)
     def clear(self):
         self.data = list()
     def pop(self):
+        """Pops the last value as in a standard list
+        """
         self.data.pop()
     def reverse(self):
+        """Reverses the data in place and returns a new object.
+        """
         self.data = self.data.reverse()
         return CustomList(self.data)
     def append(self, val):
+        """Appends a value to the list
+        """
         self.data.append(val)
     def extend(self, lst):
+        """Extends the list as in a standard list.
+
+        Arguemnts
+        ---------
+        lst : list
+        """
         assert isinstance(lst, Iterable), 'TypeError'
         self.data.extend(lst)
     def copy(self):
+        """Returns a copy of itself.
+        """
         return CustomList(copy(self.data))
     def sort(self):
         self.data = sorted(self.data)
     def argsort(self):
+        """Returns the sorted arguments of a list of numbers.
+        """
         return sorted(range(len(copy(self.data))),
                                          key=lambda k: copy(self.data)[k])
     def getOrderedUnique(self):
-        # custom function, returning the unique values of the list in
-        # ascending order
+        """Returns the unique values of the list in
+        ascending order
+
+        Returns
+        -------
+        list : CustomLlist
+        """
         newList = sorted(list(set(copy(self.data))))
         return CustomList(newList)
     def all_same(self, items=None):
-        #Checks if all items of a list are the same
+        """Checks if all the items in a iterable are the same
+        """
         if items is None : items = self.data
         return all(x == items[0] for x in items)
     def _getShapeDType(self):
+        """Gets the shape of the data, for any iterable thats not a list.
+        Also gets the dtype.
+        """
         L = self.data
         isHomogenous = self.all_same([type(L[i]) for i in range(len(L))])
         isIterable = all([(isinstance(L[i],Iterable) and not isinstance(L[i],str)) for i in range(len(L))])
@@ -419,21 +570,36 @@ class CustomList(UserList):
         self.shape = tuple(shape)
         self.dtype = dtype
     def recurse2list(self):
+        """Converts any iterable and sub iterable into a list, recursevly.
+           Then gets the dimensions and dtype
+
+           Note
+           ----
+           Works in place
+        """
         self.data = CustomList._iterable2list(self.data)
         self._getShapeDType()
     @staticmethod
     def _iterable2list(X):
+        """Converts any iterable and sub iterable into a list, recursevly.
+        """
         try :
             return [CustomList._iterable2list(x) for x in X]
         except TypeError:
             return X
     def flatten(self, L=None):
+        """Flattens a list or iterable, should also flatten non irregular
+        comprehensive lists. This method works in a recursive manner.
+        """
         if L is None: L = self.data
         if len(L)!=1 and not isinstance(L, (str, bytes)):
             L = list(CustomList._yielder(L))
         return CustomList(L)
     @staticmethod
     def _yielder(L):
+        """Flattens a list, should also flatten non irregular comprehensive lists.
+        This method works in a recursive manner.
+        """
         for el in L:
             if isinstance(el, Iterable) and not isinstance(el, (str, bytes)):
                 yield from CustomList._yielder(el)
@@ -441,6 +607,16 @@ class CustomList(UserList):
                 yield el
     @staticmethod
     def atLeastList(elem):
+        """Returns any element as a list
+
+        If the element is not iterable and not a string like object
+        it returns [element]
+
+        If the element is iterable and a list it returns it as is
+
+        If also converts numpy arrays to lists (so we don't need numpy
+        as a dependence)
+        """
         if isinstance(elem, Iterable) and not isinstance(elem,(str,bytes)):
             if elem.__class__.__module__ == 'numpy':
                 if len(elem.shape)==1:

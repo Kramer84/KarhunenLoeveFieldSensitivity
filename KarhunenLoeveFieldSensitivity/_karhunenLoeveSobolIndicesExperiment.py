@@ -33,8 +33,16 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
         self._experimentSample = None
 
     def generate(self, **kwargs):
-        '''generate final sample with A and b mixed
-        '''
+        """Generates and returns the final mixture matrix.
+
+        Keyword Arguments
+        -----------------
+        method : str
+            Can be : 'MonteCarlo', 'LHS', 'QMC'
+        sequence : str
+            Only if using QMC
+            Can be : 'Faure', 'Halton', 'ReverseHalton', 'Haselgrove', 'Sobol'
+        """
         assert (self.__AKLR__ is not None) and \
                (self.size is not None), \
                     "Please intialise sample size and PythonFunction wrapper"
@@ -45,51 +53,75 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
         return self._experimentSample
 
     def generateWithWeights(self, **kwargs):
+        """Not implemented, for coherence with openturns library
+        """
         pass
 
     def getClassName(self):
+        """Returns the name of the class.
+        """
         return self.__class__.__name__
 
     def getAggregatedKLResults(self):
+        """Returns the aggregatedKarhunenLoeveResults object.
+        """
         if self.__AKLR__ is not None:
             return self.__AKLR__
         else :
             return None
 
     def getId(self):
+        """Returns the ID of the object.
+        """
         return id(self)
 
     def getName(self):
+        """Returns the name of the object.
+        """
         return self.__name__
 
     def getShadowedId(self):
+        """Returns the shadowed ID of the object.
+        """
         return self.__shadowedId__
 
     def getSize(self):
+        """Returns the size of the generated mixture matrix.
+        """
         if self._experimentSample is None :
             return 0
         else :
             return len(self._experimentSample)
 
     def getVisibility(self):
+        """Returns the visibility
+        """
         return self.__visibility__
 
     def hasName(self):
+        """Returns if the object has a name
+        """
         if len(self.__name__)==0 or self.__name__ is None:
             return False
         else :
             return True
 
     def hasUniformWeights(self):
+        """Not implemented, for coherence with openturns library
+        """
         return None
 
     def hasVisibleName(self):
+        """Returns if yes or not the name is visible
+        """
         if self.__name__ == 'Unnamed' or len(self.__name__)==0:
             return False
         else :
             return True
 
     def setAggregatedKLResults(self, AggrKLRes=None):
+        """Sets the aggregated karhunen loeve results object.
+        """
         self.__AKLR__ = AggrKLRes
         self.inputVarNames = self.__AKLR__.__process_distribution_description__
         self.inputVarNamesKL = self.__AKLR__.__mode_description__
@@ -99,13 +131,17 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
         self.__mode_count__ = self.__AKLR__.__mode_count__
 
     def setName(self, name):
+        """Sets the name of the object
+        """
         self.__name__ = str(name)
 
     def setShadowedId(self,ids):
+        """Sets the shadowed ID of the object.
+        """
         self.__shadowedId__ = ids
 
     def setSize(self, N):
-        '''set size of the samples
+        '''Sets the size of the samples A and B.
         '''
         assert isinstance(N,int) and N>0, \
                 "Sample size can only be positive integer"
@@ -116,7 +152,7 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
             self._sample_A = self._sample_B = self._experimentSample = None
 
     def _mixSamples(self):
-        '''Here we mix the samples together
+        '''Mixes the samples together with the altered method presented in the paper
         '''
         n_vars = self.__AKLR__.__field_distribution_count__
         n_modes = self.__AKLR__.getSizeModes()
@@ -171,8 +207,8 @@ class KarhunenLoeveSobolIndicesExperiment(ot.SobolIndicesExperiment):
                                                 self._experimentSample.getDimension()))
 
     def _generateSample(self, **kwargs):
-        '''Generation of two samples A and B using diverse methods
-        '''
+        """Generation of two samples A and B using diverse methods
+        """
         distribution = self.composedDistribution
         if 'method' in kwargs :
             method = kwargs['method']
