@@ -82,30 +82,42 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
 
 
     def DrawCorrelationCoefficients(self, *args):
+        """Not implemented; here to mimic openTURNS methods.
+        """
         self.__fastResultCheck__()
         print('Drawing is not yet implemented')
         raise NotImplementedError
 
 
     def DrawImportanceFactors(self, *args):
+        """Not implemented; here to mimic openTURNS methods.
+        """
         self.__fastResultCheck__()
         print('Drawing is not yet implemented')
         raise NotImplementedError
 
 
     def DrawSobolIndices(self, *args):
+        """Not implemented; here to mimic openTURNS methods.
+        """
         self.__fastResultCheck__()
         print('Drawing is not yet implemented')
         raise NotImplementedError
 
 
     def draw(self, *args):
+        """Not implemented; here to mimic openTURNS methods.
+        """
         self.__fastResultCheck__()
         print('Drawing is not yet implemented')
         raise NotImplementedError
 
     def getAggregatedFirstOrderIndices(self):
-        '''Function to get the agrregated first order indices
+        '''Returns the agrregated first order indices
+
+        Returns
+        -------
+        aggFO_indices : list of ot.Point
         '''
         self.__fastResultCheck__()
         aggFO_indices = list()
@@ -116,6 +128,12 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         return aggFO_indices
 
     def getAggregatedTotalOrderIndices(self):
+        '''Returns the agrregated total order indices
+
+        Returns
+        -------
+        aggFO_indices : list of ot.Point
+        '''
         self.__fastResultCheck__()
         aggTO_indices = list()
         for i in range(self.__nOutputs__):
@@ -125,15 +143,31 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         return aggTO_indices
 
     def getBootstrapSize(self):
+        """Returns the bootstrap size
+        """
         return self.__BootstrapSize__
 
     def getClassName(self):
+        """Returns the class name
+        """
         return self.__class__.__name__
 
     def getConfidenceLevel(self):
+        """Returns the confidence level
+
+        Returns
+        -------
+        ConfidenceLevel : float
+        """
         return self.ConfidenceLevel
 
     def getFirstOrderIndices(self):
+        """Returns the first order indices
+
+        Returns
+        -------
+        FO_indices : list of ot.Point
+        """
         self.__fastResultCheck__()
         FO_indices = list()
         nMarginals = [self.__centeredOutputDesign__[i].getDimension() for i in range(self.__nOutputs__)]
@@ -147,6 +181,12 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         return FO_indices
 
     def getFirstOrderIndicesDistribution(self):
+        """Returns the first order indices distribution
+
+        Returns
+        -------
+        FO_indices_distribution : list of ot.Distribution
+        """
         self.__fastResultCheck__()
         FO_indices_distribution = list()
         for i in range(self.__nOutputs__):
