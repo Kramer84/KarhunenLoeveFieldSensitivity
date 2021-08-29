@@ -37,7 +37,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
     There should be no difference at all with the real
     SaltelliSensitivityAlgorithm implementation, only that the orihinal
     implementation checks the input and output desgin's dimension and
-    raises an error if the dimensions don't match.
+    raises an error if the dimensions mismatch.
     '''
     def __init__(self, inputDesign=None, outputDesign=None, N=0,
             estimator = ot.SaltelliSensitivityAlgorithm(), computeSecondOrder=False):

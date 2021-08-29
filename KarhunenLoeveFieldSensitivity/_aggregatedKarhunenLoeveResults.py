@@ -102,13 +102,15 @@ class AggregatedKarhunenLoeveResults(object):
             elif isinstance(self.__KLResultsAndDistributions__[i], (ot.Distribution, ot.DistributionImplementation)):
                 self.__has_distributions__ = True
                 if self.__KLResultsAndDistributions__[i].getMean()[0] != 0 :
-                    print('The mean value of distribution {} at index {} of type {} is not 0.'.format(str('"'+self.__KLResultsAndDistributions__[i].getName()+'"'), str(i), self.__KLResultsAndDistributions__[i].getClassName()))
+                    if i < 20:
+                        print('The mean value of distribution {} at index {} of type {} is not 0.'.format(str('"'+self.__KLResultsAndDistributions__[i].getName()+'"'), str(i), self.__KLResultsAndDistributions__[i].getClassName()))
                     name_distr = self.__KLResultsAndDistributions__[i].getName()
                     self.__means__[i] = self.__KLResultsAndDistributions__[i].getMean()[0]
                     self.__KLResultsAndDistributions__[i] -= self.__means__[i]
                     self.__KLResultsAndDistributions__[i].setName(name_distr)
-                    print('Distribution recentered and mean added to list of means')
-                    print('Set the "liftWithMean" flag to true if you want to include the mean.')
+                    if i < 5:    
+                        print('Distribution recentered and mean added to list of means')
+                        print('Set the "liftWithMean" flag to true if you want to include the mean.')
                 # We can say that the inverse iso probabilistic transformation is analoguous to lifting
                 self.__KL_lifting__.append(self.__KLResultsAndDistributions__[i].getInverseIsoProbabilisticTransformation())
                 # We can say that the iso probabilistic transformation is analoguous to projecting
@@ -352,7 +354,7 @@ class AggregatedKarhunenLoeveResults(object):
         return processes
 
     def liftAsField(self, coefficients):
-                '''Function to lift a vector of coefficients into a list of
+        '''Function to lift a vector of coefficients into a list of
         process samples and points.
 
         Parameters
