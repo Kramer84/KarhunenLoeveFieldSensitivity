@@ -137,14 +137,14 @@ class AggregatedKarhunenLoeveResults(object):
         #Now we gonna get the data we will usually need
         self.__process_distribution_description__ = [self.__KLResultsAndDistributions__[i].getName() for i in range(self.__field_distribution_count__)]
         self._checkSubNames()
-        self.__mode_count__ = [self.__KLResultsAndDistributions__[i].getEigenValues().getSize() if hasattr(self.__KLResultsAndDistributions__[i], 'getEigenValues') else 1 for i in range(self.__field_distribution_count__)]
+        self.__mode_count__ = [self.__KLResultsAndDistributions__[i].getEigenvalues().getSize() if hasattr(self.__KLResultsAndDistributions__[i], 'getEigenvalues') else 1 for i in range(self.__field_distribution_count__)]
         self.__mode_description__ = self._getModeDescription()
 
     def __repr__(self):
         '''Visual representation of the object
         '''
         covarianceList = self.getCovarianceModel()
-        eigValList = self.getEigenValues()
+        eigValList = self.getEigenvalues()
         meshList = self.getMesh()
         reprStr = '| '.join(['class = ComposedKarhunenLoeveResultsAndDistributions',
                              'name = {}'.format(self.getName()),
@@ -251,10 +251,10 @@ class AggregatedKarhunenLoeveResults(object):
         '''
         return [self.__KLResultsAndDistributions__[i].getCovarianceModel() if hasattr(self.__KLResultsAndDistributions__[i], 'getCovarianceModel') else None for i in range(self.__field_distribution_count__) ]
 
-    def getEigenValues(self):
+    def getEigenvalues(self):
         '''Returns a list of the eigen values for each process.
         '''
-        return [self.__KLResultsAndDistributions__[i].getEigenValues() if hasattr(self.__KLResultsAndDistributions__[i], 'getEigenValues') else None for i in range(self.__field_distribution_count__) ]
+        return [self.__KLResultsAndDistributions__[i].getEigenvalues() if hasattr(self.__KLResultsAndDistributions__[i], 'getEigenvalues') else None for i in range(self.__field_distribution_count__) ]
 
     def getId(self):
         '''Returns a list containing the ID of each process/distribution.
