@@ -65,7 +65,7 @@ class AggregatedKarhunenLoeveResults(object):
     of scalars.
 
     '''
-    def __init__(self, composedKLResultsAndDistributions):
+    def __init__(self, composedKLResultsAndDistributions, verbose=0):
         '''Initializes the aggregation
 
         Parameters
@@ -74,8 +74,9 @@ class AggregatedKarhunenLoeveResults(object):
             list of ordered ot.Distribution and ot.KarhunenLoeveResult objects
         '''
         self.__KLResultsAndDistributions__ = atLeastList(composedKLResultsAndDistributions) #KLRL : Karhunen Loeve Result List
-        assert len(self.__KLResultsAndDistributions__)>0
+        assert len(self.__KLResultsAndDistributions__)>0 and isinstance(verbose,int)
         self.__field_distribution_count__ = len(self.__KLResultsAndDistributions__)
+        self.__verbose__ = verbose
         self.__name__ = 'Unnamed'
         self.__KL_lifting__ = []
         self.__KL_projecting__ = []
@@ -102,13 +103,13 @@ class AggregatedKarhunenLoeveResults(object):
             elif isinstance(self.__KLResultsAndDistributions__[i], (ot.Distribution, ot.DistributionImplementation)):
                 self.__has_distributions__ = True
                 if self.__KLResultsAndDistributions__[i].getMean()[0] != 0 :
-                    if i < 20:
+                    if i < 20 and self.__verbose__ > 0:
                         print('The mean value of distribution {} at index {} of type {} is not 0.'.format(str('"'+self.__KLResultsAndDistributions__[i].getName()+'"'), str(i), self.__KLResultsAndDistributions__[i].getClassName()))
                     name_distr = self.__KLResultsAndDistributions__[i].getName()
                     self.__means__[i] = self.__KLResultsAndDistributions__[i].getMean()[0]
                     self.__KLResultsAndDistributions__[i] -= self.__means__[i]
                     self.__KLResultsAndDistributions__[i].setName(name_distr)
-                    if i < 5:    
+                    if i < 5 and self.__verbose__ > 0:    
                         print('Distribution recentered and mean added to list of means')
                         print('Set the "liftWithMean" flag to true if you want to include the mean.')
                 # We can say that the inverse iso probabilistic transformation is analoguous to lifting
@@ -164,7 +165,8 @@ class AggregatedKarhunenLoeveResults(object):
             for i, process in enumerate(self.__KLResultsAndDistributions__):
                 oldName = process.getName()
                 newName = 'X_'+str(i)
-                print('Old name was {}, new one is {}'.format(oldName, newName))
+                if self.__verbose__ > 1 :
+                    print('Old name was {}, new one is {}'.format(oldName, newName))
                 process.setName(newName)
             self.__process_distribution_description__ = [self.__KLResultsAndDistributions__[i].getName() for i in range(self.__field_distribution_count__)]
 
@@ -204,6 +206,12 @@ class AggregatedKarhunenLoeveResults(object):
             return self.__means__[i]
         else :
             return self.__means__
+
+    # new method
+    def setVerbose(self, verbose=0):
+        """Function to set verbose. Set to 0, 1 or 2, above has no effect
+        """
+        self.__verbose__ = verbose
 
     # new method
     def setMean(self, i, val ):
@@ -321,7 +329,8 @@ class AggregatedKarhunenLoeveResults(object):
             ordered list of samples of scalars (ot.Sample) and field samples (ot.ProcessSample)
         '''
         assert isinstance(coefficients, (ot.Sample, ot.SampleImplementation))
-        print('Lifting as process sample')
+        if self.__verbose__ > 0 :
+            print('Lifting as process sample')
         jumpDim = 0
         processes = []
         for i in range(self.__field_distribution_count__):
