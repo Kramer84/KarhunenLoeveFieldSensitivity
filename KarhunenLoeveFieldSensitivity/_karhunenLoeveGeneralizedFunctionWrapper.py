@@ -105,7 +105,7 @@ class KarhunenLoeveGeneralizedFunctionWrapper(object):
             except TypeError as te:
                 print('did not manage to evaluate batch function')
                 raise te
-        self.__output_backup__ = deepcopy(results)
+        self.__output_backup__ = deepcopy(result)
         # If the rest fails you can still get the data
         result = CustomList.atLeastList(result)
         result = self._convert_exec_sample_ot(result)
