@@ -25,6 +25,18 @@ def zip_(*args): return map(list_, *args)
 def checkIfNanInSample(sample):
     return isnan(sum(sample.computeMean()))
 
+def isnotebook():
+    try:
+        shell = get_ipython().__class__.__name__
+        if shell == 'ZMQInteractiveShell':
+            return True   # Jupyter notebook or qtconsole
+        elif shell == 'TerminalInteractiveShell':
+            return False  # Terminal running IPython
+        else:
+            return False  # Other type (?)
+    except NameError:
+        return False   
+
 
 class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
     '''Pure opentTURNS implementation of the sobol indices algorithm
@@ -41,6 +53,8 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
     '''
     def __init__(self, inputDesign=None, outputDesign=None, N=0,
             estimator = ot.SaltelliSensitivityAlgorithm(), computeSecondOrder=False):
+        if isnotebook():
+            ot.Log.Show(ot.Log.NONE)
         self.inputDesign = inputDesign
         self.outputDesign = atLeastList(outputDesign)
         self.N = int(N)
@@ -172,9 +186,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         FO_indices = list()
         nMarginals = [self.__centeredOutputDesign__[i].getDimension() for i in range(self.__nOutputs__)]
         for i in range(self.__nOutputs__):
-            FO_point_list = list()
-            for j in range(nMarginals[i]):
-                FO_point_list.append(self.__results__[i].getFirstOrderIndices(j))
+            FO_point_list = [self.__results__[i].getFirstOrderIndices(j) for j in range(nMarginals[i])]
             FO_point_list = list(zip_(*FO_point_list))
             FO_indices.append([self.__toBaseDataFormat__(ot.Point(FO_point_list[k]), i) for k in range(self.__nSobolIndices__)])
             [FO_indices[i][k].setName('Sobol_'+self.outputDesign[i].getName()+'_'+self.inputDescription[k]) for k in range(self.__nSobolIndices__)]
@@ -451,7 +463,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         print(' number of indices to get', self.__nSobolIndices__)
         dummyInputSample = ot.Sample(self.size, self.__nSobolIndices__)
         dummyInputSample.setDescription(self.inputDescription)
-        self.__results__.clear()
+        self.__results__ = list()
         outputDesigns = self.__centeredOutputDesign__
         for i in range(len(outputDesigns)):
             estimator = self.estimator.__class__()
