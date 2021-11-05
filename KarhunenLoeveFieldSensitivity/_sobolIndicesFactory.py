@@ -37,6 +37,15 @@ def isnotebook():
     except NameError:
         return False   
 
+def noLogInNotebook(func)
+    def inner(*args, kwargs):
+        if isnotebook():
+            ot.Log.Show(ot.Log.NONE)
+        results =  func(*args, kwargs)
+        if isnotebook():
+            ot.Log.Show(ot.Log.DEFAULT)
+        return results
+    return inner
 
 class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
     '''Pure opentTURNS implementation of the sobol indices algorithm
@@ -53,8 +62,6 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
     '''
     def __init__(self, inputDesign=None, outputDesign=None, N=0,
             estimator = ot.SaltelliSensitivityAlgorithm(), computeSecondOrder=False):
-        if isnotebook():
-            ot.Log.Show(ot.Log.NONE)
         self.inputDesign = inputDesign
         self.outputDesign = atLeastList(outputDesign)
         self.N = int(N)
@@ -126,6 +133,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         print('Drawing is not yet implemented')
         raise NotImplementedError
 
+    @noLogInNotebook
     def getAggregatedFirstOrderIndices(self):
         '''Returns the agrregated first order indices
 
@@ -141,6 +149,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
             aggFO_indices[i].setDescription([self.outputDesign[i].getName()+'_'+self.inputDescription[j] for j in range(self.__nSobolIndices__)])
         return aggFO_indices
 
+    @noLogInNotebook
     def getAggregatedTotalOrderIndices(self):
         '''Returns the agrregated total order indices
 
@@ -175,6 +184,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         """
         return self.ConfidenceLevel
 
+    @noLogInNotebook
     def getFirstOrderIndices(self):
         """Returns the first order indices
 
@@ -192,6 +202,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
             [FO_indices[i][k].setName('Sobol_'+self.outputDesign[i].getName()+'_'+self.inputDescription[k]) for k in range(self.__nSobolIndices__)]
         return FO_indices
 
+    @noLogInNotebook
     def getFirstOrderIndicesDistribution(self):
         """Returns the first order indices distribution
 
@@ -208,6 +219,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
             FO_indices_distribution[i].setDescription([self.outputDesign[i].getName()+'_'+self.inputDescription[j] for j in range(self.__nSobolIndices__)])
         return FO_indices_distribution
 
+    @noLogInNotebook
     def getFirstOrderIndicesInterval(self):
         self.__fastResultCheck__()
         FO_indices_interval = list()
@@ -222,6 +234,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
     def getName(self):
         return self.__name__
 
+    @noLogInNotebook
     def getSecondOrderIndices(self):
         if self.computeSecondOrder == True :
             self.__fastResultCheck__()
@@ -245,6 +258,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
     def getShadowedId(self):
         return self.__shadowedId__
 
+    @noLogInNotebook
     def getTotalOrderIndices(self):
         self.__fastResultCheck__()
         TO_indices = list()
@@ -258,6 +272,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
             [TO_indices[i][k].setName('TotalOrderSobol_'+self.outputDesign[i].getName()+'_'+self.inputDescription[k]) for k in range(self.__nSobolIndices__)]
         return TO_indices
 
+    @noLogInNotebook
     def getTotalOrderIndicesDistribution(self):
         self.__fastResultCheck__()
         TO_indices_distribution = list()
@@ -268,6 +283,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
             TO_indices_distribution[i].setDescription([self.outputDesign[i].getName()+'_'+self.inputDescription[j] for j in range(self.__nSobolIndices__)])
         return TO_indices_distribution
 
+    @noLogInNotebook
     def getTotalOrderIndicesInterval(self):
         self.__fastResultCheck__()
         TO_indices_interval = list()
