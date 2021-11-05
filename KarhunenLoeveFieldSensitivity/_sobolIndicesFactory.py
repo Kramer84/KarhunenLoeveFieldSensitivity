@@ -37,7 +37,7 @@ def isnotebook():
     except NameError:
         return False   
 
-def noLogInNotebook(func)
+def noLogInNotebook(func):
     def inner(*args, kwargs):
         if isnotebook():
             ot.Log.Show(ot.Log.NONE)
