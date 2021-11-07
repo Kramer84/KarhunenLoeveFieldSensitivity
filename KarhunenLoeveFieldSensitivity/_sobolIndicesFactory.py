@@ -426,8 +426,9 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
                 self.__centeredOutputDesign__.append(deepcopy(design_elem))
             elif isinstance(design_elem, ot.Sample):
                 mean = design_elem.computeMean()
-                print('Means is\n',mean)
-                print('design_elem size, dim', design_elem.getSize(),design_elem.getDimension())
+                if self.__verbosity__ > 0 :
+                    print('Means is\n',mean)
+                    print('design_elem size, dim', design_elem.getSize(),design_elem.getDimension())
                 design_elem -= mean
                 self.__centeredOutputDesign__.append(deepcopy(design_elem))
             else :
