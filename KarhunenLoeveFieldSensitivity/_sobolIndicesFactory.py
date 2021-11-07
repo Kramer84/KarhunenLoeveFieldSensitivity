@@ -38,10 +38,10 @@ def isnotebook():
         return False   
 
 def noLogInNotebook(func):
-    def inner(*args, kwargs):
+    def inner(*args, **kwargs):
         if isnotebook():
             ot.Log.Show(ot.Log.NONE)
-        results =  func(*args, kwargs)
+        results =  func(*args, **kwargs)
         if isnotebook():
             ot.Log.Show(ot.Log.DEFAULT)
         return results
@@ -61,13 +61,15 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
     raises an error if the dimensions mismatch.
     '''
     def __init__(self, inputDesign=None, outputDesign=None, N=0,
-            estimator = ot.SaltelliSensitivityAlgorithm(), computeSecondOrder=False):
+            estimator = ot.SaltelliSensitivityAlgorithm(), computeSecondOrder=False,
+            verbose = 0):
         self.inputDesign = inputDesign
         self.outputDesign = atLeastList(outputDesign)
         self.N = int(N)
         self.size = None
         self.__nOutputs__ = 0
         self.computeSecondOrder = computeSecondOrder
+        self.__verbosity__ = verbose
         self.__visibility__ = True
         self.__shadowedId__ = 0
         self.__name__ = 'Unnamed'
@@ -363,7 +365,8 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         try :
             if self.outputDesign is not None and self.N > 0 :
                 self.size = len(self.outputDesign[0])
-                print('size initialized',self.size)
+                if self.__verbosity__ > 0 :
+                    print('size initialized',self.size)
                 self.__nOutputs__ = len(self.outputDesign)
                 if self.computeSecondOrder== True :
                     self.__nSobolIndices__ = int((int(self.size / self.N) - 2)/2)
@@ -377,7 +380,8 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
                 self.__getDataOutputDesign__()
                 self.__flattenOutputDesign__()
                 self.__centerOutputDesign__()
-                self.__confirmationMessage__()
+                if self.__verbosity__ > 0 :
+                    self.__confirmationMessage__()
                 self.__setDefaultName__()
             else :
                 pass
@@ -451,16 +455,19 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
             self.inputDescription = desc
         elif all_same(self.inputDesign.getDescription()) == False:
             inputDescription = self.inputDesign.getDescription()
-            print('Description all same?',inputDescription)
+            if self.__verbosity__ > 3 :
+                print('Description all same?',inputDescription)
             SobolIndicesName = []
             inputWOutLastChar = [inputDescription[i][:re.search(r'_\d+$',inputDescription[i]).span()[0]] for i in range(len(inputDescription))]
             SobolIndicesName = []
             for x in inputWOutLastChar:
                 if x not in SobolIndicesName:
                     SobolIndicesName.append(x)
-            print('SobolIndicesName',SobolIndicesName)
+            if self.__verbosity__ > 3 :
+                print('SobolIndicesName',SobolIndicesName)
             self.inputDescription = SobolIndicesName
-        print('Input Description is,',self.inputDescription)
+        if self.__verbosity__ > 1 :
+            print('Input Description is,',self.inputDescription)
 
     def __fastResultCheck__(self):
         if not len(self.__results__)>0 :
