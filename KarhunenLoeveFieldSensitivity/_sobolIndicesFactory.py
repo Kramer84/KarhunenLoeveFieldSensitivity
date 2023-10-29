@@ -5,50 +5,62 @@ from numbers import Complex, Integral, Real, Rational, Number
 from math import isnan
 import re
 
-__all__ = ['SobolKarhunenLoeveFieldSensitivityAlgorithm']
+__all__ = ["SobolKarhunenLoeveFieldSensitivityAlgorithm"]
 
 
 def all_same(items=None):
-    #Checks if all items of a list are the same
+    # Checks if all items of a list are the same
     return all(x == items[0] for x in items)
 
+
 def atLeastList(elem=None):
-    if isinstance(elem, (Iterable, Sequence, list)) and not isinstance(elem,(str,bytes)):
+    if isinstance(elem, (Iterable, Sequence, list)) and not isinstance(
+        elem, (str, bytes)
+    ):
         return list(elem)
-    else :
+    else:
         return [elem]
 
-def list_(*args): return list(args)
 
-def zip_(*args): return map(list_, *args)
+def list_(*args):
+    return list(args)
+
+
+def zip_(*args):
+    return map(list_, *args)
+
 
 def checkIfNanInSample(sample):
     return isnan(sum(sample.computeMean()))
 
+
 def isnotebook():
     try:
         shell = get_ipython().__class__.__name__
-        if shell == 'ZMQInteractiveShell':
-            return True   # Jupyter notebook or qtconsole
-        elif shell == 'TerminalInteractiveShell':
+        if shell == "ZMQInteractiveShell":
+            return True  # Jupyter notebook or qtconsole
+        elif shell == "TerminalInteractiveShell":
             return False  # Terminal running IPython
         else:
             return False  # Other type (?)
     except NameError:
-        return False   
+        return False
+
 
 def noLogInNotebook(func):
     def inner(*args, **kwargs):
         if isnotebook():
             ot.Log.Show(ot.Log.NONE)
-        results =  func(*args, **kwargs)
+        results = func(*args, **kwargs)
         if isnotebook():
             ot.Log.Show(ot.Log.DEFAULT)
         return results
+
     return inner
 
+
 class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
-    '''Pure opentTURNS implementation of the sobol indices algorithm
+    """Pure opentTURNS implementation of the sobol indices algorithm
     in the case where the design of the experiment was generated
     using a field function that has been wrapped using the
     KarhunenLoeveGeneralizedWrapper.
@@ -59,10 +71,17 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
     SaltelliSensitivityAlgorithm implementation, only that the orihinal
     implementation checks the input and output desgin's dimension and
     raises an error if the dimensions mismatch.
-    '''
-    def __init__(self, inputDesign=None, outputDesign=None, N=0,
-            estimator = ot.SaltelliSensitivityAlgorithm(), computeSecondOrder=False,
-            verbose = 0):
+    """
+
+    def __init__(
+        self,
+        inputDesign=None,
+        outputDesign=None,
+        N=0,
+        estimator=ot.SaltelliSensitivityAlgorithm(),
+        computeSecondOrder=False,
+        verbose=0,
+    ):
         self.inputDesign = inputDesign
         self.outputDesign = atLeastList(outputDesign)
         self.N = int(N)
@@ -72,7 +91,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         self.__verbosity__ = verbose
         self.__visibility__ = True
         self.__shadowedId__ = 0
-        self.__name__ = 'Unnamed'
+        self.__name__ = "Unnamed"
         self.inputDescription = None
         self.__nSobolIndices__ = None
         self.__Meshes__ = list()
@@ -83,98 +102,117 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         self.__results__ = list()
         self.estimator = estimator
         if len(self.outputDesign) > 0 and self.outputDesign[0] is not None:
-            assert all_same([len(
-                self.outputDesign[i]) for i in range(len(self.outputDesign))])
-        if inputDesign is not None and outputDesign is not None :
-            try :
-                assert isinstance(inputDesign, ot.Sample), 'The input design can only be a Sample'
-                assert any([isinstance(outputDesign[i], (ot.Sample, ot.ProcessSample)) for i in range(len(outputDesign))])
+            assert all_same(
+                [len(self.outputDesign[i]) for i in range(len(self.outputDesign))]
+            )
+        if inputDesign is not None and outputDesign is not None:
+            try:
+                assert isinstance(
+                    inputDesign, ot.Sample
+                ), "The input design can only be a Sample"
+                assert any(
+                    [
+                        isinstance(outputDesign[i], (ot.Sample, ot.ProcessSample))
+                        for i in range(len(outputDesign))
+                    ]
+                )
             except AssertionError:
-                print('\n\n\n\n\n\n\nThe error\n\n\n\n\n\n\n')
+                print("\n\n\n\n\n\n\nThe error\n\n\n\n\n\n\n")
                 return None
         self.__setDefaultState__()
 
     def __repr__(self):
-        str0 = 'SobolKarhunenLoeveFieldSensitivityAlgorithm'
-        str1 = 'with estimator : {}'.format(self.estimator.__class__.__name__)
-        str2 = 'input dimension : {}'.format(str(self.inputDesign.getDimension()) if self.inputDesign is not None else '_')
-        str3 = 'output size : {}'.format(self.__nOutputs__)
-        str4 = 'compute second order : {}'.format(self.computeSecondOrder)
-        return ', '.join([str0, str1, str2, str3, str4])
-
-
+        str0 = "SobolKarhunenLoeveFieldSensitivityAlgorithm"
+        str1 = "with estimator : {}".format(self.estimator.__class__.__name__)
+        str2 = "input dimension : {}".format(
+            str(self.inputDesign.getDimension())
+            if self.inputDesign is not None
+            else "_"
+        )
+        str3 = "output size : {}".format(self.__nOutputs__)
+        str4 = "compute second order : {}".format(self.computeSecondOrder)
+        return ", ".join([str0, str1, str2, str3, str4])
 
     def DrawCorrelationCoefficients(self, *args):
-        """Not implemented; here to mimic openTURNS methods.
-        """
+        """Not implemented; here to mimic openTURNS methods."""
         self.__fastResultCheck__()
-        print('Drawing is not yet implemented')
+        print("Drawing is not yet implemented")
         raise NotImplementedError
-
 
     def DrawImportanceFactors(self, *args):
-        """Not implemented; here to mimic openTURNS methods.
-        """
+        """Not implemented; here to mimic openTURNS methods."""
         self.__fastResultCheck__()
-        print('Drawing is not yet implemented')
+        print("Drawing is not yet implemented")
         raise NotImplementedError
-
 
     def DrawSobolIndices(self, *args):
-        """Not implemented; here to mimic openTURNS methods.
-        """
+        """Not implemented; here to mimic openTURNS methods."""
         self.__fastResultCheck__()
-        print('Drawing is not yet implemented')
+        print("Drawing is not yet implemented")
         raise NotImplementedError
 
-
     def draw(self, *args):
-        """Not implemented; here to mimic openTURNS methods.
-        """
+        """Not implemented; here to mimic openTURNS methods."""
         self.__fastResultCheck__()
-        print('Drawing is not yet implemented')
+        print("Drawing is not yet implemented")
         raise NotImplementedError
 
     @noLogInNotebook
     def getAggregatedFirstOrderIndices(self):
-        '''Returns the agrregated first order indices
+        """Returns the agrregated first order indices
 
         Returns
         -------
         aggFO_indices : list of ot.Point
-        '''
+        """
         self.__fastResultCheck__()
         aggFO_indices = list()
         for i in range(self.__nOutputs__):
-            aggFO_indices.append(ot.PointWithDescription(self.__results__[i].getAggregatedFirstOrderIndices()))
-            aggFO_indices[i].setName('Sobol_'+self.outputDesign[i].getName())
-            aggFO_indices[i].setDescription([self.outputDesign[i].getName()+'_'+self.inputDescription[j] for j in range(self.__nSobolIndices__)])
+            aggFO_indices.append(
+                ot.PointWithDescription(
+                    self.__results__[i].getAggregatedFirstOrderIndices()
+                )
+            )
+            aggFO_indices[i].setName("Sobol_" + self.outputDesign[i].getName())
+            aggFO_indices[i].setDescription(
+                [
+                    self.outputDesign[i].getName() + "_" + self.inputDescription[j]
+                    for j in range(self.__nSobolIndices__)
+                ]
+            )
         return aggFO_indices
 
     @noLogInNotebook
     def getAggregatedTotalOrderIndices(self):
-        '''Returns the agrregated total order indices
+        """Returns the agrregated total order indices
 
         Returns
         -------
         aggFO_indices : list of ot.Point
-        '''
+        """
         self.__fastResultCheck__()
         aggTO_indices = list()
         for i in range(self.__nOutputs__):
-            aggTO_indices.append(ot.PointWithDescription(self.__results__[i].getAggregatedTotalOrderIndices()))
-            aggTO_indices[i].setName('Sobol_'+self.outputDesign[i].getName())
-            aggTO_indices[i].setDescription([self.outputDesign[i].getName()+'_'+self.inputDescription[j] for j in range(self.__nSobolIndices__)])
+            aggTO_indices.append(
+                ot.PointWithDescription(
+                    self.__results__[i].getAggregatedTotalOrderIndices()
+                )
+            )
+            aggTO_indices[i].setName("Sobol_" + self.outputDesign[i].getName())
+            aggTO_indices[i].setDescription(
+                [
+                    self.outputDesign[i].getName() + "_" + self.inputDescription[j]
+                    for j in range(self.__nSobolIndices__)
+                ]
+            )
         return aggTO_indices
 
     def getBootstrapSize(self):
-        """Returns the bootstrap size
-        """
+        """Returns the bootstrap size"""
         return self.__BootstrapSize__
 
     def getClassName(self):
-        """Returns the class name
-        """
+        """Returns the class name"""
         return self.__class__.__name__
 
     def getConfidenceLevel(self):
@@ -196,12 +234,31 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         """
         self.__fastResultCheck__()
         FO_indices = list()
-        nMarginals = [self.__centeredOutputDesign__[i].getDimension() for i in range(self.__nOutputs__)]
+        nMarginals = [
+            self.__centeredOutputDesign__[i].getDimension()
+            for i in range(self.__nOutputs__)
+        ]
         for i in range(self.__nOutputs__):
-            FO_point_list = [self.__results__[i].getFirstOrderIndices(j) for j in range(nMarginals[i])]
+            FO_point_list = [
+                self.__results__[i].getFirstOrderIndices(j)
+                for j in range(nMarginals[i])
+            ]
             FO_point_list = list(zip_(*FO_point_list))
-            FO_indices.append([self.__toBaseDataFormat__(ot.Point(FO_point_list[k]), i) for k in range(self.__nSobolIndices__)])
-            [FO_indices[i][k].setName('Sobol_'+self.outputDesign[i].getName()+'_'+self.inputDescription[k]) for k in range(self.__nSobolIndices__)]
+            FO_indices.append(
+                [
+                    self.__toBaseDataFormat__(ot.Point(FO_point_list[k]), i)
+                    for k in range(self.__nSobolIndices__)
+                ]
+            )
+            [
+                FO_indices[i][k].setName(
+                    "Sobol_"
+                    + self.outputDesign[i].getName()
+                    + "_"
+                    + self.inputDescription[k]
+                )
+                for k in range(self.__nSobolIndices__)
+            ]
         return FO_indices
 
     @noLogInNotebook
@@ -215,10 +272,19 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         self.__fastResultCheck__()
         FO_indices_distribution = list()
         for i in range(self.__nOutputs__):
-            FO_indices_distribution.append(self.__results__[i].getFirstOrderIndicesDistribution())
-            FO_indices_distribution[i] = self.__toBaseDataFormat__(FO_indices_distribution[i], i)
+            FO_indices_distribution.append(
+                self.__results__[i].getFirstOrderIndicesDistribution()
+            )
+            FO_indices_distribution[i] = self.__toBaseDataFormat__(
+                FO_indices_distribution[i], i
+            )
             FO_indices_distribution[i].setName(self.outputDesign[i].getName())
-            FO_indices_distribution[i].setDescription([self.outputDesign[i].getName()+'_'+self.inputDescription[j] for j in range(self.__nSobolIndices__)])
+            FO_indices_distribution[i].setDescription(
+                [
+                    self.outputDesign[i].getName() + "_" + self.inputDescription[j]
+                    for j in range(self.__nSobolIndices__)
+                ]
+            )
         return FO_indices_distribution
 
     @noLogInNotebook
@@ -226,8 +292,15 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         self.__fastResultCheck__()
         FO_indices_interval = list()
         for i in range(self.__nOutputs__):
-            FO_indices_interval.append(self.__results__[i].getFirstOrderIndicesInterval())
-        [FO_indices_interval[i].setName('Bounds_Sobol_'+self.outputDesign[i].getName()) for i in range(self.__nOutputs__)]
+            FO_indices_interval.append(
+                self.__results__[i].getFirstOrderIndicesInterval()
+            )
+        [
+            FO_indices_interval[i].setName(
+                "Bounds_Sobol_" + self.outputDesign[i].getName()
+            )
+            for i in range(self.__nOutputs__)
+        ]
         return FO_indices_interval
 
     def getId(self):
@@ -238,23 +311,22 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
 
     @noLogInNotebook
     def getSecondOrderIndices(self):
-        if self.computeSecondOrder == True :
+        if self.computeSecondOrder == True:
             self.__fastResultCheck__()
             SO_indices = list()
-            nMarginals = [self.__centeredOutputDesign__[i].getDimension() for i in range(self.__nOutputs__)]
+            nMarginals = [
+                self.__centeredOutputDesign__[i].getDimension()
+                for i in range(self.__nOutputs__)
+            ]
             for i in range(self.__nOutputs__):
                 SO_point_list = list()
                 for j in range(nMarginals[i]):
                     SO_point_list.append(self.__results__[i].getSecondOrderIndices(j))
-                print('This makes a problem:',SO_point_list)
-                #if len(SO_point_list)>1:
-                #   SO_point_list = list(zip_(*SO_point_list))
-                #SO_indices.append([self.__toBaseDataFormat__(ot.Point(SO_point_list[k]), i) for k in range(self.__nSobolIndices__)])
-                #[SO_indices[i][k].setName('SecondOrderSobol_'+self.outputDesign[i].getName()+'_'+self.inputDescription[k]) for k in range(self.__nSobolIndices__)]
+                print("This makes a problem:", SO_point_list)
             return SO_point_list
-        else :
-            print('The second order indices flag is not set to true.')
-            print('Have you passed the right sample to make this calculus?')
+        else:
+            print("The second order indices flag is not set to true.")
+            print("Have you passed the right sample to make this calculus?")
             return None
 
     def getShadowedId(self):
@@ -264,14 +336,30 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
     def getTotalOrderIndices(self):
         self.__fastResultCheck__()
         TO_indices = list()
-        nMarginals = [self.__centeredOutputDesign__[i].getDimension() for i in range(self.__nOutputs__)]
+        nMarginals = [
+            self.__centeredOutputDesign__[i].getDimension()
+            for i in range(self.__nOutputs__)
+        ]
         for i in range(self.__nOutputs__):
             TO_point_list = list()
             for j in range(nMarginals[i]):
                 TO_point_list.append(self.__results__[i].getTotalOrderIndices(j))
             TO_point_list = list(zip_(*TO_point_list))
-            TO_indices.append([self.__toBaseDataFormat__(ot.Point(TO_point_list[k]), i) for k in range(self.__nSobolIndices__)])
-            [TO_indices[i][k].setName('TotalOrderSobol_'+self.outputDesign[i].getName()+'_'+self.inputDescription[k]) for k in range(self.__nSobolIndices__)]
+            TO_indices.append(
+                [
+                    self.__toBaseDataFormat__(ot.Point(TO_point_list[k]), i)
+                    for k in range(self.__nSobolIndices__)
+                ]
+            )
+            [
+                TO_indices[i][k].setName(
+                    "TotalOrderSobol_"
+                    + self.outputDesign[i].getName()
+                    + "_"
+                    + self.inputDescription[k]
+                )
+                for k in range(self.__nSobolIndices__)
+            ]
         return TO_indices
 
     @noLogInNotebook
@@ -279,10 +367,19 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         self.__fastResultCheck__()
         TO_indices_distribution = list()
         for i in range(self.__nOutputs__):
-            TO_indices_distribution.append(self.__results__[i].getTotalOrderIndicesDistribution())
-            TO_indices_distribution[i] = self.__toBaseDataFormat__(TO_indices_distribution[i], i)
+            TO_indices_distribution.append(
+                self.__results__[i].getTotalOrderIndicesDistribution()
+            )
+            TO_indices_distribution[i] = self.__toBaseDataFormat__(
+                TO_indices_distribution[i], i
+            )
             TO_indices_distribution[i].setName(self.outputDesign[i].getName())
-            TO_indices_distribution[i].setDescription([self.outputDesign[i].getName()+'_'+self.inputDescription[j] for j in range(self.__nSobolIndices__)])
+            TO_indices_distribution[i].setDescription(
+                [
+                    self.outputDesign[i].getName() + "_" + self.inputDescription[j]
+                    for j in range(self.__nSobolIndices__)
+                ]
+            )
         return TO_indices_distribution
 
     @noLogInNotebook
@@ -290,8 +387,15 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         self.__fastResultCheck__()
         TO_indices_interval = list()
         for i in range(self.__nOutputs__):
-            TO_indices_interval.append(self.__results__[i].getTotalOrderIndicesInterval())
-        [TO_indices_interval[i].setName('BoundsTotalOrderSobol_'+self.outputDesign[i].getName()) for i in range(self.__nOutputs__)]
+            TO_indices_interval.append(
+                self.__results__[i].getTotalOrderIndicesInterval()
+            )
+        [
+            TO_indices_interval[i].setName(
+                "BoundsTotalOrderSobol_" + self.outputDesign[i].getName()
+            )
+            for i in range(self.__nOutputs__)
+        ]
         return TO_indices_interval
 
     def getUseAsymptoticDistribution(self):
@@ -306,9 +410,9 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
         return self.__visibility__
 
     def hasName(self):
-        if self.__name__ != 'Unnamed' and len(self.__name__)>0:
+        if self.__name__ != "Unnamed" and len(self.__name__) > 0:
             return True
-        else :
+        else:
             return False
 
     def setBootstrapSize(self, bootstrapSize):
@@ -320,9 +424,16 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
     def setDesign(self, inputDesign=None, outputDesign=None, N=0):
         outputDesign = atLeastList(outputDesign)
         assert all_same([len(outputDesign[i]) for i in range(len(outputDesign))])
-        assert (isinstance(N,(int, Integral)) and N>=0)
-        assert isinstance(inputDesign, ot.Sample), 'The input design can only be a Sample'
-        assert any([isinstance(outputDesign[i], (ot.Sample, ot.ProcessSample)) for i in range(len(outputDesign))])
+        assert isinstance(N, (int, Integral)) and N >= 0
+        assert isinstance(
+            inputDesign, ot.Sample
+        ), "The input design can only be a Sample"
+        assert any(
+            [
+                isinstance(outputDesign[i], (ot.Sample, ot.ProcessSample))
+                for i in range(len(outputDesign))
+            ]
+        )
         self.inputDesign = inputDesign
         self.outputDesign = atLeastList(outputDesign)
         self.N = int(N)
@@ -338,70 +449,70 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
     def setShadowedId(self, shadowedId):
         self.__shadowedId__ = shadowedId
 
-    def setUseAsymptoticDistribution(self,useAsymptoticList=False):
+    def setUseAsymptoticDistribution(self, useAsymptoticList=False):
         if isinstance(useAsymptoticList, bool):
-            asymptoticList = [useAsymptoticList]*self.__nOutputs__
-        elif isinstance(useAsymptoticList, (Sequence,Iterable)):
-            assert len(useAsymptoticList)==self.__nOutputs__
+            asymptoticList = [useAsymptoticList] * self.__nOutputs__
+        elif isinstance(useAsymptoticList, (Sequence, Iterable)):
+            assert len(useAsymptoticList) == self.__nOutputs__
             asymptoticList = useAsymptoticList
-        else :
+        else:
             raise NotImplementedError
         self.__fastResultCheck__()
         try:
             for i in range(self.__nOutputs__):
                 self.__results__[i].setUseAsymptoticDistribution(asymptoticList[i])
-        except TypeError :
-            print('Check the function arguments. Must be of type Bool or list of Bools')
+        except TypeError:
+            print("Check the function arguments. Must be of type Bool or list of Bools")
             raise TypeError
 
     def setVisibility(self, visible):
         self.__visibility__ = visible
 
     def setComputeSecondOrder(self, choice):
-        self.computeSecondOrder= choice
+        self.computeSecondOrder = choice
         self.__setDefaultState__()
 
     def __setDefaultState__(self):
-        try :
-            if self.outputDesign is not None and self.N > 0 :
+        try:
+            if self.outputDesign is not None and self.N > 0:
                 self.size = len(self.outputDesign[0])
-                if self.__verbosity__ > 0 :
-                    print('size initialized',self.size)
+                if self.__verbosity__ > 0:
+                    print("size initialized", self.size)
                 self.__nOutputs__ = len(self.outputDesign)
-                if self.computeSecondOrder== True :
-                    self.__nSobolIndices__ = int((int(self.size / self.N) - 2)/2)
-                    try :
+                if self.computeSecondOrder == True:
+                    self.__nSobolIndices__ = int((int(self.size / self.N) - 2) / 2)
+                    try:
                         assert (int(self.size / self.N) - 2) % 2 == 0
                     except AssertionError:
                         print(MSG_1)
-                else :
+                else:
                     self.__nSobolIndices__ = int(int(self.size / self.N) - 2)
                     print(MSG_2)
                 self.__getDataOutputDesign__()
                 self.__flattenOutputDesign__()
                 self.__centerOutputDesign__()
-                if self.__verbosity__ > 0 :
+                if self.__verbosity__ > 0:
                     self.__confirmationMessage__()
                 self.__setDefaultName__()
-            else :
+            else:
                 pass
-        except Exception as e :
-            print('Something unexpected happened')
+        except Exception as e:
+            print("Something unexpected happened")
             raise e
 
     def __getDataOutputDesign__(self):
         self.__Meshes__.clear()
         self.__Classes__.clear()
-        for output in self.outputDesign :
+        for output in self.outputDesign:
             self.__Classes__.append(output.__class__)
-            try :
+            try:
                 self.__Meshes__.append(output.getMesh())
-            except AttributeError :
+            except AttributeError:
                 self.__Meshes__.append(None)
 
     def __flattenOutputDesign__(self):
         self.flatOutputDesign.clear()
-        for outputDes in self.outputDesign :
+        for outputDes in self.outputDesign:
             if isinstance(outputDes, (ot.Point, ot.Sample)):
                 self.flatOutputDesign.append(outputDes)
             if isinstance(outputDes, ot.ProcessSample):
@@ -409,8 +520,7 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
                 self.flatOutputDesign.append(sample)
 
     def __splitProcessSample__(self, processSample):
-        '''Function to split a process sample into a 1D sample and a mesh.
-        '''
+        """Function to split a process sample into a 1D sample and a mesh."""
         sample = ot.Sample(self.size, processSample.getMesh().getVerticesNumber())
         for i in range(self.size):
             sample[i] = processSample[i].asPoint()
@@ -419,19 +529,23 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
     def __centerOutputDesign__(self):
         design_cpy = [self.flatOutputDesign[i][:] for i in range(self.__nOutputs__)]
         self.__centeredOutputDesign__.clear()
-        for design_elem in design_cpy :
+        for design_elem in design_cpy:
             if isinstance(design_elem, ot.Point):
                 mean = sum(design_elem) / design_elem.getDimension()
                 design_elem -= [mean] * design_elem.getDimension()
                 self.__centeredOutputDesign__.append(deepcopy(design_elem))
             elif isinstance(design_elem, ot.Sample):
                 mean = design_elem.computeMean()
-                if self.__verbosity__ > 0 :
-                    print('Means is\n',mean)
-                    print('design_elem size, dim', design_elem.getSize(),design_elem.getDimension())
+                if self.__verbosity__ > 0:
+                    print("Means is\n", mean)
+                    print(
+                        "design_elem size, dim",
+                        design_elem.getSize(),
+                        design_elem.getDimension(),
+                    )
                 design_elem -= mean
                 self.__centeredOutputDesign__.append(deepcopy(design_elem))
-            else :
+            else:
                 raise NotImplementedError
 
     def __confirmationMessage__(self):
@@ -440,51 +554,63 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
                 return 1
             elif isinstance(pointOrSample, ot.Sample):
                 return pointOrSample.getDimension()
-            else :
+            else:
                 return pointOrSample.getDimension()
-        dims = ', '.join([str(getDim(self.flatOutputDesign[i])) for i in range(self.__nOutputs__)])
+
+        dims = ", ".join(
+            [str(getDim(self.flatOutputDesign[i])) for i in range(self.__nOutputs__)]
+        )
         print(
-'There are {} indices to get for {} outputs with dimensions {} each.'.format(
-            self.__nSobolIndices__, self.__nOutputs__, dims))
+            "There are {} indices to get for {} outputs with dimensions {} each.".format(
+                self.__nSobolIndices__, self.__nOutputs__, dims
+            )
+        )
 
     def __setDefaultName__(self):
-        if self.inputDesign is None :
-            desc = ot.Description.BuildDefault(self.__nSobolIndices__, 'X')
+        if self.inputDesign is None:
+            desc = ot.Description.BuildDefault(self.__nSobolIndices__, "X")
             self.inputDescription = desc
         elif all_same(self.inputDesign.getDescription()) == True:
-            desc = ot.Description.BuildDefault(self.__nSobolIndices__, 'X')
+            desc = ot.Description.BuildDefault(self.__nSobolIndices__, "X")
             self.inputDescription = desc
         elif all_same(self.inputDesign.getDescription()) == False:
             inputDescription = self.inputDesign.getDescription()
-            if self.__verbosity__ > 3 :
-                print('Description all same?',inputDescription)
+            if self.__verbosity__ > 3:
+                print("Description all same?", inputDescription)
             SobolIndicesName = []
-            inputWOutLastChar = [inputDescription[i][:re.search(r'_\d+$',inputDescription[i]).span()[0]] for i in range(len(inputDescription))]
+            inputWOutLastChar = [
+                inputDescription[i][
+                    : re.search(r"_\d+$", inputDescription[i]).span()[0]
+                ]
+                for i in range(len(inputDescription))
+            ]
             SobolIndicesName = []
             for x in inputWOutLastChar:
                 if x not in SobolIndicesName:
                     SobolIndicesName.append(x)
-            if self.__verbosity__ > 3 :
-                print('SobolIndicesName',SobolIndicesName)
+            if self.__verbosity__ > 3:
+                print("SobolIndicesName", SobolIndicesName)
             self.inputDescription = SobolIndicesName
-        if self.__verbosity__ > 1 :
-            print('Input Description is,',self.inputDescription)
+        if self.__verbosity__ > 1:
+            print("Input Description is,", self.inputDescription)
 
     def __fastResultCheck__(self):
-        if not len(self.__results__)>0 :
-            try :
+        if not len(self.__results__) > 0:
+            try:
                 self.__solve__()
-            except AssertionError :
-                print('You need samples to work on. Check doc')
+            except AssertionError:
+                print("You need samples to work on. Check doc")
                 raise AssertionError
 
     def __solve__(self):
-        assert self.estimator is not None, "First initialize the estimator (Jansen, Saltelli, etc.)"
+        assert (
+            self.estimator is not None
+        ), "First initialize the estimator (Jansen, Saltelli, etc.)"
         assert len(self.outputDesign) > 0, "You have to pass a Sample to work on"
         assert self.outputDesign[0] is not None, "You have to pass a Sample to work on"
-        print('Solving...')
-        print(' size of samples: ', self.size)
-        print(' number of indices to get', self.__nSobolIndices__)
+        print("Solving...")
+        print(" size of samples: ", self.size)
+        print(" number of indices to get", self.__nSobolIndices__)
         dummyInputSample = ot.Sample(self.size, self.__nSobolIndices__)
         dummyInputSample.setDescription(self.inputDescription)
         self.__results__ = list()
@@ -496,44 +622,47 @@ class SobolKarhunenLoeveFieldSensitivityAlgorithm(object):
             if not checkIfNanInSample(outputDesigns[i]):
                 self.__results__[i].setDesign(_input, outputDesigns[i], self.N)
                 self.__results__[i].setName(self.inputDescription[i])
-            else :
-                print('One of your outputs at idx {} contains Nans'.format(i))
-                print('Please recheck your ouput samples and correct them')
+            else:
+                print("One of your outputs at idx {} contains Nans".format(i))
+                print("Please recheck your ouput samples and correct them")
                 raise TypeError
 
     def __toBaseDataFormat__(self, data, idx):
         mesh = self.__Meshes__[idx]
-        if isinstance(data, ot.Point) :
-            if mesh is not None :
+        if isinstance(data, ot.Point):
+            if mesh is not None:
                 dataBaseFormat = ot.Field(mesh, [[dat] for dat in data])
                 return dataBaseFormat
-            else :
+            else:
                 return data
-        elif isinstance(data, ot.Interval) :
+        elif isinstance(data, ot.Interval):
             lowBounds = data.getLowerBound()
             upperBounds = data.getUpperBound()
-            if mesh is not None :
+            if mesh is not None:
                 lowBoundsBaseFormat = ot.Field(mesh, [[bnd] for bnd in lowBounds])
                 upperBoundsBaseFormat = ot.Field(mesh, [[bnd] for bnd in upperBounds])
                 return lowBoundsBaseFormat, upperBoundsBaseFormat
-            else :
+            else:
                 return data
         elif isinstance(data, ot.Distribution):
-            print('Cannot convert distribution to field, dimensional correlation lost.')
+            print("Cannot convert distribution to field, dimensional correlation lost.")
             return data
         elif isinstance(data, (bool, int, float)):
             return data
-        else :
+        else:
             raise NotImplementedError
 
 
-MSG_1 = """The outputDesign you have passed does not satisfy
-The minimum requirements to do the sensitivity analysis.
-The total sample size should be : tot = N * (2 + d) = 2*N + 2*d*N
-In this case : tot-2*N = 2*d*N MUST be divisible by two
-"""
+MSG_1 = (
+    "The outputDesign you have passed does not satisfy ",
+    "the minimum requirements to do the sensitivity analysis.\n",
+    "The total sample size should be : tot = N * (2 + d) = 2*N + 2*d*N\n",
+    "In this case : tot-2*N = 2*d*N MUST be divisible by two",
+)
 
-MSG_2 ="""Warning : Always pass the computeSecondOrder argument
-if you also pass the data to compute it
-Otherwise, the behavior will be unreliable
-"""
+
+MSG_2 = (
+    "Warning : Always pass the 'computeSecondOrder' argument, ",
+    "if you also pass the data to compute it.\n",
+    "Otherwise, the behavior will be unreliable",
+)
