@@ -6,7 +6,7 @@ __all__ = ["AggregatedKarhunenLoeveResults"]
 
 import openturns as ot
 import uuid
-from collections import Sequence, Iterable
+from collections.abc import Iterable, Sequence
 from copy import copy, deepcopy
 
 
