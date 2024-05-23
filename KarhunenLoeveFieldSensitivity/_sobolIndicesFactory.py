@@ -1,6 +1,7 @@
 import openturns as ot
-from collections import Iterable, UserList, Sequence
-from collections import UserListfrom copy import copy, deepcopy
+from collections.abc import Iterable, Sequence
+from collections import UserList
+from copy import copy, deepcopy
 from numbers import Complex, Integral, Real, Rational, Number
 from math import isnan
 import re
